@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Docente - ITCA FEPADE</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        .menu-item {
+            transition: all 0.3s ease;
+        }
+        .menu-item:hover {
+            transform: translateX(5px);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+<!--NavbarDocente-->
+<nav class="bg-white shadow-sm">
+    <div class="container mx-auto px-4 py-2 flex justify-between items-center">
+        <!-- Logo e Identidad -->
+        <div class="flex items-center space-x-2">
+            <img src="../Publico/Imagenes/ItcaLogo.png" alt="Logo ITCA FEPADE" class="h-8">
+            <p class="text-sm font-semibold text-gray-700">Registro de Inasistencias</p>
+        </div>
+        <!-- Usuario y Botón -->
+        <div class="flex items-center space-x-3">
+            <span class="text-sm text-gray-700 font-medium" id="userName">Docente</span>
+            <img id="profileImage"
+                 src="../Publico/Imagenes/PerfilPrueba.jpg"
+                 alt="Foto docente"
+                 class="rounded-full w-8 h-8 object-cover border border-gray-200">
+            <button id="logoutBtn"
+                    class="flex items-center bg-red-600 text-white py-1 px-3 rounded-md text-sm hover:bg-red-700 transition">
+                <i class="fas fa-sign-out-alt mr-1"></i>
+                <span class="hidden sm:inline">Salir</span>
+            </button>
+        </div>
+    </div>
+</nav>
+
+<!-- Main Content -->
+<main class="flex items-center justify-center bg-gray-100 mt-16">
+    <div class="bg-white rounded-xl shadow-lg p-6 max-w-2xl w-full">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Panel del Docente</h2>
+
+        <!-- Menu de opciones -->
+        <div class="space-y-4">
+            <!-- Opción única: Registrar Inasistencia -->
+            <div class="menu-item bg-red-50 border-l-4 border-red-600 p-4 rounded-lg cursor-pointer hover:bg-red-100">
+                <div class="flex items-center">
+                    <div class="bg-red-100 p-3 rounded-full mr-4">
+                        <i class="fas fa-clipboard-list text-red-600 text-xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-gray-800">Registrar Inasistencia</h3>
+                        <p class="text-sm text-gray-600">Registrar inasistencias de estudiantes</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+
+<script>
+    // Lógica para el botón de cerrar sesión
+    document.getElementById('logoutBtn').addEventListener('click', function() {
+        if(confirm('¿Está seguro que desea cerrar sesión?')) {
+            // Redirigir al login (en una implementación real)
+            alert('Redirigiendo al login...');
+            // window.location.href = 'Login/Login.php';
+        }
+    });
+
+    // Lógica para la opción de registrar inasistencia
+    document.querySelector('.menu-item').addEventListener('click', function() {
+        alert('Redirigiendo al formulario de registro de inasistencias...');
+        // window.location.href = 'ruta_al_formulario.php';
+    });
+</script>
+</body>
+</html>
