@@ -45,14 +45,14 @@
 </nav>
 
 <!-- Main Content -->
-<main class="flex items-center justify-center bg-gray-100 mt-16">
+<main class="flex justify-center bg-gray-100 mt-8 px-4">
     <div class="bg-white rounded-xl shadow-lg p-6 max-w-2xl w-full">
         <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Panel del Docente</h2>
 
         <!-- Menu de opciones -->
         <div class="space-y-4">
-            <!-- Opción única: Registrar Inasistencia -->
-            <div class="menu-item bg-red-50 border-l-4 border-red-600 p-4 rounded-lg cursor-pointer hover:bg-red-100">
+            <!-- Opción: Registrar Inasistencia -->
+            <div id="registerAbsence" class="bg-red-50 border-l-4 border-red-600 p-4 rounded-lg cursor-pointer hover:bg-red-100" tabindex="0" role="button" aria-label="Registrar Inasistencia">
                 <div class="flex items-center">
                     <div class="bg-red-100 p-3 rounded-full mr-4">
                         <i class="fas fa-clipboard-list text-red-600 text-xl"></i>
@@ -63,25 +63,54 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Nueva opción: Gestionar Inasistencias -->
+            <div id="manageAbsences" class="bg-blue-50 border-l-4 border-blue-600 p-4 rounded-lg cursor-pointer hover:bg-blue-100" tabindex="0" role="button" aria-label="Gestionar Inasistencias">
+                <div class="flex items-center">
+                    <div class="bg-blue-100 p-3 rounded-full mr-4">
+                        <i class="fas fa-list-check text-blue-600 text-xl"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-gray-800">Gestionar Inasistencias</h3>
+                        <p class="text-sm text-gray-600">Ver, editar o eliminar inasistencias registradas</p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </main>
 
 
 <script>
-    // Lógica para el botón de cerrar sesión
+    // Botón salir -> Confirmar y redirigir al login (consistente con FormRegistroInasistencia)
     document.getElementById('logoutBtn').addEventListener('click', function() {
-        if(confirm('¿Está seguro que desea cerrar sesión?')) {
-            // Redirigir al login (en una implementación real)
-            alert('Redirigiendo al login...');
-            // window.location.href = 'Login/Login.php';
+        if (confirm('¿Está seguro que desea cerrar sesión?')) {
+            window.location.href = '../Login/Login.php';
         }
     });
 
-    // Lógica para la opción de registrar inasistencia
-    document.querySelector('.menu-item').addEventListener('click', function() {
-        alert('Redirigiendo al formulario de registro de inasistencias...');
-        // window.location.href = 'ruta_al_formulario.php';
+    // Opción Registrar Inasistencia -> Redirigir al formulario
+    const registerItem = document.getElementById('registerAbsence');
+    registerItem.addEventListener('click', function() {
+        window.location.href = 'FormRegistroInasistencia.php';
+    });
+    registerItem.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            window.location.href = 'FormRegistroInasistencia.php';
+        }
+    });
+
+    // Opción Gestionar Inasistencias -> Redirigir a la gestión
+    const manageItem = document.getElementById('manageAbsences');
+    manageItem.addEventListener('click', function() {
+        window.location.href = 'CrudInasistencia.php';
+    });
+    manageItem.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            window.location.href = 'CrudInasistencia.php';
+        }
     });
 </script>
 </body>
