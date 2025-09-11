@@ -1,3 +1,7 @@
+
+
+
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -12,11 +16,11 @@
         }
     </style>
 </head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center bg-cover bg-center" style="background-image: url('/Vistas/Publico/Imagenes/LoginFondo.jpg');">
+<body class="bg-gray-100 min-h-screen flex items-center justify-center bg-cover bg-center" style="background-image: url('Vistas/Publico/Imagenes/LoginFondo.jpg');">
 <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md backdrop-blur-sm bg-white/90">
     <!-- Logo -->
     <div class="flex justify-center mb-6">
-        <img src="/Vistas/Publico/Imagenes/ItcaLogo.png" alt="Logo ITCA FEPADE" class="h-24">
+    <img src="Vistas/Publico/Imagenes/ItcaLogo.png" alt="Logo ITCA FEPADE" class="h-24">
     </div>
 
     <!-- Título -->
