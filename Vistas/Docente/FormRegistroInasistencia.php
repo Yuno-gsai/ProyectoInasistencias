@@ -1,3 +1,13 @@
+<?php
+require_once "../../models/AlumnoModels.php";
+
+$alumno = new Alumno();
+$estudiantes = $alumno->getAll();
+
+// Convertir el array de PHP a JSON para usarlo en JavaScript
+$estudiantes_json = json_encode($estudiantes);
+?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -203,66 +213,8 @@
 </main>
 
 <script>
-    // Datos de ejemplo para la búsqueda
-    const estudiantes = [
-        {
-            carnet: "000224",
-            apellidos: "PÉREZ LÓPEZ",
-            nombres: "JOSÉ CARLOS",
-            carrera: "TEC. EN DESARROLLO DE SOFTWARE",
-            grupo: "SOFT42B"
-        },
-        {
-            carnet: "000225",
-            apellidos: "GARCÍA MARTÍNEZ",
-            nombres: "MARÍA ELENA",
-            carrera: "TEC. EN DESARROLLO DE SOFTWARE",
-            grupo: "SOFT42A"
-        },
-        {
-            carnet: "000226",
-            apellidos: "RODRÍGUEZ HERNÁNDEZ",
-            nombres: "CARLOS ALBERTO",
-            carrera: "TEC. EN REDES INFORMÁTICAS",
-            grupo: "REDES41B"
-        },
-        {
-            carnet: "000227",
-            apellidos: "MARTÍNEZ SILVA",
-            nombres: "ANA SOFÍA",
-            carrera: "TEC. EN DESARROLLO DE SOFTWARE",
-            grupo: "SOFT42A"
-        },
-        {
-            carnet: "000227",
-            apellidos: "MARTÍNEZ SILVA",
-            nombres: "ANA SOFÍA",
-            carrera: "TEC. EN DESARROLLO DE SOFTWARE",
-            grupo: "SOFT42A"
-        },
-        {
-            carnet: "000227",
-            apellidos: "MARTÍNEZ SILVA",
-            nombres: "ANA SOFÍA",
-            carrera: "TEC. EN DESARROLLO DE SOFTWARE",
-            grupo: "SOFT42A"
-        },
-        {
-            carnet: "000228",
-            apellidos: "HERNÁNDEZ TORRES",
-            nombres: "LUIS FERNANDO",
-            carrera: "TEC. EN REDES INFORMÁTICAS",
-            grupo: "REDES41A"
-        },
-        {
-            carnet: "000229",
-            apellidos: "LÓPEZ RAMÍREZ",
-            nombres: "CARMEN ELIZABETH",
-            carrera: "TEC. EN DESARROLLO DE SOFTWARE",
-            grupo: "SOFT42B"
-        }
-    ];
-
+    // Convertir el JSON de PHP a un array de JavaScript
+    const estudiantes = <?php echo $estudiantes_json; ?>;
     let selectedStudent = null;
     let searchTimeout = null;
 
@@ -292,25 +244,24 @@
         const normalizedSearch = normalizeText(searchTerm);
 
         return estudiantes.filter(student => {
-            const fullName = normalizeText(`${student.nombres} ${student.apellidos}`);
-            const reverseName = normalizeText(`${student.apellidos} ${student.nombres}`);
-            const nombres = normalizeText(student.nombres);
-            const apellidos = normalizeText(student.apellidos);
+            const fullName = normalizeText(`${student.nombre} ${student.apellido}`);
+            const reverseName = normalizeText(`${student.apellido} ${student.nombre}`);
+            const nombres = normalizeText(student.nombre);
+            const apellidos = normalizeText(student.apellido);
             const carnet = normalizeText(student.carnet);
-            const carrera = normalizeText(student.carrera);
-
+            
+            // Buscar en nombre, apellido o carnet
             return (
                 fullName.includes(normalizedSearch) ||
                 reverseName.includes(normalizedSearch) ||
                 nombres.includes(normalizedSearch) ||
                 apellidos.includes(normalizedSearch) ||
-                carnet.includes(normalizedSearch) ||
-                carrera.includes(normalizedSearch)
+                carnet.includes(normalizedSearch)
             );
         }).sort((a, b) => {
             // Priorizar coincidencias exactas en nombres
-            const aFullName = normalizeText(`${a.nombres} ${a.apellidos}`);
-            const bFullName = normalizeText(`${b.nombres} ${b.apellidos}`);
+            const aFullName = normalizeText(`${a.nombre} ${a.apellido}`);
+            const bFullName = normalizeText(`${b.nombre} ${b.apellido}`);
 
             const aStartsWith = aFullName.startsWith(normalizedSearch);
             const bStartsWith = bFullName.startsWith(normalizedSearch);
@@ -318,10 +269,8 @@
             if (aStartsWith && !bStartsWith) return -1;
             if (!aStartsWith && bStartsWith) return 1;
 
-            // Ordenar alfabéticamente por nombre visual (no normalizado) para mantener tildes en la UI
-            const aFullNameRaw = `${a.nombres} ${a.apellidos}`.toLowerCase();
-            const bFullNameRaw = `${b.nombres} ${b.apellidos}`.toLowerCase();
-            return aFullNameRaw.localeCompare(bFullNameRaw);
+            // Ordenar alfabéticamente por nombre
+            return a.nombre.localeCompare(b.nombre);
         });
     }
 
@@ -330,41 +279,41 @@
         const searchTerm = e.target.value.trim();
         const resultsContainer = document.getElementById('searchResults');
         const searchLoader = document.getElementById('searchLoader');
-
-        // Limpiar timeout anterior
-        if (searchTimeout) {
-            clearTimeout(searchTimeout);
-        }
-
+        
+        // Limpiar resultados anteriores
+        resultsContainer.innerHTML = '';
+        resultsContainer.classList.add('hidden');
+        
+        // Si el término de búsqueda es muy corto, no hacer nada
         if (searchTerm.length < 1) {
-            resultsContainer.classList.add('hidden');
             searchLoader.classList.add('hidden');
             return;
         }
-
+        
         // Mostrar indicador de carga
         searchLoader.classList.remove('hidden');
-
-        // Simular delay de búsqueda para mejor UX
+        
+        // Usar setTimeout para dar tiempo a la UI de actualizar
+        clearTimeout(searchTimeout);
         searchTimeout = setTimeout(() => {
+
             const filteredStudents = searchStudents(searchTerm);
             searchLoader.classList.add('hidden');
 
             if (filteredStudents.length > 0) {
                 resultsContainer.innerHTML = filteredStudents.map(student => {
-                    const highlightedName = highlightMatch(`${student.nombres} ${student.apellidos}`, searchTerm);
+                    const fullName = `${student.nombre} ${student.apellido}`;
+                    const highlightedName = highlightMatch(fullName, searchTerm);
                     const highlightedCarnet = highlightMatch(student.carnet, searchTerm);
-                    const highlightedCarrera = highlightMatch(student.carrera, searchTerm);
 
                     return `
                         <div class="search-result p-3 cursor-pointer border-b border-gray-100 last:border-b-0 hover:bg-blue-50 transition-colors"
                              data-student='${JSON.stringify(student)}'>
                             <div class="font-medium text-gray-800">${highlightedName}</div>
-                            <div class="text-sm text-gray-600 flex justify-between">
+                            <div class="text-sm text-gray-600">
                                 <span>Carnet: ${highlightedCarnet}</span>
-                                <span class="text-xs">Grupo: ${student.grupo}</span>
                             </div>
-                            <div class="text-xs text-gray-500 mt-1">${highlightedCarrera}</div>
+                            <div class="text-xs text-gray-500 mt-1">${student.email || ''}</div>
                         </div>
                     `;
                 }).join('');
@@ -432,13 +381,13 @@
 
         // Llenar los campos del estudiante
         document.getElementById('carnet').value = student.carnet;
-        document.getElementById('apellidos').value = student.apellidos;
-        document.getElementById('nombres').value = student.nombres;
+        document.getElementById('apellidos').value = student.apellido;
+        document.getElementById('nombres').value = student.nombre;
         document.getElementById('carrera').value = student.carrera;
         document.getElementById('grupo').value = student.grupo;
 
         // Actualizar el campo de búsqueda
-        document.getElementById('studentSearch').value = `${student.nombres} ${student.apellidos}`;
+        document.getElementById('studentSearch').value = `${student.nombre} ${student.apellido}`;
 
         // Ocultar resultados y mostrar formulario
         document.getElementById('searchResults').classList.add('hidden');

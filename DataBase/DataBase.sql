@@ -5,15 +5,33 @@ USE control_inasistencias;
 -- ========================
 -- Tabla: Alumnos
 -- ========================
-CREATE TABLE alumnos (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    carnet VARCHAR(50) NOT NULL UNIQUE,
-    apell VARCHAR(100) NOT NULL,
-    nom VARCHAR(100) NOT NULL,
-    becado TINYINT(1) DEFAULT 0,   -- 0 = no becado, 1 = becado
-    tipobeca VARCHAR(100),
-    estado VARCHAR(50)             -- activo, inactivo, suspendido, etc.
+CREATE TABLE alumno (
+    idalumno INT AUTO_INCREMENT PRIMARY KEY,
+    carnet VARCHAR(6) NOT NULL UNIQUE,
+    nombre VARCHAR(20) NOT NULL,
+    apellido VARCHAR(20) NOT NULL,
+    telefono VARCHAR(9),
+    sexo VARCHAR(1),
+    foto VARCHAR(50),
+    email VARCHAR(150),
+    estadoAlumno INT(2),
+    beca INT(2) DEFAULT 0,   -- 0 = no becado, 1 = becado
+    tipobeca VARCHAR(250)
 );
+
+CREATE TABLE alumnos_extra (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    fk_alumno INT NOT NULL,
+    motivo VARCHAR(255),
+    observacion TEXT,
+    tel_fijo VARCHAR(20),
+    correopersonal VARCHAR(100),
+    ciclo_academico VARCHAR(50),
+    anio INT,
+    FOREIGN KEY (fk_alumno) REFERENCES alumno(idalumno)
+);
+
+
 
 -- ========================
 -- Tabla: Docente
@@ -28,7 +46,8 @@ CREATE TABLE docente (
     permanente TINYINT(1) DEFAULT 0,
     accesosistemas VARCHAR(100),
     cambio VARCHAR(100),
-    esadminbecas TINYINT(1) DEFAULT 0
+    esadminbecas TINYINT(1) DEFAULT 0,
+    esadmininassistencias TINYINT(1) DEFAULT 0
 );
 
 -- ========================
@@ -43,7 +62,7 @@ CREATE TABLE inasistencia (
     fechafalta DATE NOT NULL,
     cantidadHoras INT,
     materia VARCHAR(100),
-    FOREIGN KEY (fk_carnetalum) REFERENCES alumnos(id),
+    FOREIGN KEY (fk_carnetalum) REFERENCES alumno(idalumno),
     FOREIGN KEY (fk_carnetdoc) REFERENCES docente(id_docente)
 );
 
@@ -58,23 +77,6 @@ CREATE TABLE cargatrabajo (
 );
 
 -- ========================
--- Tabla: AlumnosExtra
--- ========================
-CREATE TABLE alumnos_extra (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    fk_alumnos INT NOT NULL,
-    motivo VARCHAR(255),
-    observacion TEXT,
-    tel_fijo VARCHAR(20),
-    celular VARCHAR(20),
-    correoitca VARCHAR(100),
-    correopersonal VARCHAR(100),
-    ciclo_academico VARCHAR(50),
-    anio INT,
-    FOREIGN KEY (fk_alumnos) REFERENCES alumnos(id)
-);
-
--- ========================
 -- Tabla: Seguimientos
 -- ========================
 CREATE TABLE seguimientos (
@@ -83,39 +85,36 @@ CREATE TABLE seguimientos (
     fecha DATE NOT NULL,
     accion VARCHAR(255),
     respuesta TEXT,
-    FOREIGN KEY (fk_id_alumno) REFERENCES alumnos(id)
+    FOREIGN KEY (fk_id_alumno) REFERENCES alumno(idalumno)
 );
+
 
 
 -- ========================
 -- Inserts para tabla: alumnos
 -- ========================
-INSERT INTO alumnos (carnet, apell, nom, becado, tipobeca, estado) VALUES
-('A001', 'Gómez', 'Juan', 1, 'Parcial', 'activo'),
-('A002', 'López', 'María', 0, NULL, 'activo'),
-('A003', 'Martínez', 'Carlos', 1, 'Completa', 'activo'),
-('A004', 'Pérez', 'Ana', 0, NULL, 'activo'),
-('A005', 'Rodríguez', 'Luis', 1, 'Parcial', 'activo'),
-('A006', 'Sánchez', 'Carmen', 0, NULL, 'activo'),
-('A007', 'Fernández', 'Jorge', 1, 'Completa', 'activo'),
-('A008', 'Hernández', 'Lucía', 0, NULL, 'activo'),
-('A009', 'Ramírez', 'Pedro', 1, 'Parcial', 'activo'),
-('A010', 'Torres', 'Elena', 0, NULL, 'activo');
+INSERT INTO alumno (carnet, nombre, apellido, telefono, sexo, foto, email, estadoAlumno, beca, tipobeca) VALUES
+('A001', 'Juan', 'Pérez', '7777-1111', 'M', 'juan.jpg', 'juan@gmail.com', 1, 1, 'Completa'),
+('A002', 'María', 'García', '7777-2222', 'F', 'maria.jpg', 'maria@gmail.com', 1, 0, NULL),
+('A003', 'Carlos', 'López', '7777-3333', 'M', 'carlos.jpg', 'carlos@gmail.com', 0, 1, 'Parcial'),
+('A004', 'Ana', 'Martínez', '7777-4444', 'F', 'ana.jpg', 'ana@gmail.com', 1, 0, NULL),
+('A005', 'Luis', 'Hernández', '7777-5555', 'M', 'luis.jpg', 'luis@gmail.com', 2, 0, NULL);
+
 
 -- ========================
 -- Inserts para tabla: docente
 -- ========================
-INSERT INTO docente (carnet, nom_usuario, ape_usuario, estado, clave, permanente, accesosistemas, cambio, esadminbecas) VALUES
-('D001', 'José', 'Morales', 'activo', 'clave1', 1, 'si', 'no', 1),
-('D002', 'Marta', 'Jiménez', 'activo', 'clave2', 0, 'si', 'no', 0),
-('D003', 'Pablo', 'Castro', 'activo', 'clave3', 1, 'si', 'no', 0),
-('D004', 'Lucía', 'Vargas', 'activo', 'clave4', 0, 'si', 'no', 0),
-('D005', 'Andrés', 'Navarro', 'activo', 'clave5', 1, 'si', 'no', 0),
-('D006', 'Carolina', 'Reyes', 'activo', 'clave6', 0, 'si', 'no', 1),
-('D007', 'Sergio', 'Flores', 'activo', 'clave7', 1, 'si', 'no', 0),
-('D008', 'Paola', 'Campos', 'activo', 'clave8', 0, 'si', 'no', 0),
-('D009', 'Esteban', 'Mendoza', 'activo', 'clave9', 1, 'si', 'no', 0),
-('D010', 'Gabriela', 'Salazar', 'activo', 'clave10', 0, 'si', 'no', 0);
+INSERT INTO docente (carnet, nom_usuario, ape_usuario, estado, clave, permanente, accesosistemas, cambio, esadminbecas,esadmininassistencias) VALUES
+('D001', 'José', 'Morales', 'Activo', 'clave1', 1, 'si', 'no', 1,1),
+('D002', 'Marta', 'Jiménez', 'Activo', 'clave2', 0, 'si', 'no', 0,0),
+('D003', 'Pablo', 'Castro', 'Activo', 'clave3', 1, 'si', 'no', 0,0),
+('D004', 'Lucía', 'Vargas', 'Activo', 'clave4', 0, 'si', 'no', 0,0),
+('D005', 'Andrés', 'Navarro', 'Activo', 'clave5', 1, 'si', 'no', 0,0),
+('D006', 'Carolina', 'Reyes', 'Activo', 'clave6', 0, 'si', 'no', 1,0),
+('D007', 'Sergio', 'Flores', 'Activo', 'clave7', 1, 'si', 'no', 0,0),
+('D008', 'Paola', 'Campos', 'Activo', 'clave8', 0, 'si', 'no', 0,0),
+('D009', 'Esteban', 'Mendoza', 'Activo', 'clave9', 1, 'si', 'no', 0,0),
+('D010', 'Gabriela', 'Salazar', 'Activo', 'clave10', 0, 'si', 'no', 0,0);
 
 -- ========================
 -- Inserts para tabla: cargatrabajo
@@ -140,28 +139,17 @@ INSERT INTO inasistencia (fk_carnetalum, fk_carnetdoc, fk_cargadecarrera, fechaf
 (2, 2, 2, '2025-01-16', 1, 'Programación I'),
 (3, 3, 3, '2025-01-17', 3, 'Inglés I'),
 (4, 4, 4, '2025-01-18', 2, 'Física I'),
-(5, 5, 5, '2025-01-19', 1, 'Química I'),
-(6, 6, 6, '2025-01-20', 2, 'Historia'),
-(7, 7, 7, '2025-01-21', 1, 'Educación Física'),
-(8, 8, 8, '2025-01-22', 3, 'Bases de Datos'),
-(9, 9, 9, '2025-01-23', 2, 'Programación II'),
-(10, 10, 10, '2025-01-24', 1, 'Estadística');
+(5, 5, 5, '2025-01-19', 1, 'Química I');
 
 -- ========================
 -- Inserts para tabla: alumnos_extra
 -- ========================
-INSERT INTO alumnos_extra (fk_alumnos, motivo, observacion, tel_fijo, celular, correoitca, correopersonal, ciclo_academico, anio) VALUES
-(1, 'Problemas de salud', 'Recuperación lenta', '2222-1111', '7777-1111', 'juan@itca.edu.sv', 'juan@gmail.com', 'I', 2025),
-(2, 'Trabajo', 'Doble turno', '2222-2222', '7777-2222', 'maria@itca.edu.sv', 'maria@gmail.com', 'I', 2025),
-(3, 'Familiar', 'Cuidado de un familiar', '2222-3333', '7777-3333', 'carlos@itca.edu.sv', 'carlos@gmail.com', 'I', 2025),
-(4, 'Transporte', 'Vive lejos', '2222-4444', '7777-4444', 'ana@itca.edu.sv', 'ana@gmail.com', 'I', 2025),
-(5, 'Salud', 'Asma', '2222-5555', '7777-5555', 'luis@itca.edu.sv', 'luis@gmail.com', 'I', 2025),
-(6, 'Trabajo', 'Horario nocturno', '2222-6666', '7777-6666', 'carmen@itca.edu.sv', 'carmen@gmail.com', 'I', 2025),
-(7, 'Familiar', 'Hijo enfermo', '2222-7777', '7777-7777', 'jorge@itca.edu.sv', 'jorge@gmail.com', 'I', 2025),
-(8, 'Económico', 'Falta de recursos', '2222-8888', '7777-8888', 'lucia@itca.edu.sv', 'lucia@gmail.com', 'I', 2025),
-(9, 'Trabajo', 'Cambio de turno', '2222-9999', '7777-9999', 'pedro@itca.edu.sv', 'pedro@gmail.com', 'I', 2025),
-(10, 'Otro', 'Falta de motivación', '2333-0000', '7888-0000', 'elena@itca.edu.sv', 'elena@gmail.com', 'I', 2025);
-
+INSERT INTO alumnos_extra (fk_alumno, motivo, observacion, tel_fijo, correopersonal, ciclo_academico, anio) VALUES
+(1, 'Problemas de salud', 'Recuperación lenta', '2222-1111', 'juan@gmail.com', 'I', 2025),
+(2, 'Trabajo', 'Doble turno', '2222-2222', 'maria@gmail.com', 'I', 2025),
+(3, 'Familiar', 'Cuidado de un familiar', '2222-3333', 'carlos@gmail.com', 'I', 2025),
+(4, 'Transporte', 'Vive lejos', '2222-4444', 'ana@gmail.com', 'I', 2025),
+(5, 'Salud', 'Asma', '2222-5555', 'luis@gmail.com', 'I', 2025);
 -- ========================
 -- Inserts para tabla: seguimientos
 -- ========================
@@ -170,9 +158,4 @@ INSERT INTO seguimientos (fk_id_alumno, fecha, accion, respuesta) VALUES
 (2, '2025-02-02', 'Correo enviado', 'Sin respuesta'),
 (3, '2025-02-03', 'Reunión presencial', 'Padres se comprometen a apoyar'),
 (4, '2025-02-04', 'Visita domiciliaria', 'Alumno motivado a retomar clases'),
-(5, '2025-02-05', 'Mensaje WhatsApp', 'Alumno confirma asistencia próxima'),
-(6, '2025-02-06', 'Llamada de seguimiento', 'No contestó'),
-(7, '2025-02-07', 'Correo enviado', 'Alumno respondió positivamente'),
-(8, '2025-02-08', 'Reunión presencial', 'Se evaluó plan de apoyo académico'),
-(9, '2025-02-09', 'Llamada de seguimiento', 'Alumno pide más tiempo'),
-(10, '2025-02-10', 'Mensaje WhatsApp', 'Alumno agradece seguimiento');
+(5, '2025-02-05', 'Mensaje WhatsApp', 'Alumno confirma asistencia próxima');

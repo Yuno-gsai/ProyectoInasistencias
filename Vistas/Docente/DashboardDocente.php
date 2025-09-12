@@ -1,4 +1,12 @@
-<!DOCTYPE html>
+<?php
+session_start();
+if(!isset($_SESSION['docente'])){
+    header("Location: ../../index.php");
+}
+$dataDocente=$_SESSION['docente'];
+?>
+
+
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -30,7 +38,7 @@
         </div>
         <!-- Usuario y Botón -->
         <div class="flex items-center space-x-3">
-            <span class="text-sm text-gray-700 font-medium" id="userName">Docente</span>
+            <span class="text-sm text-gray-700 font-medium" id="userName"><?php echo $dataDocente['nom_usuario'] ?></span>
             <img id="profileImage"
                  src="../Publico/Imagenes/PerfilPrueba.jpg"
                  alt="Foto docente"
@@ -85,7 +93,8 @@
     // Botón salir -> Confirmar y redirigir al login (consistente con FormRegistroInasistencia)
     document.getElementById('logoutBtn').addEventListener('click', function() {
         if (confirm('¿Está seguro que desea cerrar sesión?')) {
-            window.location.href = '../Login/Login.php';
+            <?php session_destroy();?>
+            window.location.href = '../../index.php';
         }
     });
 

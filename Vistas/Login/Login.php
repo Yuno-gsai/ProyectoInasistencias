@@ -1,4 +1,32 @@
+<?php
+session_start();
 
+require_once __DIR__."/../../models/DocenteModel.php";
+$docente = new Docente();
+
+if(isset($_POST['username']) && isset($_POST['password'])) {
+    $username = $_POST['username'];
+    $password = $_POST['password'];
+    if($docente->CustongetAll($username, $password)){
+        $dataDocente=$docente->CustongetAll($username, $password);
+        if($dataDocente['esadmininassistencias'] == 1 && $dataDocente['estado'] == 'Activo'){
+            $_SESSION['docente'] = $dataDocente;
+            header("Location: __DIR__ . '/../Vistas/Admin/DashboardAdmin.php");
+        }
+        else if($dataDocente['estado'] == 'Activo'){
+            $_SESSION['docente'] = $dataDocente;
+            header("Location: __DIR__ . '/../Vistas/Docente/DashboardDocente.php");
+        }
+        else{
+            echo "<script>alert('Usuario inactivo');</script>";
+        }
+    }
+    else{
+        echo "<script>alert('Credenciales incorrectas');</script>";
+    }
+}
+
+?>
 
 
 
@@ -33,20 +61,20 @@
     </div>
 
     <!-- Formulario de Login -->
-    <form id="loginForm" class="space-y-4">
+    <form method="post" class="space-y-4">
         <!-- Campo para Docente/Administrador -->
         <div>
             <label class="block text-gray-700 font-medium mb-2" for="username">
                 <span id="labelTipoUsuario">Docente</span>
             </label>
-            <input type="text" id="username" placeholder="Ingrese su número de carnet"
+            <input type="text" name="username" id="username" placeholder="Ingrese su número de carnet"
                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent outline-none transition">
         </div>
 
         <!-- Campo para Contraseña -->
         <div>
             <label class="block text-gray-700 font-medium mb-2" for="password">Contraseña</label>
-            <input type="password" id="password" placeholder="Ingrese su contraseña"
+            <input type="password" name="password" id="password" placeholder="Ingrese su contraseña"
                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent outline-none transition">
         </div>
 
@@ -93,23 +121,8 @@
     docenteBtn.addEventListener('click', setDocenteMode);
     adminBtn.addEventListener('click', setAdminMode);
 
-    // Manejo del envío del formulario
-    document.getElementById('loginForm').addEventListener('submit', function(e) {
-        e.preventDefault();
 
-        // Aquí iría la lógica de autenticación con PHP
-        const username = document.getElementById('username').value;
-        const password = document.getElementById('password').value;
-        const userType = docenteBtn.classList.contains('bg-red-600') ? 'docente' : 'admin';
 
-        console.log('Tipo de usuario:', userType);
-        console.log('Usuario:', username);
-        console.log('Contraseña:', password);
-
-        // En una implementación real, aquí se enviarían los datos al servidor PHP
-        // usando fetch o mediante un formulario tradicional
-        alert(`Iniciando sesión como ${userType} con usuario: ${username}`);
-    });
 </script>
 </body>
 </html>
