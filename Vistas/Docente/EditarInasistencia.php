@@ -99,16 +99,8 @@
                             <p id="errorHora" class="text-sm text-red-600 mt-1 hidden">Ingrese un número de horas válido (mínimo 1).</p>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Materia <span class="text-red-500">*</span></label>
-                            <select id="materia" name="materia" required class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-red-500">
-                                <option value="">Seleccione una materia</option>
-                                <option value="Programación I">Programación I</option>
-                                <option value="Base de Datos">Base de Datos</option>
-                                <option value="Desarrollo Web">Desarrollo Web</option>
-                                <option value="Matemática">Matemática</option>
-                                <option value="Inglés Técnico">Inglés Técnico</option>
-                            </select>
-                            <p id="errorMateria" class="text-sm text-red-600 mt-1 hidden">Seleccione una materia.</p>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Materia</label>
+                            <input type="text" id="materia" name="materia" readonly class="w-full p-2 bg-gray-100 border border-gray-200 rounded text-gray-600">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Observaciones</label>
@@ -160,10 +152,10 @@
     function validarCamposYActualizarUI() {
         const fechaInput = document.getElementById('fechaInasistencia');
         const horasInput = document.getElementById('horasClase');
-        const materiaSelect = document.getElementById('materia');
+        const materiaInput = document.getElementById('materia');
         const errorFecha = document.getElementById('errorFecha');
         const errorHora = document.getElementById('errorHora');
-        const errorMateria = document.getElementById('errorMateria');
+
 
         const fecha = fechaInput.value;
         const fechaEsFutura = isFechaFutura(fecha);

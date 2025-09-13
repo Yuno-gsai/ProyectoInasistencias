@@ -68,6 +68,25 @@ $estudiantes_json = json_encode($estudiantes);
     <div class="bg-white rounded-xl shadow-lg p-6 max-w-6xl w-full">
         <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Registrar Inasistencia</h2>
 
+        <!-- Selección de Docente y Horario -->
+        <div class="mb-6">
+      <div class="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-lg">
+        <div class="flex items-center gap-2 mb-2">
+          <i class="fa-solid fa-calendar-days text-blue-500"></i>
+          <h3 class="font-semibold text-gray-700">Horario y Materia</h3>
+        </div>
+        <select id="selectHorarioMateria"
+                class="w-full border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                aria-label="Seleccione un horario y materia">
+          <option value="">Seleccione...</option>
+          <option value="lun-mie-08-10_programacion-i">Lun/Mié 08:00–10:00 — Programación I</option>
+          <option value="mar-jue-10-12_base-de-datos">Mar/Jue 10:00–12:00 — Base de Datos</option>
+          <option value="vie-08-11_estructuras-de-datos">Viernes 08:00–11:00 — Estructuras de Datos</option>
+          <option value="sab-13-16_ingenieria-de-software">Sábado 13:00–16:00 — Ingeniería de Software</option>
+        </select>
+      </div>
+    </div>
+
         <!-- Búsqueda de Estudiante -->
         <div class="mb-8">
             <div class="bg-blue-50 border-l-4 border-blue-600 p-4 rounded-lg">
@@ -174,17 +193,8 @@ $estudiantes_json = json_encode($estudiantes);
                             </div>
 
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Materia <span class="text-red-500">*</span></label>
-                                <select id="materia" name="materia" required
-                                        class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-red-500">
-                                    <option value="">Seleccione una materia</option>
-                                    <option value="Programación I">Programación I</option>
-                                    <option value="Base de Datos">Base de Datos</option>
-                                    <option value="Desarrollo Web">Desarrollo Web</option>
-                                    <option value="Matemática">Matemática</option>
-                                    <option value="Inglés Técnico">Inglés Técnico</option>
-                                </select>
-                                <p id="errorMateria" class="text-sm text-red-600 mt-1 hidden">Seleccione una materia.</p>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Materia</label>
+                                <input type="text" id="materia" name="materia" readonly class="w-full p-2 bg-gray-100 border border-gray-200 rounded text-gray-600">
                             </div>
 
                             <div>
@@ -419,10 +429,9 @@ $estudiantes_json = json_encode($estudiantes);
     const submitBtn = document.getElementById('submitBtn');
     const fechaInput = document.getElementById('fechaInasistencia');
     const horasInput = document.getElementById('horasClase');
-    const materiaSelect = document.getElementById('materia');
+    const materiaInput = document.getElementById('materia');
     const errorFecha = document.getElementById('errorFecha');
     const errorHora = document.getElementById('errorHora');
-    const errorMateria = document.getElementById('errorMateria');
 
     function setTodayMaxOnFecha() {
         const today = new Date();
