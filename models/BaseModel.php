@@ -6,7 +6,7 @@
  */
 
 // Incluir la clase de conexion a la base de datos
-require_once  __DIR__ . '/../DataBase/DatabaseConnection.php';
+require_once  __DIR__ . '/../DataBase/DataBaseConnection.php';
 
 /**
  * Clase BaseModel
