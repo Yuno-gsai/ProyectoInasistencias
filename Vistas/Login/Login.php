@@ -5,20 +5,23 @@ require_once __DIR__."/../../models/DocenteModel.php";
 $docente = new Docente();
 
 if(isset($_POST['username']) && isset($_POST['password'])) {
+    $tipoUsuario = $_POST['tipo_usuario'];
     $username = $_POST['username'];
     $password = $_POST['password'];
     if($docente->CustongetAll($username, $password)){
         $dataDocente=$docente->CustongetAll($username, $password);
-        if($dataDocente['esadmininassistencias'] == 1 && $dataDocente['estado'] == 'Activo'){
+        if($tipoUsuario == 'docente' && $dataDocente['estado'] == 'Activo'){
             $_SESSION['docente'] = $dataDocente;
-            header("Location: __DIR__ . '/../Vistas/Admin/DashboardAdmin.php");
+            header("Location: " . "/ProyectoInasistenciasItca/Vistas/Docente/DashboardDocente.php");
+            exit();
         }
-        else if($dataDocente['estado'] == 'Activo'){
-            $_SESSION['docente'] = $dataDocente;
-            header("Location: __DIR__ . '/../Vistas/Docente/DashboardDocente.php");
+        if($tipoUsuario == 'administrador' && $dataDocente['estado'] == 'Activo' && $dataDocente['esadministrador'] == 1){
+            $_SESSION['administrador'] = $dataDocente;
+            header("Location: " . "/ProyectoInasistenciasItca/Vistas/Admin/DashboardAdmin.php");
+            exit();
         }
         else{
-            echo "<script>alert('Usuario inactivo');</script>";
+            echo "<script>alert('Acceso denegado');</script>";
         }
     }
     else{
@@ -55,13 +58,15 @@ if(isset($_POST['username']) && isset($_POST['password'])) {
     <p class="text-center text-gray-600 mb-8">Sistema de Registro de Inasistencias</p>
 
     <!-- Selector de tipo de usuario -->
+    
+    <!-- Formulario de Login -->
     <div class="flex mb-6 bg-gray-100 p-1 rounded-lg">
         <button id="docenteBtn" class="flex-1 py-2 px-4 rounded-lg font-medium transition-all duration-300 bg-red-600 text-white">Docente</button>
         <button id="adminBtn" class="flex-1 py-2 px-4 rounded-lg font-medium transition-all duration-300 text-gray-700">Administrador</button>
     </div>
-
-    <!-- Formulario de Login -->
     <form method="post" class="space-y-4">
+
+        <input type="hidden" name="tipo_usuario" id="tipo_usuario" value="docente">
         <!-- Campo para Docente/Administrador -->
         <div>
             <label class="block text-gray-700 font-medium mb-2" for="username">
@@ -105,6 +110,8 @@ if(isset($_POST['username']) && isset($_POST['password'])) {
         adminBtn.classList.remove('bg-red-600', 'text-white');
         labelTipoUsuario.textContent = 'Docente';
         usernameInput.placeholder = 'Ingrese su número de carnet';
+        document.getElementById('tipo_usuario').value = 'docente';
+
     }
 
     // Función para cambiar a modo Administrador
@@ -115,11 +122,13 @@ if(isset($_POST['username']) && isset($_POST['password'])) {
         docenteBtn.classList.remove('bg-red-600', 'text-white');
         labelTipoUsuario.textContent = 'Administrador';
         usernameInput.placeholder = 'Ingrese su nombre de usuario';
+        document.getElementById('tipo_usuario').value = 'administrador';
     }
 
     // Event listeners para los botones
     docenteBtn.addEventListener('click', setDocenteMode);
     adminBtn.addEventListener('click', setAdminMode);
+
 
 
 

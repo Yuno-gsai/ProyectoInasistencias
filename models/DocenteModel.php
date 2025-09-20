@@ -13,12 +13,13 @@ class Docente extends BaseModel {
             carnet,
             nom_usuario,
             ape_usuario,
+            tipo,
             estado,
             permanente,
             accesosistemas,
+            esadministrador,
             cambio,
-            esadminbecas,
-            esadmininassistencias 
+            esadminbecas
             FROM {$this->table} 
             WHERE carnet = :carnet AND clave = :password";
     

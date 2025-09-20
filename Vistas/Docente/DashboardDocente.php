@@ -1,9 +1,10 @@
 <?php
 session_start();
 if(!isset($_SESSION['docente'])){
-    header("Location: ../../index.php");
+    header("Location: /ProyectoInasistenciasItca/index.php");
 }
 $dataDocente=$_SESSION['docente'];
+var_dump($dataDocente);
 ?>
 
 
@@ -94,31 +95,31 @@ $dataDocente=$_SESSION['docente'];
     document.getElementById('logoutBtn').addEventListener('click', function() {
         if (confirm('¿Está seguro que desea cerrar sesión?')) {
             <?php session_destroy();?>
-            window.location.href = '../../index.php';
+            window.location.href = '/ProyectoInasistenciasItca/index.php';
         }
     });
 
     // Opción Registrar Inasistencia -> Redirigir al formulario
     const registerItem = document.getElementById('registerAbsence');
     registerItem.addEventListener('click', function() {
-        window.location.href = 'FormRegistroInasistencia.php';
+        window.location.href = '/ProyectoInasistenciasItca/Vistas/Docente/FormRegistroInasistencia.php';
     });
     registerItem.addEventListener('keydown', function(e) {
         if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
-            window.location.href = 'FormRegistroInasistencia.php';
+            window.location.href = '/ProyectoInasistenciasItca/Vistas/Docente/FormRegistroInasistencia.php';
         }
     });
 
     // Opción Gestionar Inasistencias -> Redirigir a la gestión
     const manageItem = document.getElementById('manageAbsences');
     manageItem.addEventListener('click', function() {
-        window.location.href = 'CrudInasistencia.php';
+        window.location.href = '/ProyectoInasistenciasItca/Vistas/Docente/CrudInasistencia.php';
     });
     manageItem.addEventListener('keydown', function(e) {
         if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
-            window.location.href = 'CrudInasistencia.php';
+            window.location.href = '/ProyectoInasistenciasItca/Vistas/Docente/CrudInasistencia.php';
         }
     });
 </script>

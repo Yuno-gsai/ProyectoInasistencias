@@ -1,11 +1,35 @@
 <?php
+session_start();
+
+$dataDocente = $_SESSION['docente'];
+
 require_once "../../models/AlumnoModels.php";
+require_once "../../models/FaltasModel.php";
 
 $alumno = new Alumno();
 $estudiantes = $alumno->getAll();
+$faltas = new Faltas();
 
 // Convertir el array de PHP a JSON para usarlo en JavaScript
 $estudiantes_json = json_encode($estudiantes);
+
+
+if(isset($_POST['RegistrarAsistencia'])) {
+    $data = [
+        'fk_carnetalum' => $_POST['carnet'],
+        'fk_carnetdoc' => $dataDocente['carnet'],
+        'fk_cargadecarrera' => 1,
+        'fechafalta' => $_POST['fecha'],
+        'cantidadHoras' => $_POST['cantidadHoras'],
+        'materia' => $_POST['materia']
+    ];
+    if($faltas->create($data)){
+        echo "<script>alert('Inasistencia registrada correctamente');</script>";
+    }
+    else{
+        echo "<script>alert('Error al registrar inasistencia');</script>";
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -212,7 +236,7 @@ $estudiantes_json = json_encode($estudiantes);
                             class="bg-gray-500 text-white py-2 px-6 rounded-lg hover:bg-gray-600 transition">
                         <i class="fas fa-times mr-2"></i>Cancelar
                     </button>
-                    <button type="submit" id="submitBtn" disabled
+                    <button name="RegistrarAsistencia" type="submit" id="submitBtn" disabled
                             class="bg-red-600 text-white py-2 px-6 rounded-lg hover:bg-red-700 transition disabled:opacity-50 disabled:cursor-not-allowed">
                         <i class="fas fa-save mr-2"></i>Registrar Inasistencia
                     </button>
