@@ -20,17 +20,16 @@ class Alumno extends BaseModel {
                     a.estadoAlumno,
                     a.beca,
                     a.tipobeca,
-                    ae.id AS id_extra,
-                    ae.fk_alumno,
-                    ae.motivo,
-                    ae.observacion,
-                    ae.tel_fijo,
-                    ae.correopersonal,
-                    ae.ciclo_academico,
-                    ae.anio
+                    ae.id_extra,
+                    ae.idalumno AS fk_alumno,
+                    ae.direccion,
+                    ae.fecha_nacimiento,
+                    ae.contacto_emergencia,
+                    ae.telefono_emergencia,
+                    ae.observaciones
                 FROM alumno a
-                INNER JOIN alumnos_extra ae 
-                    ON a.idalumno = ae.fk_alumno";
+                LEFT JOIN alumnos_extra ae 
+                    ON a.idalumno = ae.idalumno";
 
         $stmt = $this->getConnection()->prepare($query);
         $stmt->execute();

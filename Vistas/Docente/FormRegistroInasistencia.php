@@ -1,33 +1,123 @@
 <?php
 session_start();
+if(!isset($_SESSION['docente'])){
+    header("Location: /ProyectoInasistenciasItca/index.php");
+}
 
 $dataDocente = $_SESSION['docente'];
 
 require_once "../../models/AlumnoModels.php";
 require_once "../../models/FaltasModel.php";
+require_once "../../models/DetalleModel.php";
 
 $alumno = new Alumno();
-$estudiantes = $alumno->getAll();
 $faltas = new Faltas();
+$detalles = new DetalleModel();
 
+$estudiantes = $alumno->getAll();
+$DetallesDocente = $detalles->getAllByDocenteId($dataDocente['id_docente']);
 // Convertir el array de PHP a JSON para usarlo en JavaScript
+
 $estudiantes_json = json_encode($estudiantes);
+$DetallesDocente_json = json_encode($DetallesDocente);
+
 
 
 if(isset($_POST['RegistrarAsistencia'])) {
     $data = [
-        'fk_carnetalum' => $_POST['carnet'],
-        'fk_carnetdoc' => $dataDocente['carnet'],
-        'fk_cargadecarrera' => 1,
-        'fechafalta' => $_POST['fecha'],
-        'cantidadHoras' => $_POST['cantidadHoras'],
-        'materia' => $_POST['materia']
+        'idalumno' => intval($_POST['idalumno']),
+        'id_docente' => $dataDocente['id_docente'],
+        'id_detalle' => intval($_POST['detalle']),
+        'fecha_falta' => $_POST['fechaInasistencia'],
+        'cantidadHoras' => $_POST['horasClase'],
+        'observacion' => $_POST['observaciones']
     ];
     if($faltas->create($data)){
-        echo "<script>alert('Inasistencia registrada correctamente');</script>";
+        echo "<script>
+            // Esperar a que el DOM esté completamente cargado
+            document.addEventListener('DOMContentLoaded', function() {
+                // Verificar si SweetAlert2 está cargado
+                if (typeof Swal !== 'undefined') {
+                    const Toast = Swal.mixin({
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true,
+                        width: '350px',
+                        padding: '1rem',
+                        didOpen: (toast) => {
+                            toast.addEventListener('mouseenter', Swal.stopTimer);
+                            toast.addEventListener('mouseleave', Swal.resumeTimer);
+                        }
+                    });
+
+                    Toast.fire({
+                        icon: 'success',
+                        title: 'Inasistencia registrada correctamente',
+                        background: '#d4edda',
+                        color: '#155724',
+                        iconColor: '#28a745',
+                        customClass: {
+                            container: 'swal2-container-custom',
+                            popup: 'swal2-popup-custom',
+                            title: 'swal2-title-custom',
+                            htmlContainer: 'swal2-html-custom'
+                        }
+                    });
+                    
+                    // Limpiar el formulario después de registrar
+                    document.getElementById('inasistenciaForm').reset();
+                    document.getElementById('studentSearch').value = '';
+                    document.getElementById('attendanceForm').classList.add('hidden');
+                } else {
+                    console.error('Error: SweetAlert2 no está cargado correctamente');
+                }
+            });
+        </script>";
     }
     else{
-        echo "<script>alert('Error al registrar inasistencia');</script>";
+        echo "<script>
+            // Esperar a que el DOM esté completamente cargado
+            document.addEventListener('DOMContentLoaded', function() {
+                // Verificar si SweetAlert2 está cargado
+                if (typeof Swal !== 'undefined') {
+                    const Toast = Swal.mixin({
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: true,
+                        confirmButtonText: 'Entendido',
+                        showCloseButton: true,
+                        timer: 5000,
+                        timerProgressBar: true,
+                        width: '350px',
+                        padding: '1rem',
+                        didOpen: (toast) => {
+                            toast.addEventListener('mouseenter', Swal.stopTimer);
+                            toast.addEventListener('mouseleave', Swal.resumeTimer);
+                        }
+                    });
+
+                    Toast.fire({
+                        icon: 'error',
+                        title: 'Error al registrar la inasistencia',
+                        text: 'Por favor, intente nuevamente',
+                        background: '#f8d7da',
+                        color: '#721c24',
+                        iconColor: '#dc3545',
+                        customClass: {
+                            container: 'swal2-container-custom',
+                            popup: 'swal2-popup-custom',
+                            title: 'swal2-title-custom',
+                            htmlContainer: 'swal2-html-custom'
+                        }
+                    });
+                } else {
+                    console.error('Error: SweetAlert2 no está cargado correctamente');
+                    alert('Error al registrar la inasistencia. Por favor, intente nuevamente.');
+                }
+            });
+        </script>";
     }
 }
 ?>
@@ -40,6 +130,8 @@ if(isset($_POST['RegistrarAsistencia'])) {
     <title>Registrar Inasistencia - ITCA FEPADE</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
         body {
@@ -68,17 +160,15 @@ if(isset($_POST['RegistrarAsistencia'])) {
         </div>
         <!-- Usuario y Botón -->
         <div class="flex items-center space-x-3">
-            <span class="text-sm text-gray-700 font-medium" id="userName">Docente</span>
-            <img id="profileImage"
-                 src="../Publico/Imagenes/PerfilPrueba.jpg"
-                 alt="Foto docente"
-                 class="rounded-full w-8 h-8 object-cover border border-gray-200">
-            <button id="backBtn"
-                    class="flex items-center bg-gray-600 text-white py-1 px-3 rounded-md text-sm hover:bg-gray-700 transition">
+            <span class="text-sm text-gray-700 font-medium" id="userName"><?php echo $dataDocente['nom_usuario'] . ' ' . $dataDocente['ape_usuario']; ?></span>
+            
+            <button id="backBtn" type="button"
+                    class="flex items-center bg-gray-600 text-white py-1 px-3 rounded-md text-sm hover:bg-gray-700 transition"
+                    onclick="history.back()">
                 <i class="fas fa-arrow-left mr-1"></i>
                 <span class="hidden sm:inline">Regresar</span>
             </button>
-            <button id="logoutBtn"
+            <button id="logoutBtn" type="button"
                     class="flex items-center bg-red-600 text-white py-1 px-3 rounded-md text-sm hover:bg-red-700 transition">
                 <i class="fas fa-sign-out-alt mr-1"></i>
                 <span class="hidden sm:inline">Salir</span>
@@ -92,24 +182,69 @@ if(isset($_POST['RegistrarAsistencia'])) {
     <div class="bg-white rounded-xl shadow-lg p-6 max-w-6xl w-full">
         <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Registrar Inasistencia</h2>
 
-        <!-- Selección de Docente y Horario -->
-        <div class="mb-6">
-      <div class="bg-blue-50 border-l-4 border-blue-400 p-4 rounded-lg">
-        <div class="flex items-center gap-2 mb-2">
-          <i class="fa-solid fa-calendar-days text-blue-500"></i>
-          <h3 class="font-semibold text-gray-700">Horario y Materia</h3>
+        <!-- Selectores de Filtrado -->
+        <div class="mb-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+            <!-- Selector de Ciclo -->
+            <div class="bg-indigo-50 border-l-4 border-indigo-400 p-2 rounded-lg hover:shadow transition-shadow">
+                <div class="flex items-center gap-1 mb-1">
+                    <i class="fa-solid fa-calendar-days text-indigo-500 text-sm"></i>
+                    <h3 class="font-medium text-gray-700 text-sm">Ciclo</h3>
+                </div>
+                <select id="selectCiclo"
+                        class="w-full border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm py-1.5"
+                        aria-label="Seleccione un ciclo">
+                    <option value="">Seleccione...</option>
+                    <?php 
+                    $ciclos = array_unique(array_column($DetallesDocente, 'ciclo'));
+                    foreach ($ciclos as $ciclo) { 
+                    ?>
+                        <option value="<?php echo $ciclo; ?>"><?php echo $ciclo; ?></option>
+                    <?php } ?>
+                </select>
+            </div>
+
+            <!-- Selector de Año -->
+            <div class="bg-cyan-50 border-l-4 border-cyan-400 p-2 rounded-lg hover:shadow transition-shadow">
+                <div class="flex items-center gap-1 mb-1">
+                    <i class="fa-solid fa-calendar text-cyan-500 text-sm"></i>
+                    <h3 class="font-medium text-gray-700 text-sm">Año</h3>
+                </div>
+                <select id="selectYear"
+                        class="w-full border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm py-1.5"
+                        aria-label="Seleccione un año"
+                        disabled>
+                    <option value="">Seleccione ciclo</option>
+                </select>
+            </div>
+
+            <!-- Selector de Grupo -->
+            <div class="bg-emerald-50 border-l-4 border-emerald-400 p-2 rounded-lg hover:shadow transition-shadow">
+                <div class="flex items-center gap-1 mb-1">
+                    <i class="fa-solid fa-users text-emerald-500 text-sm"></i>
+                    <h3 class="font-medium text-gray-700 text-sm">Grupo</h3>
+                </div>
+                <select id="selectGrupo"
+                        class="w-full border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm py-1.5"
+                        aria-label="Seleccione un grupo"
+                        disabled>
+                    <option value="">Seleccione año</option>
+                </select>
+            </div>
+
+            <!-- Selector de Materia -->
+            <div class="bg-amber-50 border-l-4 border-amber-400 p-2 rounded-lg hover:shadow transition-shadow">
+                <div class="flex items-center gap-1 mb-1">
+                    <i class="fa-solid fa-book text-amber-500 text-sm"></i>
+                    <h3 class="font-medium text-gray-700 text-sm">Materia</h3>
+                </div>
+                <select id="selectMateria"
+                        class="w-full border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 text-sm py-1.5"
+                        aria-label="Seleccione una materia"
+                        disabled>
+                    <option value="">Seleccione año</option>
+                </select>
+            </div>
         </div>
-        <select id="selectHorarioMateria"
-                class="w-full border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                aria-label="Seleccione un horario y materia">
-          <option value="">Seleccione...</option>
-          <option value="lun-mie-08-10_programacion-i">Lun/Mié 08:00–10:00 — Programación I</option>
-          <option value="mar-jue-10-12_base-de-datos">Mar/Jue 10:00–12:00 — Base de Datos</option>
-          <option value="vie-08-11_estructuras-de-datos">Viernes 08:00–11:00 — Estructuras de Datos</option>
-          <option value="sab-13-16_ingenieria-de-software">Sábado 13:00–16:00 — Ingeniería de Software</option>
-        </select>
-      </div>
-    </div>
 
         <!-- Búsqueda de Estudiante -->
         <div class="mb-8">
@@ -144,7 +279,7 @@ if(isset($_POST['RegistrarAsistencia'])) {
 
         <!-- Formulario de Inasistencia (Oculto inicialmente) -->
         <div id="attendanceForm" class="hidden">
-            <form id="inasistenciaForm" class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <form method="post" id="inasistenciaForm" class="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
                 <!-- Información del Estudiante (Solo lectura) -->
                 <div class="form-section">
@@ -158,6 +293,7 @@ if(isset($_POST['RegistrarAsistencia'])) {
 
                         <div class="space-y-4">
                             <div>
+                                <input type="hidden" id="idalumno" name="idalumno">
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Carnet</label>
                                 <input type="text" id="carnet" name="carnet" readonly
                                        class="w-full p-2 bg-gray-100 border border-gray-200 rounded text-gray-600">
@@ -176,8 +312,8 @@ if(isset($_POST['RegistrarAsistencia'])) {
                             </div>
 
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Carrera</label>
-                                <input type="text" id="carrera" name="carrera" readonly
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Materia</label>
+                                <input type="text" id="materia" name="materia" readonly
                                        class="w-full p-2 bg-gray-100 border border-gray-200 rounded text-gray-600">
                             </div>
 
@@ -215,15 +351,17 @@ if(isset($_POST['RegistrarAsistencia'])) {
                                        class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-red-500" />
                                 <p id="errorHora" class="text-sm text-red-600 mt-1 hidden">Ingrese un número de horas válido (mínimo 1).</p>
                             </div>
+                            <input type="hidden" id="detalle" name="detalle">
 
-                            <div>
+
+                            <!-- <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Materia</label>
                                 <input type="text" id="materia" name="materia" readonly class="w-full p-2 bg-gray-100 border border-gray-200 rounded text-gray-600">
-                            </div>
+                            </div> -->
 
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Observaciones</label>
-                                <textarea id="observaciones" name="observaciones" rows="3"
+                                <textarea id="observaciones" name="observaciones" rows="6"
                                           placeholder="Comentarios adicionales (opcional)"
                                           class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-red-500 resize-none"></textarea>
                             </div>
@@ -247,10 +385,304 @@ if(isset($_POST['RegistrarAsistencia'])) {
 </main>
 
 <script>
+    // Esperar a que el DOM esté completamente cargado
+    document.addEventListener('DOMContentLoaded', function() {
+        // Botón de regresar
+        const backBtn = document.getElementById('backBtn');
+        if (backBtn) {
+            backBtn.addEventListener('click', function() {
+                Swal.fire({
+                    title: '¿Está seguro?',
+                    text: 'Se perderán los datos no guardados',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Sí, regresar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = 'DashboardDocente.php';
+                    }
+                });
+            });
+        }
+
+        // Botón de cerrar sesión
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', function() {
+                Swal.fire({
+                    title: 'Cerrar sesión',
+                    text: '¿Está seguro que desea cerrar sesión?',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Sí, cerrar sesión',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = '../Login/Logout.php';
+                    }
+                });
+            });
+        }
+    });
+
+    // Variable para rastrear el último select modificado
+    let ultimoSelectModificado = null;
+    
+    // Función para manejar el evento de cambio en los select
+    function manejarCambioSelect(event) {
+        ultimoSelectModificado = event.target;
+        actualizarDetalle();
+    }
+    
+    // Agregar event listeners a los select
+    document.getElementById("selectCiclo").addEventListener("change", manejarCambioSelect);
+    document.getElementById("selectYear").addEventListener("change", manejarCambioSelect);
+    document.getElementById("selectGrupo").addEventListener("change", manejarCambioSelect);
+    document.getElementById("selectMateria").addEventListener("change", manejarCambioSelect);
+
+
+    function actualizarDetalle() {
+        const cicloSelect = document.getElementById("selectCiclo");
+        const yearSelect = document.getElementById("selectYear");
+        const grupoSelect = document.getElementById("selectGrupo");
+        const materiaSelect = document.getElementById("selectMateria");
+        const studentSearch = document.getElementById("studentSearch");
+        const attendanceForm = document.getElementById("attendanceForm");
+        
+        // Deshabilitar búsqueda de estudiante hasta que los select sean válidos
+        studentSearch.disabled = true;
+        
+        // Verificar si todos los select tienen un valor seleccionado
+        if (!cicloSelect.value || !yearSelect.value || !grupoSelect.value || !materiaSelect.value) {
+            document.getElementById("detalle").value = "";
+            // Ocultar formulario si está visible
+            if (attendanceForm) {
+                attendanceForm.classList.add("hidden");
+            }
+            return; // Salir si algún select no tiene valor
+        }
+        
+        const ciclo = cicloSelect.options[cicloSelect.selectedIndex].text;
+        const year = yearSelect.options[yearSelect.selectedIndex].text;
+        const grupo = grupoSelect.options[grupoSelect.selectedIndex].text;
+        const materia = materiaSelect.options[materiaSelect.selectedIndex].text;
+
+        // Buscar el detalle que coincida con los 4
+        const detalle = detallesDocente.find(d =>
+            d.ciclo == ciclo &&
+            d.year == year &&
+            d.grupo == grupo &&
+            d.nombre_materia == materia
+        );
+
+        if(detalle) {
+            document.getElementById("detalle").value = detalle.id_detalle;
+            console.log("ID DETALLE seleccionado:", detalle.id_detalle);
+            // Habilitar búsqueda de estudiante cuando los select son válidos
+            studentSearch.disabled = false;
+            studentSearch.focus();
+        } else {
+            // Solo limpiar el último select modificado que causó el error
+            if (ultimoSelectModificado) {
+                ultimoSelectModificado.value = "";
+            }
+            
+            document.getElementById("detalle").value = "";
+            
+            // Ocultar formulario si está visible
+            if (attendanceForm) {
+                attendanceForm.classList.add("hidden");
+            }
+            
+            console.log("No se encontró detalle con esa combinación");
+                // Mostrar alerta solo si todos los campos estaban llenos
+                if (ciclo && year && grupo && materia) {
+                    const Toast = Swal.mixin({
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 4000,
+                        timerProgressBar: true,
+                        didOpen: (toast) => {
+                            toast.addEventListener('mouseenter', Swal.stopTimer);
+                            toast.addEventListener('mouseleave', Swal.resumeTimer);
+                        }
+                    });
+
+                    Toast.fire({
+                        icon: 'warning',
+                        title: 'Selección inválida: el grupo y la materia no corresponden',
+                        background: '#fff3cd',
+                        color: '#856404',
+                        iconColor: '#ffc107'
+                    });
+                    
+                    // Enfocar el select que causó el error
+                    if (ultimoSelectModificado) {
+                        setTimeout(() => {
+                            ultimoSelectModificado.focus();
+                        }, 100);
+                    }
+                }      }
+}
+
+
+    setTimeout(inicializarValoresPorDefecto, 300);
+
     // Convertir el JSON de PHP a un array de JavaScript
     const estudiantes = <?php echo $estudiantes_json; ?>;
+    const detallesDocente = <?php echo json_encode($DetallesDocente); ?>;
     let selectedStudent = null;
     let searchTimeout = null;
+
+    // Referencias a los elementos del formulario
+    const selectCiclo = document.getElementById('selectCiclo');
+    const selectYear = document.getElementById('selectYear');
+    const selectGrupo = document.getElementById('selectGrupo');
+    const selectMateria = document.getElementById('selectMateria');
+
+    // Función para llenar selectores
+    function llenarSelect(select, opciones, valorPredeterminado = '') {
+        select.innerHTML = '';
+        const optionDefault = document.createElement('option');
+        optionDefault.value = '';
+        optionDefault.textContent = valorPredeterminado;
+        select.appendChild(optionDefault);
+
+        opciones.forEach(opcion => {
+            const option = document.createElement('option');
+            option.value = opcion.value;
+            option.textContent = opcion.text;
+            select.appendChild(option);
+        });
+    }
+
+    // Manejar cambio en ciclo
+    selectCiclo.addEventListener('change', function() {
+        const ciclo = this.value;
+        
+        if (ciclo) {
+            // Filtrar años disponibles para el ciclo seleccionado y eliminar duplicados
+            const añosUnicos = [];
+            const añosVistos = new Set();
+            
+            detallesDocente.forEach(item => {
+                if (item.ciclo === ciclo && !añosVistos.has(item.year)) {
+                    añosVistos.add(item.year);
+                    añosUnicos.push({
+                        value: item.year,
+                        text: item.year
+                    });
+                }
+            });
+            
+            // Ordenar los años de mayor a menor
+            const años = añosUnicos.sort((a, b) => b.value - a.value);
+
+            // Llenar selector de años
+            llenarSelect(selectYear, años, 'Seleccione un año');
+            selectYear.disabled = false;
+            
+            // Deshabilitar y limpiar selectores dependientes
+            selectGrupo.disabled = true;
+            selectMateria.disabled = true;
+            selectGrupo.innerHTML = '<option value="">Seleccione año primero</option>';
+            selectMateria.innerHTML = '<option value="">Seleccione año primero</option>';
+        } else {
+            // Si no hay ciclo seleccionado, deshabilitar y limpiar los demás selectores
+            selectYear.disabled = true;
+            selectGrupo.disabled = true;
+            selectMateria.disabled = true;
+            selectYear.innerHTML = '<option value="">Seleccione un ciclo primero</option>';
+            selectGrupo.innerHTML = '<option value="">Seleccione año primero</option>';
+            selectMateria.innerHTML = '<option value="">Seleccione año primero</option>';
+        }
+    });
+
+    // Manejar cambio en año
+    selectYear.addEventListener('change', function() {
+        const ciclo = selectCiclo.value;
+        const year = this.value;
+        
+        if (ciclo && year) {
+            // Filtrar grupos disponibles para el ciclo y año seleccionados
+            const gruposUnicos = [];
+            const gruposVistos = new Set();
+            
+            detallesDocente.forEach(item => {
+                const grupoKey = `${item.id_g}-${item.grupo}`;
+                if (item.ciclo === ciclo && item.year == year && !gruposVistos.has(grupoKey)) {
+                    gruposVistos.add(grupoKey);
+                    gruposUnicos.push({
+                        value: item.id_g,
+                        text: item.grupo
+                    });
+                }
+            });
+            
+            // Ordenar los grupos alfabéticamente
+            const grupos = gruposUnicos.sort((a, b) => a.text.localeCompare(b.text));
+
+            // Filtrar materias disponibles para el ciclo y año seleccionados
+            const materiasUnicas = [];
+            const materiasVistas = new Set();
+            
+            detallesDocente.forEach(item => {
+                if (item.ciclo === ciclo && item.year == year && !materiasVistas.has(item.id_m)) {
+                    materiasVistas.add(item.id_m);
+                    materiasUnicas.push({
+                        value: item.id_m,
+                        text: item.nombre_materia
+                    });
+                }
+            });
+            
+            // Ordenar las materias alfabéticamente
+            const materias = materiasUnicas.sort((a, b) => a.text.localeCompare(b.text));
+
+            // Llenar selectores de grupo y materia
+            llenarSelect(selectGrupo, grupos, 'Seleccione un grupo');
+            llenarSelect(selectMateria, materias, 'Seleccione una materia');
+            
+            // Habilitar selectores
+            selectGrupo.disabled = false;
+            selectMateria.disabled = false;
+        } else {
+            // Si no hay año seleccionado, deshabilitar y limpiar selectores de grupo y materia
+            selectGrupo.disabled = true;
+            selectMateria.disabled = true;
+            selectGrupo.innerHTML = '<option value="">Seleccione año primero</option>';
+            selectMateria.innerHTML = '<option value="">Seleccione año primero</option>';
+        }
+    });
+
+    // Actualizar campos ocultos cuando se seleccionan grupo y materia
+    selectGrupo.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        document.getElementById('grupo').value = selectedOption.text;
+    });
+
+    selectMateria.addEventListener('change', function() {
+        const selectedOption = this.options[this.selectedIndex];
+        document.getElementById('materia').value = selectedOption.text;
+    });
+
+    document.getElementById('selectGrupo').addEventListener('change', function() {
+        const selectedValue = this.options[this.selectedIndex].text;
+        document.getElementById("grupo").value = selectedValue;
+    });
+
+    document.getElementById('selectMateria').addEventListener('change', function() {
+        const selectedValue = this.options[this.selectedIndex].text;
+        document.getElementById("materia").value = selectedValue;
+    });
+
+    
 
     // Función para destacar coincidencias en el texto
     function highlightMatch(text, searchTerm) {
@@ -417,8 +849,7 @@ if(isset($_POST['RegistrarAsistencia'])) {
         document.getElementById('carnet').value = student.carnet;
         document.getElementById('apellidos').value = student.apellido;
         document.getElementById('nombres').value = student.nombre;
-        document.getElementById('carrera').value = student.carrera;
-        document.getElementById('grupo').value = student.grupo;
+        document.getElementById('idalumno').value = student.idalumno;
 
         // Actualizar el campo de búsqueda
         document.getElementById('studentSearch').value = `${student.nombre} ${student.apellido}`;
@@ -493,11 +924,6 @@ if(isset($_POST['RegistrarAsistencia'])) {
             errorHora.classList.add('hidden');
             horasInput.setCustomValidity('');
         }
-        if (!materiaSelect.value) {
-            errorMateria.classList.remove('hidden');
-        } else {
-            errorMateria.classList.add('hidden');
-        }
 
         // Habilitar botón solo si hay estudiante seleccionado y el form es válido
         if (selectedStudent && form.checkValidity() && !fechaEsFutura) {
@@ -507,27 +933,28 @@ if(isset($_POST['RegistrarAsistencia'])) {
         }
     }
 
-    // Manejar envío del formulario con validación nativa + reglas adicionales
+    // Validar campos antes de enviar el formulario
     form.addEventListener('submit', function(e) {
+        // Validar campos
         validarCamposYActualizarUI();
+        
+        // Si el botón está deshabilitado, prevenir el envío
         if (submitBtn.disabled) {
-            // Dejar que el navegador muestre la validación nativa si aplica
             e.preventDefault();
-            return;
+            return false;
         }
-        e.preventDefault();
-        // Simulación de éxito (datos estáticos)
-        // Aquí en el futuro se haría un POST al servidor
-        // Mostrar un pequeño feedback no intrusivo
-        if (!document.getElementById('successMsg')) {
-            const msg = document.createElement('div');
-            msg.id = 'successMsg';
-            msg.className = 'mt-4 text-green-700 bg-green-100 border border-green-200 px-4 py-2 rounded';
-            msg.textContent = 'Inasistencia registrada exitosamente.';
-            form.appendChild(msg);
-            setTimeout(() => { msg.remove(); }, 3000);
-        }
-        resetForm();
+        
+        // Mostrar datos que se van a enviar (para depuración)
+        console.log('Datos del formulario:', {
+            idalumno: document.getElementById('idalumno').value,
+            fechaInasistencia: document.getElementById('fechaInasistencia').value,
+            horasClase: document.getElementById('horasClase').value,
+            detalle: document.getElementById('detalle').value,
+            observaciones: document.getElementById('observaciones').value
+        });
+        
+        // El formulario se enviará normalmente con PHP
+        return true;
     });
 
     // Escuchar cambios para validar en tiempo real
@@ -560,24 +987,79 @@ if(isset($_POST['RegistrarAsistencia'])) {
     }
 
     // Botón regresar -> Confirmar y redirigir al dashboard docente
-    document.getElementById('backBtn').addEventListener('click', function() {
-        if (confirm('¿Está seguro que desea regresar? Se perderán los datos no guardados.')) {
-            window.location.href = 'DashboardDocente.php';
-        }
-    });
 
-    document.getElementById('logoutBtn').addEventListener('click', function() {
-        if (confirm('¿Está seguro que desea cerrar sesión?')) {
-            window.location.href = '../Login/Login.php';
+
+    // Función para inicializar los valores por defecto
+    function inicializarValoresPorDefecto() {
+        // Establecer ciclo y año actual por defecto
+        const añoActual = new Date().getFullYear();
+        const mesActual = new Date().getMonth() + 1;
+        const cicloActual = (mesActual <= 6) ? "I" : "II";
+        
+        // Asegurarse de que los elementos existan antes de intentar establecer sus valores
+        const selectCiclo = document.getElementById('selectCiclo');
+        const selectYear = document.getElementById('selectYear');
+        
+        if (selectCiclo && selectYear) {
+            // Establecer el valor del ciclo
+            selectCiclo.value = cicloActual;
+            
+            // Forzar el evento change para cargar los años
+            if (selectCiclo.dispatchEvent) {
+                const event = new Event('change', { bubbles: true });
+                selectCiclo.dispatchEvent(event);
+            }
+            
+            // Usar setTimeout para asegurar que el evento change se haya procesado
+            setTimeout(() => {
+                // Verificar si el año actual está disponible en las opciones
+                const añoExiste = Array.from(selectYear.options).some(option => 
+                    option.value == añoActual
+                );
+                
+                // Si el año actual está disponible, seleccionarlo
+                if (añoExiste) {
+                    selectYear.value = añoActual;
+                    // Disparar el evento change del año
+                    if (selectYear.dispatchEvent) {
+                        const yearEvent = new Event('change', { bubbles: true });
+                        selectYear.dispatchEvent(yearEvent);
+                    }
+                } else if (selectYear.options.length > 0) {
+                    // Si el año actual no está disponible, seleccionar el primer año disponible
+                    selectYear.selectedIndex = 0;
+                    if (selectYear.dispatchEvent) {
+                        const yearEvent = new Event('change', { bubbles: true });
+                        selectYear.dispatchEvent(yearEvent);
+                    }
+                }
+            }, 100);
         }
-    });
+    }
 
     // Enfocar automáticamente en el campo de búsqueda al cargar y setear max en fecha
     document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('studentSearch').focus();
         setTodayMaxOnFecha();
         validarCamposYActualizarUI();
-    });
+        
+        // Esperar un momento para asegurar que todo el DOM esté listo
+    }); 
+
+
+    // document.getElementById('selectCliclo').addEventListener('change', function() {
+    //     const selectedValue = this.value;
+    //     document.getElementById('selectYear').value = selectedValue;
+    // });
+
+    // document.getElementById('selectYear').addEventListener('change', function() {
+    //     const selectedValue = this.value;
+    //     console.log('Año seleccionado:', selectedValue);
+    // });
+
+
+
+
 </script>
 </body>
 </html>

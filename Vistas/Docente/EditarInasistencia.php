@@ -1,3 +1,56 @@
+<?php
+session_start();
+if(!isset($_SESSION['docente'])){
+    header("Location: /ProyectoInasistenciasItca/index.php");
+}
+require_once "../../models/FaltasModel.php";
+
+
+$dataDocente=$_SESSION['docente'];
+
+$idInasistenciaId=$_GET['id'];
+
+$inasistencia=new Faltas();
+$inasistencias = $inasistencia->getByInasistenciaID($idInasistenciaId);
+
+if(isset($_POST['Actualizar'])){
+    $data = [
+        'id_inasistencia' => $idInasistenciaId,
+        'idalumno' => intval($_POST['idalumno']),
+        'id_docente' => $dataDocente['id_docente'],
+        'id_detalle' => intval($_POST['detalle']),
+        'fecha_falta' => $_POST['fechaInasistencia'],
+        'cantidadHoras' => $_POST['horasClase'],
+        'observacion' => $_POST['observaciones']
+    ];
+    if($inasistencia->update($data)){
+        // Guardar mensaje de éxito en la sesión
+        session_start();
+        $_SESSION['toast'] = [
+            'type' => 'success',
+            'message' => 'Inasistencia actualizada correctamente'
+        ];
+        // Redirigir inmediatamente
+        header("Location: /ProyectoInasistenciasItca/Vistas/Docente/CrudInasistencia.php");
+        exit();
+    } else {
+        // Guardar mensaje de error en la sesión
+        session_start();
+        $_SESSION['toast'] = [
+            'type' => 'error',
+            'message' => 'Error al actualizar la inasistencia',
+            'details' => 'Por favor, intente nuevamente'
+        ];
+        // Redirigir de vuelta al formulario
+        header("Location: ".$_SERVER['HTTP_REFERER']);
+        exit();
+    }
+}
+
+
+?>
+
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -6,6 +59,8 @@
     <title>Editar Inasistencia - ITCA FEPADE</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Poppins', sans-serif; }
@@ -43,7 +98,7 @@
     <div class="bg-white rounded-xl shadow-lg p-6 max-w-6xl w-full">
         <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Editar Inasistencia</h2>
 
-        <form id="editForm" class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <form id="editForm" method="post" class="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <!-- Información del Estudiante (Solo lectura) -->
             <div>
                 <div class="bg-green-50 border-l-4 border-green-600 p-4 rounded-lg">
@@ -55,6 +110,7 @@
                     </div>
                     <div class="space-y-4">
                         <div>
+                            <input type="hidden" id="idalumno" name="idalumno">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Carnet</label>
                             <input type="text" id="carnet" name="carnet" readonly class="w-full p-2 bg-gray-100 border border-gray-200 rounded text-gray-600">
                         </div>
@@ -89,6 +145,7 @@
                     </div>
                     <div class="space-y-4">
                         <div>
+                            <input type="hidden" id="detalle" name="detalle">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Fecha de Inasistencia <span class="text-red-500">*</span></label>
                             <input type="date" id="fechaInasistencia" name="fechaInasistencia" required class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-red-500">
                             <p id="errorFecha" class="text-sm text-red-600 mt-1 hidden">La fecha no puede ser futura.</p>
@@ -98,10 +155,10 @@
                             <input type="number" id="horasClase" name="horasClase" required min="1" step="1" placeholder="Ej: 1, 2, 3, 4" class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-red-500" />
                             <p id="errorHora" class="text-sm text-red-600 mt-1 hidden">Ingrese un número de horas válido (mínimo 1).</p>
                         </div>
-                        <div>
+                        <!-- <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Materia</label>
                             <input type="text" id="materia" name="materia" readonly class="w-full p-2 bg-gray-100 border border-gray-200 rounded text-gray-600">
-                        </div>
+                        </div> -->
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Observaciones</label>
                             <textarea id="observaciones" name="observaciones" rows="3" placeholder="Comentarios adicionales (opcional)" class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-red-500 resize-none"></textarea>
@@ -115,7 +172,7 @@
                 <button type="button" id="cancelBtn" class="bg-gray-500 text-white py-2 px-6 rounded-lg hover:bg-gray-600 transition">
                     <i class="fas fa-times mr-2"></i>Cancelar
                 </button>
-                <button type="submit" id="submitBtn" class="bg-red-600 text-white py-2 px-6 rounded-lg hover:bg-red-700 transition">
+                <button type="submit" name="Actualizar" class="bg-red-600 text-white py-2 px-6 rounded-lg hover:bg-red-700 transition">
                     <i class="fas fa-save mr-2"></i>Guardar Cambios
                 </button>
             </div>
@@ -125,11 +182,6 @@
 
 <script>
     // Datos estáticos base (simulación). En real, se consultaría por ID.
-    const inasistencias = [
-        { id: 1, carnet: "000224", apellidos: "PÉREZ LÓPEZ", nombres: "JOSÉ CARLOS", carrera: "TEC. EN DESARROLLO DE SOFTWARE", grupo: "SOFT42B", fecha: "2025-09-01", horas: 2, materia: "Programación I", observaciones: "Llegó tarde al laboratorio" },
-        { id: 2, carnet: "000225", apellidos: "GARCÍA MARTÍNEZ", nombres: "MARÍA ELENA", carrera: "TEC. EN DESARROLLO DE SOFTWARE", grupo: "SOFT42A", fecha: "2025-09-02", horas: 1, materia: "Base de Datos", observaciones: "Ausencia justificada" },
-        { id: 3, carnet: "000229", apellidos: "LÓPEZ RAMÍREZ", nombres: "CARMEN ELIZABETH", carrera: "TEC. EN DESARROLLO DE SOFTWARE", grupo: "SOFT42B", fecha: "2025-09-03", horas: 4, materia: "Desarrollo Web", observaciones: "Sin justificación" }
-    ];
 
     function getQueryId() {
         const params = new URLSearchParams(window.location.search);
@@ -188,17 +240,18 @@
     // Cargar datos por ID
     document.addEventListener('DOMContentLoaded', function() {
         const id = getQueryId();
-        const item = inasistencias.find(x => x.id === id) || inasistencias[0];
+        const item =  <?php echo json_encode($inasistencias); ?>;
 
         document.getElementById('carnet').value = item.carnet;
-        document.getElementById('apellidos').value = item.apellidos;
-        document.getElementById('nombres').value = item.nombres;
-        document.getElementById('carrera').value = item.carrera;
+        document.getElementById('apellidos').value = item.apellido;
+        document.getElementById('nombres').value = item.nombre;
+        document.getElementById('carrera').value = item.materia;
         document.getElementById('grupo').value = item.grupo;
-        document.getElementById('fechaInasistencia').value = item.fecha;
-        document.getElementById('horasClase').value = item.horas;
-        document.getElementById('materia').value = item.materia;
-        document.getElementById('observaciones').value = item.observaciones || '';
+        document.getElementById('fechaInasistencia').value = item.fecha_falta;
+        document.getElementById('horasClase').value = item.cantidadHoras;
+        document.getElementById('observaciones').value = item.observacion || '';
+        document.getElementById('idalumno').value = item.idalumno;
+        document.getElementById('detalle').value = item.id_detalle;
 
         setTodayMaxOnFecha(document.getElementById('fechaInasistencia'));
         validarCamposYActualizarUI();
@@ -206,7 +259,6 @@
 
     // Submit
     document.getElementById('editForm').addEventListener('submit', function(e) {
-        e.preventDefault();
         if (!validarCamposYActualizarUI()) return;
         // Simular guardado
         const msg = document.createElement('div');

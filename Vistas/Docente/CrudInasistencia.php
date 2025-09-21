@@ -1,3 +1,21 @@
+<?php
+session_start();
+if(!isset($_SESSION['docente'])){
+    header("Location: /ProyectoInasistenciasItca/index.php");
+}
+$dataDocente=$_SESSION['docente'];
+
+
+require_once "../../models/FaltasModel.php";
+
+$inasistencia = new Faltas();
+
+$inasistencias = $inasistencia->getFaltasByDocenteId($dataDocente['id_docente']);
+
+
+?>
+
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -6,6 +24,8 @@
     <title>Gestionar Inasistencias - ITCA FEPADE</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Poppins', sans-serif; }
@@ -60,7 +80,7 @@
             <div class="flex items-center mb-4">
                 <div class="bg-blue-100 p-2 rounded-full mr-3">
                     <i class="fas fa-filter text-blue-600"></i>
-                </div>
+                </div>  
                 <h3 class="font-semibold text-gray-800">Filtros</h3>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-start">
@@ -91,9 +111,8 @@
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50 sticky top-0 z-10">
                 <tr>
-                    <th class="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">ID</th>
                     <th class="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Estudiante</th>
-                    <th class="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Carrera / Grupo</th>
+                    <th class="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Grupo</th>
                     <th class="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Fecha</th>
                     <th class="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Horas</th>
                     <th class="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Materia</th>
@@ -111,54 +130,47 @@
             <div>No hay inasistencias que coincidan con los filtros.</div>
         </div>
 
-        <!-- Resumen -->
-        <div class="mt-4 text-sm text-gray-600">
-            <span id="summaryCount">0</span> registro(s) mostrado(s)
-        </div>
     </div>
 </main>
 
 <script>
-    // Datos estáticos de ejemplo (coherentes con FormRegistroInasistencia)
-    const inasistencias = [
-        {
-            id: 1,
-            carnet: "000224",
-            apellidos: "PÉREZ LÓPEZ",
-            nombres: "JOSÉ CARLOS",
-            carrera: "TEC. EN DESARROLLO DE SOFTWARE",
-            grupo: "SOFT42B",
-            fecha: "2025-09-01",
-            horas: 2,
-            materia: "Programación I",
-            observaciones: "Llegó tarde al laboratorio"
-        },
-        {
-            id: 2,
-            carnet: "000225",
-            apellidos: "GARCÍA MARTÍNEZ",
-            nombres: "MARÍA ELENA",
-            carrera: "TEC. EN DESARROLLO DE SOFTWARE",
-            grupo: "SOFT42A",
-            fecha: "2025-09-02",
-            horas: 1,
-            materia: "Base de Datos",
-            observaciones: "Ausencia justificada"
-        },
-        {
-            id: 3,
-            carnet: "000229",
-            apellidos: "LÓPEZ RAMÍREZ",
-            nombres: "CARMEN ELIZABETH",
-            carrera: "TEC. EN DESARROLLO DE SOFTWARE",
-            grupo: "SOFT42B",
-            fecha: "2025-09-03",
-            horas: 4,
-            materia: "Desarrollo Web",
-            observaciones: "Sin justificación"
-        }
-    ];
+    // Mostrar notificación si existe en la sesión
+    <?php if(isset($_SESSION['toast'])): ?>
+    document.addEventListener('DOMContentLoaded', function() {
+        const toast = <?php echo json_encode($_SESSION['toast']); ?>;
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: !!toast.details,
+            confirmButtonText: 'Entendido',
+            showCloseButton: true,
+            timer: toast.type === 'success' ? 3000 : 5000,
+            timerProgressBar: true,
+            width: '350px',
+            padding: '1rem',
+            didOpen: (toastElement) => {
+                toastElement.addEventListener('mouseenter', Swal.stopTimer);
+                toastElement.addEventListener('mouseleave', Swal.resumeTimer);
+            }
+        });
 
+        Toast.fire({
+            icon: toast.type,
+            title: toast.message,
+            text: toast.details || '',
+            background: toast.type === 'success' ? '#d4edda' : '#f8d7da',
+            color: toast.type === 'success' ? '#155724' : '#721c24',
+            iconColor: toast.type === 'success' ? '#28a745' : '#dc3545'
+        });
+    });
+    <?php 
+    // Limpiar la notificación después de mostrarla
+    unset($_SESSION['toast']);
+    endif; 
+    ?>
+
+    // Datos de inasistencias
+    const inasistencias = <?php echo json_encode($inasistencias); ?>;
     function normalizeText(text) {
         return (text || '')
             .toString()
@@ -182,23 +194,22 @@
         empty.classList.add('hidden');
         tbody.innerHTML = rows.map((r, idx) => `
             <tr class="hover:bg-gray-50 ${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}">
-                <td class="px-4 py-2 align-top text-gray-700">${r.id}</td>
                 <td class="px-4 py-2 align-top">
-                    <div class="font-medium text-gray-800">${r.nombres} ${r.apellidos}</div>
+                    <div class="font-medium text-gray-800">${r.nombre} ${r.apellido}</div>
                     <div class="text-xs text-gray-500">${r.carnet}</div>
                 </td>
-                <td class="px-4 py-2 align-top">${r.carrera} <span class="text-gray-400">/</span> ${r.grupo}</td>
-                <td class="px-4 py-2 align-top">${r.fecha}</td>
-                <td class="px-4 py-2 align-top">${r.horas}</td>
+                <td class="px-4 py-2 align-top">${r.grupo}</td>
+                <td class="px-4 py-2 align-top">${r.fecha_falta}</td>
+                <td class="px-4 py-2 align-top">${r.cantidadHoras}</td>
                 <td class="px-4 py-2 align-top">${r.materia}</td>
-                <td class="px-4 py-2 align-top">${r.observaciones || ''}</td>
+                <td class="px-4 py-2 align-top">${r.observacion}</td>
                 <td class="px-4 py-2 align-top text-right space-x-2 whitespace-nowrap">
-                    <a href="EditarInasistencia.php?id=${r.id}" class="inline-flex items-center bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 text-xs">
+                    <a href="EditarInasistencia.php?id=${r.id_inasistencia}" class="inline-flex items-center bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 text-xs">
                         <i class="fas fa-pen mr-1"></i> Editar
                     </a>
-                    <button data-id="${r.id}" class="btn-delete inline-flex items-center bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 text-xs">
+                    <a href="CambiarEstado.php?id=${r.id_inasistencia}&estado=Eliminada" class="btn-delete inline-flex items-center bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 text-xs">
                         <i class="fas fa-trash mr-1"></i> Eliminar
-                    </button>
+                    </a>
                 </td>
             </tr>
         `).join('');
@@ -210,9 +221,9 @@
         const from = document.getElementById('fromDate').value;
         const to = document.getElementById('toDate').value;
         const rows = inasistencias.filter(r => {
-            const textHay = normalizeText(`${r.nombres} ${r.apellidos} ${r.carnet} ${r.carrera} ${r.grupo} ${r.materia} ${r.observaciones}`).includes(text);
-            const afterFrom = from ? (r.fecha >= from) : true;
-            const beforeTo = to ? (r.fecha <= to) : true;
+            const textHay = normalizeText(`${r.nombre} ${r.apellido} ${r.carnet} ${r.grupo} ${r.materia} ${r.observacion}`).includes(text);
+            const afterFrom = from ? (r.fecha_falta >= from) : true;
+            const beforeTo = to ? (r.fecha_falta <= to) : true;
             return textHay && afterFrom && beforeTo;
         });
         renderTable(rows);
@@ -227,9 +238,9 @@
         const btn = e.target.closest('.btn-delete');
         if (btn) {
             const id = parseInt(btn.dataset.id, 10);
-            const item = inasistencias.find(x => x.id === id);
-            if (confirm(`¿Eliminar inasistencia de ${item.nombres} ${item.apellidos} del ${item.fecha}?`)) {
-                const idx = inasistencias.findIndex(x => x.id === id);
+            const item = inasistencias.find(x => x.id_inasistencia === id);
+            if (confirm(`¿Eliminar inasistencia de ${item.nombre} ${item.apellido} del ${item.fecha_falta}?`)) {
+                const idx = inasistencias.findIndex(x => x.id_inasistencia === id);
                 if (idx >= 0) {
                     inasistencias.splice(idx, 1);
                     applyFilters();

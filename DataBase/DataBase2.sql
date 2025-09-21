@@ -138,10 +138,13 @@ CREATE TABLE IF NOT EXISTS inasistencia (
     idalumno INT NOT NULL,
     id_docente INT(11) UNSIGNED NOT NULL,
     id_detalle INT NOT NULL,
-    fecha DATE NOT NULL,
+    fecha_falta DATE NOT NULL,
+    fecha DATETIME DEFAULT CURRENT_TIMESTAMP,
     cantidadHoras INT,
-    motivo VARCHAR(255),
     observacion TEXT,
+    estado VARCHAR(15) DEFAULT 'Creada',
+    justificando INT(1) DEFAULT 0,
+    justificaion VARCHAR (255),
     CONSTRAINT fk_inas_alumno FOREIGN KEY (idalumno) REFERENCES alumno(idalumno) 
         ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT fk_inas_docente FOREIGN KEY (id_docente) REFERENCES docente(id_docente) 
@@ -154,7 +157,7 @@ CREATE TABLE IF NOT EXISTS inasistencia (
 CREATE TABLE IF NOT EXISTS seguimiento (
     id_seguimiento INT AUTO_INCREMENT PRIMARY KEY,
     id_inasistencia INT NOT NULL,
-    fecha DATE NOT NULL,
+    fecha DATETIME DEFAULT CURRENT_TIMESTAMP,
     accion VARCHAR(255),
     respuesta TEXT,
     CONSTRAINT fk_seg_inas FOREIGN KEY (id_inasistencia) REFERENCES inasistencia(id_inasistencia)
@@ -166,41 +169,80 @@ CREATE TABLE IF NOT EXISTS seguimiento (
 -- =====================================
 
 -- Alumnos
+-- ========================
 INSERT INTO alumno (carnet, nombre, apellido, telefono, sexo, foto, email, estadoAlumno, beca, tipobeca) VALUES
 ('A001', 'Juan', 'Pérez', '7777-1111', 'M', 'juan.jpg', 'juan@gmail.com', 1, 1, 'Completa'),
-('A002', 'María', 'García', '7777-2222', 'F', 'maria.jpg', 'maria@gmail.com', 1, 0, NULL);
+('A002', 'María', 'García', '7777-2222', 'F', 'maria.jpg', 'maria@gmail.com', 1, 0, NULL),
+('A003', 'Carlos', 'Ramírez', '7777-3333', 'M', 'carlos.jpg', 'carlos@gmail.com', 1, 1, 'Media'),
+('A004', 'Lucía', 'Fernández', '7777-4444', 'F', 'lucia.jpg', 'lucia@gmail.com', 0, 0, NULL),
+('A005', 'Pedro', 'López', '7777-5555', 'M', 'pedro.jpg', 'pedro@gmail.com', 1, 1, 'Completa');
 
+-- ========================
 -- Datos extra alumnos
+-- ========================
 INSERT INTO alumnos_extra (idalumno, direccion, fecha_nacimiento, contacto_emergencia, telefono_emergencia, observaciones) VALUES
 (1, 'San Salvador', '2000-05-10', 'Carlos Pérez', '7777-0000', 'Ninguna'),
-(2, 'Santa Ana', '1999-08-15', 'Ana García', '7777-9999', 'Alergia leve');
+(2, 'Santa Ana', '1999-08-15', 'Ana García', '7777-9999', 'Alergia leve'),
+(3, 'San Miguel', '2001-03-22', 'José Ramírez', '7777-8888', 'Problemas de visión'),
+(4, 'Sonsonate', '2000-12-05', 'Luis Fernández', '7777-7777', 'Asma'),
+(5, 'La Libertad', '1998-07-30', 'Marta López', '7777-6666', 'Ninguna');
 
+-- ========================
 -- Docentes
+-- ========================
 INSERT INTO docente (carnet, nom_usuario, ape_usuario, estado, clave, permanente, accesosistemas, esadministrador, cambio, esadminbecas) VALUES
 ('D001', 'José', 'Morales', 'Activo', 'clave1', 1, 1, 1, 0, 0),
-('D002', 'Marta', 'Jiménez', 'Activo', 'clave2', 0, 1, 0, 0, 0);
+('D002', 'Marta', 'Jiménez', 'Activo', 'clave2', 0, 1, 0, 0, 0),
+('D003', 'Roberto', 'Castro', 'Activo', 'clave3', 1, 0, 0, 0, 0),
+('D004', 'Elena', 'Martínez', 'Inactivo', 'clave4', 0, 0, 0, 0, 0),
+('D005', 'Andrés', 'Hernández', 'Activo', 'clave5', 1, 1, 0, 0, 1);
 
+-- ========================
 -- Materias
+-- ========================
 INSERT INTO materia (materia) VALUES
 ('Matemáticas I'),
-('Programación I');
+('Programación I'),
+('Inglés Técnico'),
+('Bases de Datos'),
+('Redes de Computadoras');
 
+-- ========================
 -- Grupos
+-- ========================
 INSERT INTO grupo (grupo, year, ciclo) VALUES
 ('Grupo 1', 2025, 'I'),
-('Grupo 2', 2025, 'I');
+('Grupo 2', 2025, 'I'),
+('Grupo 3', 2025, 'II'),
+('Grupo 4', 2024, 'II'),
+('Grupo 5', 2025, 'I');
 
+-- ========================
 -- Detalle (docente + grupo + materia)
+-- ========================
 INSERT INTO detalle (id_d, id_g, id_m, aula, ha, hf, ciclo, year, dia, grupo, horas) VALUES
 (1, 1, 1, 'Aula 101', '08:00:00', '10:00:00', 'I', 2025, 'Lunes', 'Grupo 1', 2),
-(2, 2, 2, 'Aula 102', '10:00:00', '12:00:00', 'I', 2025, 'Martes', 'Grupo 2', 2);
+(2, 2, 2, 'Aula 102', '10:00:00', '12:00:00', 'I', 2025, 'Martes', 'Grupo 2', 2),
+(3, 3, 3, 'Aula 201', '13:00:00', '15:00:00', 'II', 2025, 'Miércoles', 'Grupo 3', 2),
+(4, 4, 4, 'Aula 301', '07:00:00', '09:00:00', 'II', 2024, 'Jueves', 'Grupo 4', 2),
+(5, 5, 5, 'Aula 401', '09:00:00', '11:00:00', 'I', 2025, 'Viernes', 'Grupo 5', 2);
 
+-- ========================
 -- Inasistencias
+-- ========================
 INSERT INTO inasistencia (idalumno, id_docente, id_detalle, fecha, cantidadHoras, motivo, observacion) VALUES
 (1, 1, 1, '2025-02-10', 2, 'Enfermedad', 'Alumno llamó para justificar'),
-(2, 2, 2, '2025-02-11', 1, 'Transporte', 'Se quedó sin bus');
+(2, 2, 2, '2025-02-11', 1, 'Transporte', 'Se quedó sin bus'),
+(3, 3, 3, '2025-02-12', 2, 'Problemas familiares', 'Avisó con anticipación'),
+(4, 4, 4, '2025-02-13', 3, 'Inasistencia injustificada', 'No respondió llamadas'),
+(5, 5, 5, '2025-02-14', 1, 'Accidente menor', 'Se presentó con incapacidad médica');
 
+-- ========================
 -- Seguimientos
+-- ========================
 INSERT INTO seguimiento (id_inasistencia, fecha, accion, respuesta) VALUES
 (1, '2025-02-12', 'Llamada', 'Alumno confirma asistencia próxima clase'),
-(2, '2025-02-13', 'Correo enviado', 'Sin respuesta del alumno');
+(2, '2025-02-13', 'Correo enviado', 'Sin respuesta del alumno'),
+(3, '2025-02-14', 'Reunión con padres', 'Compromiso de mejorar asistencia'),
+(4, '2025-02-15', 'Visita domiciliaria', 'No se encontró al alumno'),
+(5, '2025-02-16', 'Mensaje por WhatsApp', 'Alumno respondió justificando con incapacidad');

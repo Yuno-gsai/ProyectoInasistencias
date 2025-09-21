@@ -8,29 +8,127 @@ class Faltas extends BaseModel {
     }
 
     public function getAll() {
-        $query = "SELECT * FROM inasistencia";
+        $query = "SELECT * FROM inasistencia WHERE estado = 'Creada'";
         $stmt = $this->getConnection()->prepare($query);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function getByEstudianteID($id) {
-        $query = "SELECT * FROM inasistencia WHERE fk_carnetalum = :id";
+    public function getByInasistenciaID($id) {
+        $query = "SELECT 
+                    -- Campos permitidos de alumno
+                    a.idalumno,
+                    a.carnet,
+                    a.nombre,
+                    a.apellido,
+                    a.email,
+                    
+                    -- Todo de alumnos_extra
+                    ae.*,
+                    
+                    -- Todo de inasistencia
+                    i.*,
+                    
+                    -- Todo de detalle
+                    d.*,
+                    
+                    -- Todo de materia
+                    m.*,
+                    
+                    -- Todo de grupo
+                    g.*
+                FROM alumno a
+                INNER JOIN alumnos_extra ae 
+                    ON a.idalumno = ae.idalumno
+                INNER JOIN inasistencia i 
+                    ON a.idalumno = i.idalumno
+                INNER JOIN detalle d 
+                    ON i.id_detalle = d.id_detalle
+                INNER JOIN materia m 
+                    ON d.id_m = m.id_materia
+                INNER JOIN grupo g 
+                    ON d.id_g = g.id_grupo
+                WHERE i.id_inasistencia = :id_inasistencia AND i.estado = 'Creada';
+                ";
         $stmt = $this->getConnection()->prepare($query);
-        $stmt->execute(['id' => $id]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $stmt->execute(['id_inasistencia' => $id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
     public function create($data) {
-        $query = "INSERT INTO inasistencia (fk_carnetalum,fk_carnetdoc,fecha_auto, fechafalta, cantidadHoras, materia) VALUES (:fk_carnetalum,:fk_carnetdoc,:fecha_auto, :fechafalta, :cantidadHoras, :materia)";
+        $query = "INSERT INTO inasistencia (idalumno,id_docente,id_detalle, fecha_falta, cantidadHoras, observacion) VALUES (:idalumno,:id_docente,:id_detalle, :fecha_falta, :cantidadHoras, :observacion)";
         $stmt = $this->getConnection()->prepare($query);
         $stmt->execute([
-            'fk_carnetalum' => $data['fk_carnetalum'],
-            'fk_carnetdoc' => $data['fk_carnetdoc'],
-            'fk_carnetalum' => $data['fk_carnetalum'],
-            'fechafalta' => $data['fechafalta'],
+            'idalumno' => $data['idalumno'],
+            'id_docente' => $data['id_docente'],
+            'id_detalle' => $data['id_detalle'],
+            'fecha_falta' => $data['fecha_falta'],
             'cantidadHoras' => $data['cantidadHoras'],
-            'materia' => $data['materia']]);
+            'observacion' => $data['observacion']]);
+        return true;
+    }
+
+    public function getFaltasByDocenteId($id) {
+        $query = "SELECT 
+                    -- Campos permitidos de alumno
+                    a.idalumno,
+                    a.carnet,
+                    a.nombre,
+                    a.apellido,
+                    a.email,
+                    
+                    -- Todo de alumnos_extra
+                    ae.*,
+                    
+                    -- Todo de inasistencia
+                    i.*,
+                    
+                    -- Todo de detalle
+                    d.*,
+                    
+                    -- Todo de materia
+                    m.*,
+                    
+                    -- Todo de grupo
+                    g.*
+                FROM alumno a
+                INNER JOIN alumnos_extra ae 
+                    ON a.idalumno = ae.idalumno
+                INNER JOIN inasistencia i 
+                    ON a.idalumno = i.idalumno
+                INNER JOIN detalle d 
+                    ON i.id_detalle = d.id_detalle
+                INNER JOIN materia m 
+                    ON d.id_m = m.id_materia
+                INNER JOIN grupo g 
+                    ON d.id_g = g.id_grupo
+                WHERE i.id_docente = :id_docente AND i.estado = 'Creada';
+                ";
+        $stmt = $this->getConnection()->prepare($query);
+        $stmt->execute(['id_docente' => $id]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+
+    public function update($data) {
+        $query = "UPDATE inasistencia SET idalumno = :idalumno, id_docente = :id_docente, id_detalle = :id_detalle, fecha_falta = :fecha_falta, cantidadHoras = :cantidadHoras, observacion = :observacion WHERE id_inasistencia = :id_inasistencia";
+        $stmt = $this->getConnection()->prepare($query);
+        $stmt->execute([
+            'id_inasistencia' => $data['id_inasistencia'],
+            'idalumno' => $data['idalumno'],
+            'id_docente' => $data['id_docente'],
+            'id_detalle' => $data['id_detalle'],
+            'fecha_falta' => $data['fecha_falta'],
+            'cantidadHoras' => $data['cantidadHoras'],
+            'observacion' => $data['observacion']]);
+        return true;
+    } 
+
+
+    public function cambiarEstado($id,$estado) {
+        $query = "UPDATE inasistencia SET estado = :estado WHERE id_inasistencia = :id_inasistencia";
+        $stmt = $this->getConnection()->prepare($query);
+        $stmt->execute(['id_inasistencia' => $id,'estado'=>$estado]);
         return true;
     }
 }
