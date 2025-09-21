@@ -28,8 +28,9 @@ class Alumno extends BaseModel {
                     ae.telefono_emergencia,
                     ae.observaciones
                 FROM alumno a
-                LEFT JOIN alumnos_extra ae 
-                    ON a.idalumno = ae.idalumno";
+                INNER JOIN alumnos_extra ae 
+                    ON a.idalumno = ae.idalumno
+                WHERE a.estadoAlumno = 1";
 
         $stmt = $this->getConnection()->prepare($query);
         $stmt->execute();

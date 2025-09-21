@@ -21,7 +21,12 @@ class Faltas extends BaseModel {
                     a.carnet,
                     a.nombre,
                     a.apellido,
+                    a.telefono,
+                    a.foto,
                     a.email,
+                    a.estadoAlumno,
+                    a.beca,
+                    a.tipobeca,
                     
                     -- Todo de alumnos_extra
                     ae.*,
@@ -48,8 +53,7 @@ class Faltas extends BaseModel {
                     ON d.id_m = m.id_materia
                 INNER JOIN grupo g 
                     ON d.id_g = g.id_grupo
-                WHERE i.id_inasistencia = :id_inasistencia AND i.estado = 'Creada';
-                ";
+                WHERE i.id_inasistencia = :id_inasistencia AND i.estado = 'Creada'";
         $stmt = $this->getConnection()->prepare($query);
         $stmt->execute(['id_inasistencia' => $id]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
@@ -75,7 +79,12 @@ class Faltas extends BaseModel {
                     a.carnet,
                     a.nombre,
                     a.apellido,
+                    a.telefono,
+                    a.foto,
                     a.email,
+                    a.estadoAlumno,
+                    a.beca,
+                    a.tipobeca,
                     
                     -- Todo de alumnos_extra
                     ae.*,
@@ -102,8 +111,7 @@ class Faltas extends BaseModel {
                     ON d.id_m = m.id_materia
                 INNER JOIN grupo g 
                     ON d.id_g = g.id_grupo
-                WHERE i.id_docente = :id_docente AND i.estado = 'Creada';
-                ";
+                WHERE i.id_docente = :id_docente AND i.estado = 'Creada'";
         $stmt = $this->getConnection()->prepare($query);
         $stmt->execute(['id_docente' => $id]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -131,6 +139,62 @@ class Faltas extends BaseModel {
         $stmt->execute(['id_inasistencia' => $id,'estado'=>$estado]);
         return true;
     }
+
+    public function getAllAlumnos(){
+        $query = "SELECT 
+                    -- Datos del alumno
+                    a.idalumno,
+                    a.carnet,
+                    a.nombre,
+                    a.apellido,
+                    a.telefono,
+                    a.foto,
+                    a.email,
+                    a.estadoAlumno,
+                    a.beca,
+                    a.tipobeca,
+                    
+                    -- Datos extra
+                    ae.direccion,
+                    ae.fecha_nacimiento,
+                    ae.contacto_emergencia,
+                    ae.telefono_emergencia,
+                    ae.observaciones,
+                    
+                    -- Datos del ciclo y año desde detalle
+                    d.ciclo,
+                    d.year,
+                    
+                    -- Total de faltas en ese ciclo/año
+                    COUNT(i.id_inasistencia) AS total_faltas
+                    
+                FROM alumno a
+                INNER JOIN alumnos_extra ae 
+                    ON a.idalumno = ae.idalumno
+                INNER JOIN inasistencia i 
+                    ON a.idalumno = i.idalumno
+                INNER JOIN detalle d 
+                    ON i.id_detalle = d.id_detalle
+                INNER JOIN materia m 
+                    ON d.id_m = m.id_materia
+                INNER JOIN grupo g 
+                    ON d.id_g = g.id_grupo
+                    
+                GROUP BY 
+                    a.idalumno, a.carnet, a.nombre, a.apellido, a.telefono, a.foto, 
+                    a.email, a.estadoAlumno, a.beca, a.tipobeca,
+                    ae.direccion, ae.fecha_nacimiento, ae.contacto_emergencia, 
+                    ae.telefono_emergencia, ae.observaciones,
+                    d.ciclo, d.year
+                ORDER BY d.year DESC, d.ciclo ASC, a.nombre ASC";
+    
+        $stmt = $this->getConnection()->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    
+    
+    
 }
 
 ?>
