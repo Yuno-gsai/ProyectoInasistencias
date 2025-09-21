@@ -267,7 +267,7 @@ $inasistencias = $inasistencia->getFaltasByDocenteId($dataDocente['id_docente'])
     });
     document.getElementById('logoutBtn').addEventListener('click', function() {
         if (confirm('¿Está seguro que desea cerrar sesión?')) {
-            window.location.href = '../Login/Login.php';
+            window.location.href = '../Login/Logout.php';
         }
     });
 

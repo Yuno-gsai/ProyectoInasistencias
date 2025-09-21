@@ -17,7 +17,7 @@ if(isset($_POST['username']) && isset($_POST['password'])) {
         }
         if($tipoUsuario == 'administrador' && $dataDocente['estado'] == 'Activo' && $dataDocente['esadministrador'] == 1){
             $_SESSION['administrador'] = $dataDocente;
-            header("Location: " . "/ProyectoInasistenciasItca/Vistas/Admin/DashboardAdmin.php");
+            header("Location: " . "/ProyectoInasistenciasItca/Vistas/Admin/dasboard.php");
             exit();
         }
         else{
