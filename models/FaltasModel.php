@@ -193,7 +193,48 @@ class Faltas extends BaseModel {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
     
-    
+    public function getFaltasByAlumno($idalumno){
+        $query = "SELECT 
+                    a.idalumno,
+                    ANY_VALUE(a.carnet) AS carnet,
+                    ANY_VALUE(a.nombre) AS nombre,
+                    ANY_VALUE(a.apellido) AS apellido,
+                    ANY_VALUE(a.telefono) AS telefono,
+                    ANY_VALUE(a.foto) AS foto,
+                    ANY_VALUE(a.email) AS email,
+                    ANY_VALUE(a.estadoAlumno) AS estadoAlumno,
+                    ANY_VALUE(a.beca) AS beca,
+                    ANY_VALUE(a.tipobeca) AS tipobeca,
+                    
+                    ANY_VALUE(ae.direccion) AS direccion,
+                    ANY_VALUE(ae.fecha_nacimiento) AS fecha_nacimiento,
+                    ANY_VALUE(ae.contacto_emergencia) AS contacto_emergencia,
+                    ANY_VALUE(ae.telefono_emergencia) AS telefono_emergencia,
+                    ANY_VALUE(ae.observaciones) AS observaciones,
+
+                    JSON_ARRAYAGG(
+                        JSON_OBJECT(
+                            'id_inasistencia', i.id_inasistencia,
+                            'observacion', i.observacion,
+                            'cantidadHoras', i.cantidadHoras,
+                            'fecha_falta', i.fecha_falta,
+                            'estado', i.estado,
+                            'materia', m.materia,
+                            'grupo', g.grupo
+                        )
+                    ) AS faltas
+                FROM alumno a
+                INNER JOIN alumnos_extra ae ON a.idalumno = ae.idalumno
+                INNER JOIN inasistencia i ON a.idalumno = i.idalumno
+                INNER JOIN detalle d ON i.id_detalle = d.id_detalle
+                INNER JOIN materia m ON d.id_m = m.id_materia
+                INNER JOIN grupo g ON d.id_g = g.id_grupo
+                WHERE i.idalumno = :idalumno
+                GROUP BY a.idalumno";
+        $stmt = $this->getConnection()->prepare($query);
+        $stmt->execute(['idalumno' => $idalumno]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
     
 }
 

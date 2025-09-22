@@ -37,6 +37,38 @@ class Alumno extends BaseModel {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function getAlumnoById($id) {
+        $query = "SELECT 
+                    a.idalumno,
+                    a.carnet,
+                    a.nombre,
+                    a.apellido,
+                    a.telefono,
+                    a.sexo,
+                    a.foto,
+                    a.email,
+                    a.estadoAlumno,
+                    a.beca,
+                    a.tipobeca,
+                    ae.id AS id_extra,
+                    ae.fk_alumno,
+                    ae.motivo,
+                    ae.observacion,
+                    ae.tel_fijo,
+                    ae.correopersonal,
+                    ae.ciclo_academico,
+                    ae.anio
+                FROM alumno a
+                INNER JOIN alumnos_extra ae 
+                    ON a.idalumno = ae.idalumno
+                WHERE a.idalumno = :idalumno";
+
+        $stmt = $this->getConnection()->prepare($query);
+        $stmt->execute(['idalumno' => $id]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $result ?: null;
+    }
+
     public function getAllByEmail($email) {
         $query = "SELECT 
                     a.idalumno,

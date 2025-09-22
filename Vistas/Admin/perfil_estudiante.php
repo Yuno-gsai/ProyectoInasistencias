@@ -1,3 +1,10 @@
+<?php
+require_once "../../models/FaltasModel.php";
+$id_alumno = 1;
+$alumno = (new Faltas())->getFaltasByAlumno($id_alumno);
+$datosAlumno = $alumno[0];
+$faltas = !empty($datosAlumno['faltas']) ? json_decode($datosAlumno['faltas'], true) : [];
+?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -44,21 +51,24 @@
             <div class="flex-shrink-0">
                 <!-- Foto del estudiante -->
                 <div class="bg-white border-4 border-black p-2 mb-4 w-80 h-96">
-                    <img src="https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=300&h=400&fit=crop" 
-                         alt="Foto del estudiante" 
+                    <img src="../../assets/img/usuarios/<?php echo htmlspecialchars($datosAlumno['foto']); ?>" 
+                         alt="Foto de <?php echo htmlspecialchars($datosAlumno['nombre']); ?>" 
                          class="w-full h-full object-cover">
                 </div>
                 
                 <!-- Carnet -->
                 <div class="text-center mb-4">
                     <h3 class="text-xl font-bold text-black">Carnet</h3>
-                    <p class="text-lg text-black">12345</p>
+                    <p class="text-lg text-black"><?php echo htmlspecialchars($datosAlumno['carnet']); ?></p>
                 </div>
                 
-                <!-- Botón Iniciar Segimiento -->
-                <button class="w-full bg-red-800 hover:bg-red-900 text-white py-3 px-6 font-medium transition-colors">
-                    Iniciar Segimiento
-                </button>
+                <!-- Estado -->
+                <div class="text-center mb-4">
+                    <h3 class="text-xl font-bold text-black">Estado</h3>
+                    <span class="px-4 py-1 rounded-full text-sm font-medium <?php echo $datosAlumno['estadoAlumno'] ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'; ?>">
+                        <?php echo $datosAlumno['estadoAlumno'] ? 'Activo' : 'Inactivo'; ?>
+                    </span>
+                </div>
             </div>
             
             <!-- Panel derecho - Datos personales -->
@@ -69,48 +79,107 @@
                     <!-- Fila 1 -->
                     <div>
                         <h3 class="text-lg font-semibold text-black mb-1">Nombre</h3>
-                        <p class="text-black">German Jose</p>
+                        <p class="text-black"><?php echo htmlspecialchars($datosAlumno['nombre']); ?></p>
                     </div>
                     <div>
                         <h3 class="text-lg font-semibold text-black mb-1">Apellido</h3>
-                        <p class="text-black">Perdomo Moran</p>
+                        <p class="text-black"><?php echo htmlspecialchars($datosAlumno['apellido']); ?></p>
                     </div>
                     
                     <!-- Fila 2 -->
                     <div>
-                        <h3 class="text-lg font-semibold text-black mb-1">Correo personal</h3>
-                        <p class="text-black">estudiante@gmail.com</p>
+                        <h3 class="text-lg font-semibold text-black mb-1">Correo electrónico</h3>
+                        <p class="text-black"><?php echo htmlspecialchars($datosAlumno['email']); ?></p>
                     </div>
                     <div>
-                        <h3 class="text-lg font-semibold text-black mb-1">Correo Intitucional</h3>
-                        <p class="text-black">estudiante@itca.edu.com</p>
+                        <h3 class="text-lg font-semibold text-black mb-1">Teléfono</h3>
+                        <p class="text-black"><?php echo htmlspecialchars($datosAlumno['telefono']); ?></p>
                     </div>
                     
                     <!-- Fila 3 -->
                     <div>
-                        <h3 class="text-lg font-semibold text-black mb-1">Estado de alumno</h3>
-                        <p class="text-black">Activo</p>
-                    </div>
+                        <h3 class="text-lg font-semibold text-black mb-1">Fecha de Nacimiento</h3>
+                        <p class="text-black"><?php echo date('d/m/Y', strtotime($datosAlumno['fecha_nacimiento'])); ?></p>
                     <div>
                         <h3 class="text-lg font-semibold text-black mb-1">Telefono</h3>
-                        <p class="text-black">76267471</p>
+                        <p class="text-black"><?php echo htmlspecialchars($datosAlumno['telefono']); ?></p>
                     </div>
                     
                     <!-- Fila 4 -->
-                    <div>
-                        <h3 class="text-lg font-semibold text-black mb-1">Año</h3>
-                        <p class="text-black">2025</p>
-                    </div>
-                    <div>
-                        <h3 class="text-lg font-semibold text-black mb-1">Beca</h3>
-                        <p class="text-black">si</p>
-                    </div>
-                    
-                    <!-- Fila 5 -->
-                    <div class="col-span-2">
-                        <h3 class="text-lg font-semibold text-black mb-1">Tipo de beca</h3>
-                        <p class="text-black">Semilla</p>
-                    </div>
+                    <?php
+                        if($datosAlumno['beca'] == 1){
+                            echo '<div>
+                                    <h3 class="col-span-2 text-lg font-semibold text-black mb-1">Tipo de beca</h3>
+                                    <p class="col-span-2 text-black">'.$datosAlumno['tipobeca'].'</p>
+                                </div>';
+                        }else{
+                            echo '<div>
+                                    <h3 class="col-span-2 text-lg font-semibold text-black mb-1">Beca</h3>
+                                    <p class="col-span-2 text-black">No</p>
+                                </div>';
+                        }
+                    ?>
+                </div>
+                
+                <!-- Sección de Faltas -->
+                <div class="mt-12">
+                    <h2 class="text-2xl font-bold text-black mb-6">REGISTRO DE FALTAS</h2>
+                    <?php if (!empty($faltas)): ?>
+                        <div class="space-y-4">
+                            <?php foreach ($faltas as $falta): ?>
+                                <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-300">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <h3 class="text-lg font-semibold text-gray-800">
+                                                <?php echo htmlspecialchars($falta['materia']); ?>
+                                            </h3>
+                                            <p class="text-sm text-gray-600 mt-1">
+                                                <span class="font-medium">Grupo:</span> <?php echo htmlspecialchars($falta['grupo']); ?>
+                                            </p>
+                                            <p class="text-sm text-gray-600">
+                                                <span class="font-medium">Fecha:</span> 
+                                                <?php 
+                                                    $fecha = new DateTime($falta['fecha_falta']);
+                                                    echo $fecha->format('d/m/Y');
+                                                ?>
+                                            </p>
+                                            <p class="text-sm text-gray-600">
+                                                <span class="font-medium">Horas:</span> 
+                                                <?php 
+                                                    echo $falta['cantidadHoras'];
+                                                ?>
+                                            </p>
+                                        </div>
+                                        <span class="px-3 py-1 rounded-full text-xs font-medium 
+                                            <?php 
+                                                $estadoClass = 'bg-gray-100 text-gray-800';
+                                                if ($falta['estado'] === 'Justificada') $estadoClass = 'bg-green-100 text-green-800';
+                                                elseif ($falta['estado'] === 'Injustificada') $estadoClass = 'bg-red-100 text-red-800';
+                                                echo $estadoClass;
+                                            ?>">
+                                            <?php echo htmlspecialchars($falta['estado']); ?>
+                                        </span>
+                                    </div>
+                                    <?php if (!empty($falta['observacion'])): ?>
+                                        <div class="mt-3 pt-3 border-t border-gray-100">
+                                            <p class="text-sm text-gray-700">
+                                                <span class="font-medium">Observación:</span> 
+                                                <?php echo htmlspecialchars($falta['observacion']); ?>
+                                            </p>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php else: ?>
+                        <div class="bg-white rounded-lg shadow-md p-6 text-center">
+                            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            <h3 class="mt-2 text-sm font-medium text-gray-900">Sin faltas registradas</h3>
+                            <p class="mt-1 text-sm text-gray-500">No se han registrado faltas para este estudiante.</p>
+                        </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
