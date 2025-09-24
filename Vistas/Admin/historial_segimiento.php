@@ -1,3 +1,13 @@
+<?php
+require_once "../../models/SeguimientosModel.php";
+
+$seguimientosModel = new SeguimientosModel();
+$seguimientos = $seguimientosModel->getAllByEstudianteId(3);
+
+
+?>
+
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -59,26 +69,21 @@
                     <div class="bg-gray-500 text-white">
                         <div class="grid grid-cols-3 gap-0">
                             <div class="px-4 py-3 font-bold text-center border-r border-gray-400">Tipo de accion</div>
-                            <div class="px-4 py-3 font-bold text-center border-r border-gray-400">fecha</div>
+                            <div class="px-4 py-3 font-bold text-center border-r border-gray-400">respuesta</div>
                             <div class="px-4 py-3 font-bold text-center">hora</div>
                         </div>
                     </div>
                     
                     <!-- Table Rows -->
                     <div class="bg-gray-300">
+                        <?php foreach($seguimientos as $seguimiento){ ?>
                         <!-- Row 1 -->
                         <div class="grid grid-cols-3 gap-0 border-b border-gray-400">
-                            <div class="px-4 py-3 text-gray-900 border-r border-gray-400">llamada por celular</div>
-                            <div class="px-4 py-3 text-gray-900 text-center border-r border-gray-400">27/09/2025</div>
-                            <div class="px-4 py-3 text-gray-900 text-center">5:25</div>
+                            <div class="px-4 py-3 text-gray-900 border-r border-gray-400"><?php echo $seguimiento['accion']?></div>
+                            <div class="px-4 py-3 text-gray-900 text-center border-r border-gray-400"><?php echo $seguimiento['respuesta']?></div>
+                            <div class="px-4 py-3 text-gray-900 text-center"><?php echo $seguimiento['fecha_seguimiento']?></div>
                         </div>
-                        
-                        <!-- Row 2 -->
-                        <div class="grid grid-cols-3 gap-0">
-                            <div class="px-4 py-3 text-gray-900 border-r border-gray-400">correo</div>
-                            <div class="px-4 py-3 text-gray-900 text-center border-r border-gray-400">28/09/2025</div>
-                            <div class="px-4 py-3 text-gray-900 text-center">5:25</div>
-                        </div>
+                        <?php } ?>
                     </div>
                 </div>
             </div>

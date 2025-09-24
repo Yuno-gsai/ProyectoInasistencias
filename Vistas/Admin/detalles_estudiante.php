@@ -1,3 +1,25 @@
+
+<?php
+require_once "../../models/SeguimientosModel.php";
+
+$seguimientosModel = new SeguimientosModel();
+
+if(isset($_POST['accion']) && isset($_POST['detalle'])){
+    $data = [
+        'id_inasistencia' => 1,
+        'accion' => $_POST['accion'],
+        'respuesta' => $_POST['detalle']
+    ];
+    if($seguimientosModel->Create($data)){
+        echo "<script>alert('Seguimiento creado exitosamente');</script>";
+    }else{
+        echo "<script>alert('Error al crear el seguimiento');</script>";
+    }
+}
+
+?>
+
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -125,30 +147,35 @@
             </div>
 
             <!-- Right Column - Action Form -->
+        <form method="post">
             <div class="lg:col-span-1">
                 <div class="bg-gray-400 p-6 rounded-lg text-white">
                     <!-- Action Type -->
                     <div class="mb-6">
                         <h3 class="text-xl font-bold mb-3">Tipo De Accion</h3>
-                        <input type="text" class="w-full p-3 border border-gray-300 text-gray-900 focus:outline-none focus:ring-2 focus:ring-itca-red" placeholder="">
+                        <select name="accion" id="accion" class="w-full p-3 border border-gray-300 text-gray-900 focus:outline-none focus:ring-2 focus:ring-itca-red">
+                            <option value="">Seleccionar</option>
+                            <option value="llamada">llamada</option>
+                            <option value="correo">Correo</option>
+                            <option value="mensaje">Mensaje</option>
+                        </select>
                     </div>
                     
                     <!-- Details -->
                     <div class="mb-6">
                         <h3 class="text-xl font-bold mb-3">Detalles</h3>
-                        <textarea class="w-full h-32 p-3 border border-gray-300 text-gray-900 focus:outline-none focus:ring-2 focus:ring-itca-red resize-none">ya no viene porque es muy pobre y no le alcansa para pagar
-
-se llamo al alumno y no contesto.</textarea>
+                        <textarea name="detalle" id="detalle" class="w-full h-32 p-3 border border-gray-300 text-gray-900 focus:outline-none focus:ring-2 focus:ring-itca-red resize-none"></textarea>
                     </div>
                     
                     <!-- Save Button -->
                     <div class="flex justify-end">
-                        <button class="bg-itca-red text-white px-8 py-2 font-medium hover:bg-red-800 transition-colors">
+                        <button type="submit" class="bg-itca-red text-white px-8 py-2 font-medium hover:bg-red-800 transition-colors">
                             Guardar
                         </button>
                     </div>
                 </div>
             </div>
+        </form>
         </div>
     </main>
 </body>
