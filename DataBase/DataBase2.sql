@@ -128,6 +128,8 @@ CREATE TABLE IF NOT EXISTS alumnos_extra (
     contacto_emergencia VARCHAR(100),
     telefono_emergencia VARCHAR(9),
     observaciones TEXT,
+    estado VARCHAR(15) DEFAULT 'Activo',
+    motivo VARCHAR(255),
     CONSTRAINT fk_extra_alumno FOREIGN KEY (idalumno) REFERENCES alumno(idalumno)
         ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
@@ -230,19 +232,19 @@ INSERT INTO detalle (id_d, id_g, id_m, aula, ha, hf, ciclo, year, dia, grupo, ho
 -- ========================
 -- Inasistencias
 -- ========================
-INSERT INTO inasistencia (idalumno, id_docente, id_detalle, fecha, cantidadHoras, motivo, observacion) VALUES
-(1, 1, 1, '2025-02-10', 2, 'Enfermedad', 'Alumno llamó para justificar'),
-(2, 2, 2, '2025-02-11', 1, 'Transporte', 'Se quedó sin bus'),
-(3, 3, 3, '2025-02-12', 2, 'Problemas familiares', 'Avisó con anticipación'),
-(4, 4, 4, '2025-02-13', 3, 'Inasistencia injustificada', 'No respondió llamadas'),
-(5, 5, 5, '2025-02-14', 1, 'Accidente menor', 'Se presentó con incapacidad médica');
+INSERT INTO inasistencia (idalumno, id_docente, id_detalle, fecha_falta, cantidadHoras, observacion, estado, justificando, justificaion) VALUES
+(1, 1, 1, '2025-02-10', 2, 'Alumno llamó para justificar', 'Creada', 1, 'Enfermedad'),
+(2, 2, 2, '2025-02-11', 1, 'Se quedó sin bus', 'Creada', 0, 'Problema de transporte'),
+(3, 3, 3, '2025-02-12', 2, 'Avisó con anticipación', 'Creada', 1, 'Problemas familiares'),
+(4, 4, 4, '2025-02-13', 3, 'No respondió llamadas', 'Creada', 0, 'Inasistencia injustificada'),
+(5, 5, 5, '2025-02-14', 1, 'Se presentó con incapacidad médica', 'Creada', 1, 'Accidente menor');
 
 -- ========================
 -- Seguimientos
 -- ========================
 INSERT INTO seguimiento (id_inasistencia, fecha, accion, respuesta) VALUES
-(1, '2025-02-12', 'Llamada', 'Alumno confirma asistencia próxima clase'),
-(2, '2025-02-13', 'Correo enviado', 'Sin respuesta del alumno'),
-(3, '2025-02-14', 'Reunión con padres', 'Compromiso de mejorar asistencia'),
-(4, '2025-02-15', 'Visita domiciliaria', 'No se encontró al alumno'),
-(5, '2025-02-16', 'Mensaje por WhatsApp', 'Alumno respondió justificando con incapacidad');
+(1, '2025-02-12 10:00:00', 'Llamada', 'Alumno confirma asistencia próxima clase'),
+(2, '2025-02-13 11:00:00', 'Correo enviado', 'Sin respuesta del alumno'),
+(3, '2025-02-14 09:30:00', 'Reunión con padres', 'Compromiso de mejorar asistencia'),
+(4, '2025-02-15 14:00:00', 'Visita domiciliaria', 'No se encontró al alumno'),
+(5, '2025-02-16 16:45:00', 'Mensaje por WhatsApp', 'Alumno respondió justificando con incapacidad');

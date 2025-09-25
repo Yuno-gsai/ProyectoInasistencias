@@ -1,3 +1,12 @@
+<?php
+require_once '../../models/SeguimientosModel.php';
+
+$seguimientosModel = new SeguimientosModel();
+$seguimientos = $seguimientosModel->getSeguimietosFinalizados();
+
+?>
+
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -77,20 +86,24 @@
                 <div>Carnet</div>
                 <div>nombre</div>
                 <div>apellido</div>
-                <div>fecha final</div>
-                <div>ultima accion</div>
+                <div>estado</div>
                 <div>motivo</div>
-                <div>accion</div>
+                <div>observaciones</div>
+                <div>total_faltas</div>
+                <div>total_seguimientos</div>
             </div>
             
             <!-- Table Row -->
             <div class="grid grid-cols-7 gap-4 p-3 border-b border-gray-200 text-sm">
-                <div class="text-gray-900">5521</div>
-                <div class="text-gray-900">german jose</div>
-                <div class="text-gray-900">perdomo moran</div>
-                <div class="text-gray-900">16/09/25</div>
-                <div class="text-gray-900">llamada al celular</div>
-                <div class="text-gray-900">Retiro</div>
+                <?php foreach ($seguimientos as $seguimiento): ?>
+                <div class="text-gray-900"><?php echo $seguimiento['carnet']; ?></div>
+                <div class="text-gray-900"><?php echo $seguimiento['nombre']; ?></div>
+                <div class="text-gray-900"><?php echo $seguimiento['apellido']; ?></div>
+                <div class="text-gray-900"><?php echo $seguimiento['estado']; ?></div>
+                <div class="text-gray-900"><?php echo $seguimiento['motivo']; ?></div>
+                <div class="text-gray-900"><?php echo $seguimiento['observaciones']; ?></div>
+                <div class="text-gray-900"><?php echo $seguimiento['total_faltas']; ?></div>
+                <div class="text-gray-900"><?php echo $seguimiento['total_seguimientos']; ?></div>
                 <div class="flex space-x-2">
                     <button class="bg-itca-red text-white px-3 py-1 text-xs font-medium hover:bg-red-800 transition-colors duration-200">
                         Ver detalles
@@ -99,6 +112,7 @@
                         Historial
                     </button>
                 </div>
+                <?php endforeach; ?> 
             </div>
         </div>
     </main>

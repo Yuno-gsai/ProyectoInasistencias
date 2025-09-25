@@ -5,6 +5,7 @@ $seguimientosModel = new SeguimientosModel();
 $seguimientos = $seguimientosModel->getAllByEstudianteId(3);
 
 
+
 ?>
 
 
@@ -70,7 +71,7 @@ $seguimientos = $seguimientosModel->getAllByEstudianteId(3);
                         <div class="grid grid-cols-3 gap-0">
                             <div class="px-4 py-3 font-bold text-center border-r border-gray-400">Tipo de accion</div>
                             <div class="px-4 py-3 font-bold text-center border-r border-gray-400">respuesta</div>
-                            <div class="px-4 py-3 font-bold text-center">hora</div>
+                            <div class="px-4 py-3 font-bold text-center">fecha</div>
                         </div>
                     </div>
                     

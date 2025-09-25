@@ -1,3 +1,20 @@
+<?php
+require_once "../../models/SeguimientosModel.php";
+$seguimientosModel = new SeguimientosModel();
+
+
+if(isset($_POST['guardar'])){
+    $data = [
+        'estado' => $_POST['estado'],
+        'motivo' => $_POST['motivo'],
+        'observaciones' => $_POST['observaciones'],
+        'idalumno' => 2
+    ];
+    $seguimientosModel->FinSeguimieto($data);
+}
+?>
+
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -47,16 +64,15 @@
     <!-- Main Content -->
     <main class="min-h-screen flex items-center justify-center p-6">
         <div class="bg-gray-400 p-8 rounded-lg shadow-lg w-full max-w-md">
+            <form method="post">
             <!-- Estado Final -->
             <div class="mb-6">
                 <h3 class="text-xl font-bold mb-3 text-gray-900">Estado Final</h3>
                 <div class="relative">
-                    <select class="w-full p-3 border border-gray-300 text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-itca-red appearance-none">
+                    <select name="estado" id="estado" class="w-full p-3 border border-gray-300 text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-itca-red appearance-none">
                         <option>Seleccione una opcion</option>
-                        <option>Activo</option>
-                        <option>Retirado</option>
-                        <option>Graduado</option>
-                        <option>Suspendido</option>
+                        <option>Desercion</option>
+                        <option>Retiro</option>
                     </select>
                     <div class="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
                         <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -69,17 +85,20 @@
             <!-- Motivo de Retiro -->
             <div class="mb-6">
                 <h3 class="text-xl font-bold mb-3 text-gray-900">Motivo de Retiro</h3>
-                <textarea class="w-full h-40 p-3 border border-gray-300 text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-itca-red resize-none">ya no viene porque es muy pobre y no le alcansa para pagar
-
-se llamo al alumno y no contesto.</textarea>
+                <textarea name="motivo" id="motivo" class="w-full h-40 p-3 border border-gray-300 text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-itca-red resize-none"></textarea>
+            </div>
+            <div class="mb-6">
+                <h3 class="text-xl font-bold mb-3 text-gray-900">Observaciones</h3>
+                <textarea name="observaciones" id="observaciones" class="w-full h-40 p-3 border border-gray-300 text-gray-900 bg-white focus:outline-none focus:ring-2 focus:ring-itca-red resize-none"></textarea>
             </div>
 
             <!-- Botón Guardar -->
             <div class="flex justify-end">
-                <button class="bg-itca-red text-white px-8 py-2 font-bold hover:bg-red-800 transition-colors duration-200">
+                <button type="submit" name="guardar" class="bg-itca-red text-white px-8 py-2 font-bold hover:bg-red-800 transition-colors duration-200">
                     Guardar
                 </button>
             </div>
+        </form>
         </div>
     </main>
 </body>

@@ -1,3 +1,13 @@
+<?php
+require_once "../../models/SeguimientosModel.php";
+
+$seguimientosModel = new SeguimientosModel();
+$seguimientos = $seguimientosModel->getAllEstudiantes();
+
+?>
+
+
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -71,26 +81,22 @@
                         <th class="pb-4 pr-4">Carnet</th>
                         <th class="pb-4 pr-4">nombre</th>
                         <th class="pb-4 pr-4">apellido</th>
-                        <th class="pb-4 pr-4">telefono</th>
-                        <th class="pb-4 pr-4">email</th>
+                        <th class="pb-4 pr-4">fecha Ultimo seguimiento</th>
                         <th class="pb-4 pr-4">Faltas</th>
-                        <th class="pb-4 pr-4">ciclo</th>
-                        <th class="pb-4 pr-4">año</th>
-                        <th class="pb-4">accion</th>
+                        <th class="pb-4 pr-4">Seguimientos</th>
                     </tr>
                 </thead>
                 
                 <!-- Filas de datos -->
                 <tbody>
+                    <?php foreach ($seguimientos as $seguimiento): ?>
                     <tr class="text-black">
-                        <td class="py-2 pr-4">5521</td>
-                        <td class="py-2 pr-4">german jose</td>
-                        <td class="py-2 pr-4">perdomo moran</td>
-                        <td class="py-2 pr-4">77777777</td>
-                        <td class="py-2 pr-4">estudiante.24@itca.edu.sv</td>
-                        <td class="py-2 pr-4">2</td>
-                        <td class="py-2 pr-4">2</td>
-                        <td class="py-2 pr-4">2024</td>
+                        <td class="py-2 pr-4"><?php echo $seguimiento['carnet']; ?></td>
+                        <td class="py-2 pr-4"><?php echo $seguimiento['nombre']; ?></td>
+                        <td class="py-2 pr-4"><?php echo $seguimiento['apellido']; ?></td>
+                        <td class="py-2 pr-4"><?php echo $seguimiento['ultima_fecha_seguimiento']; ?></td>
+                        <td class="py-2 pr-4"><?php echo $seguimiento['total_faltas']; ?></td>
+                        <td class="py-2 pr-4"><?php echo $seguimiento['total_seguimientos']; ?></td>
                         <td class="py-2 flex gap-2">
                             <button class="bg-red-800 hover:bg-red-900 text-white px-3 py-1 text-sm transition-colors">
                                 Ver detalles
@@ -100,25 +106,7 @@
                             </button>
                         </td>
                     </tr>
-                    
-                    <tr class="text-black">
-                        <td class="py-2 pr-4">5521</td>
-                        <td class="py-2 pr-4">german jose</td>
-                        <td class="py-2 pr-4">perdomo moran</td>
-                        <td class="py-2 pr-4">77777777</td>
-                        <td class="py-2 pr-4">estudiante.24@itca.edu.sv</td>
-                        <td class="py-2 pr-4">2</td>
-                        <td class="py-2 pr-4">2</td>
-                        <td class="py-2 pr-4">2024</td>
-                        <td class="py-2 flex gap-2">
-                            <button class="bg-red-800 hover:bg-red-900 text-white px-3 py-1 text-sm transition-colors">
-                                Ver detalles
-                            </button>
-                            <button class="bg-red-800 hover:bg-red-900 text-white px-3 py-1 text-sm transition-colors">
-                                Historial
-                            </button>
-                        </td>
-                    </tr>
+                    <?php endforeach; ?>
                 </tbody>
             </table>
         </div>
