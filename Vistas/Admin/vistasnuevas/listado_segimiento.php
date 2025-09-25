@@ -37,24 +37,7 @@
 </head>
 <body class="bg-gray-100">
     <!-- Header -->
-    <header class="bg-gray-200 p-4 flex justify-between items-center border-b">
-        <div class="flex items-center">
-            <div class="bg-orange-500 text-white p-2 rounded mr-3 font-bold text-lg flex items-center">
-                <span class="text-2xl mr-1">📦</span>
-                <div>
-                    <div>ITCA</div>
-                    <div class="text-xs">FEPADE</div>
-                </div>
-            </div>
-            <button class="bg-gray-400 text-black px-6 py-2 rounded font-medium">Inicio</button>
-        </div>
-        <div class="flex items-center space-x-4">
-            <div class="w-8 h-8 bg-gray-400 rounded-full flex items-center justify-center">
-                👤
-            </div>
-            <span class="text-gray-700 font-medium">German</span>
-        </div>
-    </header>
+    <?php include 'menu.php'; ?>
 
     <div class="container mx-auto p-6">
         <!-- Título -->
@@ -66,14 +49,7 @@
         <!-- Barra de búsqueda -->
         <div class="search-bar p-4 rounded-lg mb-6">
             <div class="flex items-center space-x-4">
-                <!-- Logo ITCA FEPADE -->
-                <div class="flex items-center bg-orange-500 text-white px-3 py-2 rounded-lg shadow-md">
-                    <div class="text-2xl mr-2">📦</div>
-                    <div class="font-bold">
-                        <div class="text-lg leading-tight">ITCA</div>
-                        <div class="text-xs leading-tight">FEPADE</div>
-                    </div>
-                </div>
+                
                 <div class="flex items-center space-x-2">
                     <label class="text-white font-medium">Buscar por:</label>
                     <select class="px-3 py-2 rounded border-none bg-white">

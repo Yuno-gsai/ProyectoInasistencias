@@ -20,38 +20,7 @@
 </head>
 <body class="bg-gray-50 min-h-screen">
     <!-- Header -->
-    <header class="bg-white shadow-sm border-b">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <!-- Logo and Navigation -->
-                <div class="flex items-center space-x-4">
-                    <div class="flex items-center">
-                        <div class="w-10 h-10 bg-itca-orange rounded flex items-center justify-center">
-                            <span class="text-white font-bold text-sm">ITCA</span>
-                        </div>
-                        <span class="ml-2 text-gray-600 text-sm">FEPADE</span>
-                    </div>
-                    <nav class="flex space-x-1">
-                        <button class="bg-gray-400 text-white px-4 py-2 text-sm font-medium hover:bg-gray-500 transition-colors">
-                            Inicio
-                        </button>
-                    </nav>
-                </div>
-                
-                <!-- User Section -->
-                <div class="flex items-center space-x-4">
-                    <div class="flex items-center space-x-2">
-                        <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
-                            <svg class="w-5 h-5 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
-                            </svg>
-                        </div>
-                        <span class="text-gray-700 text-sm font-medium">German</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </header>
+    <?php include 'menu.php'; ?>
 
     <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

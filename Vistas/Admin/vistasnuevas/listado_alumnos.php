@@ -43,9 +43,7 @@
 </head>
 <body class="bg-gray-100">
     <!-- Header -->
-    <header class="bg-header border-b border-gray-300 px-6 py-3">
-       
-    </header>
+    <?php include 'menu.php'; ?>
 
     <!-- Contenido principal -->
     <div class="container mx-auto px-6 py-8">
