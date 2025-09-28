@@ -85,8 +85,8 @@
                             <path d="M3 8H21" stroke="currentColor" stroke-width="1.5"/>
                         </svg>
                     </div>
-                    <h3 class="text-xl font-semibold text-text-primary mb-3 leading-tight">Listado seguimiento cancelado</h3>
-                    <p class="text-text-secondary text-sm leading-relaxed max-w-xs mx-auto">Revisar seguimientos cancelados</p>
+                    <h3 class="text-xl font-semibold text-text-primary mb-3 leading-tight">Listado seguimiento finalizado</h3>
+                    <p class="text-text-secondary text-sm leading-relaxed max-w-xs mx-auto">Revisar seguimientos finalizados</p>
                 </div>
                 </a>
             </div>
