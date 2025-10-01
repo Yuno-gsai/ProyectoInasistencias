@@ -106,7 +106,33 @@
 </head>
 <body class="bg-gray-100">
     <!-- Header -->
-    <?php include "menu.php" ?>
+    <header class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center space-x-8">
+                    <div class="flex items-center">
+                        <div class="h-10 w-10 bg-itca-red rounded-lg flex items-center justify-center text-white font-bold text-lg">IT</div>
+                        <span class="ml-2 text-xl font-bold text-gray-800">ITCA FEPADE</span>
+                    </div>
+                    <nav class="hidden md:flex space-x-8">
+                        <a href="#" class="text-gray-700 hover:text-itca-red px-3 py-2 text-sm font-medium">Inicio</a>
+                        <a href="#" class="bg-itca-red text-white px-4 py-2 rounded text-sm font-medium">Seguimiento</a>
+                        <a href="#" class="text-gray-700 hover:text-itca-red px-3 py-2 text-sm font-medium">Reportes</a>
+                    </nav>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center space-x-2">
+                        <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
+                            <svg class="w-5 h-5 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
+                            </svg>
+                        </div>
+                        <span class="text-sm text-gray-700">Administrador</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
 
     <div class="container mx-auto p-6 max-w-7xl">
         <!-- Título -->
