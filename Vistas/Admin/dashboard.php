@@ -1,3 +1,12 @@
+<?php
+session_start();
+if(!isset($_SESSION['administrador'])){
+    header("Location: /ProyectoInasistenciasItca/index.php");
+}
+$dataAdmin=$_SESSION['administrador'];
+?>
+
+
 <!DOCTYPE html>
 <html lang="es">
 <head>

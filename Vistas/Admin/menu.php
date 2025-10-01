@@ -1,3 +1,10 @@
+<?php
+if(!isset($_SESSION['administrador'])){
+    header("Location: /ProyectoInasistenciasItca/index.php");
+}
+$dataAdmin=$_SESSION['administrador'];
+?>
+
 <header class="bg-gray-300 shadow-sm">
     <div class="flex items-center justify-between px-6 py-3">
         <!-- Logo ITCA -->
@@ -20,7 +27,7 @@
                         <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/>
                     </svg>
                 </div>
-                <span class="text-gray-700 font-medium">German</span>
+                <span class="text-gray-700 font-medium"><?php echo $dataAdmin['nom_usuario']; ?></span>
                 <!-- Dropdown arrow -->
                 <svg class="w-4 h-4 text-gray-600 transition-transform duration-200" id="dropdown-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
@@ -30,13 +37,13 @@
             <!-- Dropdown Menu -->
             <div class="absolute right-0 top-12 hidden bg-white rounded-md shadow-lg py-1 w-48 border border-gray-200 z-50" id="user-dropdown">
                 <div class="px-4 py-2 text-sm text-gray-700 border-b border-gray-100">
-                    <p class="font-medium">German</p>
+                    <p class="font-medium"><?php echo $dataAdmin['nom_usuario']; ?></p>
                     <p class="text-gray-500 text-xs">Usuario</p>
                 </div>
                 <a href="perfil.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition duration-150">
                     👤 Mi Perfil
                 </a>
-                <a href="../Config/logout.php" class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition duration-150">
+                <a href="../Login/Logout.php" class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition duration-150">
                     🚪 Cerrar Sesión
                 </a>
             </div>

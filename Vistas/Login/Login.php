@@ -17,9 +17,9 @@ if(isset($_POST['username']) && isset($_POST['password'])) {
         }
         if($tipoUsuario == 'administrador' && $dataDocente['estado'] == 'Activo' && $dataDocente['esadministrador'] == 1){
             $_SESSION['administrador'] = $dataDocente;
-            header("Location: " . "/ProyectoInasistenciasItca/Vistas/Admin/dasboard.php");
-            exit();
-        }
+            header("Location: " . "/ProyectoInasistenciasItca/Vistas/Admin/dashboard.php");
+                exit();
+            }
         else{
             echo "<script>alert('Acceso denegado');</script>";
         }

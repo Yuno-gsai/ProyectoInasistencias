@@ -1,5 +1,14 @@
+<?php
+require_once "../../models/FaltasModel.php";
+$alumnos = (new Faltas())->getAllAlumnos();
 
-    <!-- Modal de detalles del estudiante - MEJORADO -->
+$estudiantes = json_encode($alumnos);
+
+?>
+ 
+ 
+ 
+ <!-- Modal de detalles del estudiante - MEJORADO -->
     <div id="modalDetalles" class="modal">
         <div class="modal-content bg-white rounded-xl">
             <div class="bg-gradient-to-br from-gray-50 to-gray-100 p-8 relative">
@@ -10,8 +19,9 @@
                     <!-- Columna izquierda: Foto y carnet -->
                     <div class="lg:w-1/3 flex flex-col items-center">
                         <div class="student-photo p-4 mb-6 w-full max-w-xs rounded-lg shadow-lg flex items-center justify-center">
-                            <img src="https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=300&h=400&fit=crop" 
+                            <img src="" 
                                  alt="Foto del estudiante" 
+                                 id="FotoEstudianteDisplay"
                                  class="w-full h-64 object-cover rounded">
                         </div>
                         <div class="text-center mb-8 w-full">
@@ -47,10 +57,7 @@
                                     </div>
                                 </div>
                                 
-                                <div class="info-card">
-                                    <div class="text-sm font-semibold text-gray-600 mb-1">Año</div>
-                                    <div class="text-lg text-gray-800 font-medium" id="añoDisplay">2025</div>
-                                </div>
+               
                             </div>
 
                             <!-- Segunda columna -->
@@ -79,11 +86,7 @@
                                     <div class="text-sm font-semibold text-gray-600 mb-1">Correo personal</div>
                                     <div class="text-lg text-blue-600 font-medium" id="correoPersonalDisplay">estudiante@gmail.com</div>
                                 </div>
-                                
-                                <div class="info-card">
-                                    <div class="text-sm font-semibold text-gray-600 mb-1">Correo Institucional</div>
-                                    <div class="text-lg text-blue-600 font-medium" id="correoInstitucionalDisplay">estudiante@itca.edu.com</div>
-                                </div>
+                
                                 
                                 <div class="info-card">
                                     <div class="text-sm font-semibold text-gray-600 mb-1">Teléfono</div>
@@ -111,60 +114,59 @@
 
     <script>
         // Datos de ejemplo para los estudiantes
-        const estudiantes = [
-            {
-                carnet: "5521",
-                nombre: "german jose",
-                apellido: "perdomo moran",
-                telefono: "77777777",
-                email: "estudiante.24@itca.edu.sv",
-                faltas: 2,
-                ciclo: 2,
-                año: 2024,
-                correoPersonal: "estudiante@gmail.com",
-                estadoAlumno: "Activo",
-                añoEstudio: "2025",
-                beca: "Sí",
-                tipoBeca: "Semilla",
-                carnetCompleto: "12345"
-            },
-            {
-                carnet: "5522",
-                nombre: "maria elena",
-                apellido: "rodriguez lopez",
-                telefono: "88888888",
-                email: "estudiante.25@itca.edu.sv",
-                faltas: 1,
-                ciclo: 1,
-                año: 2024,
-                correoPersonal: "maria@gmail.com",
-                estadoAlumno: "Activo",
-                añoEstudio: "2025",
-                beca: "No",
-                tipoBeca: "N/A",
-                carnetCompleto: "54321"
-            }
-        ];
+        const estudiantes = <?php echo $estudiantes; ?>;
+        //     {
+        //         carnet: "5521",
+        //         nombre: "german jose",
+        //         apellido: "perdomo moran",
+        //         telefono: "77777777",
+        //         email: "estudiante.24@itca.edu.sv",
+        //         faltas: 2,
+        //         ciclo: 2,
+        //         año: 2024,
+        //         correoPersonal: "estudiante@gmail.com",
+        //         estadoAlumno: "Activo",
+        //         añoEstudio: "2025",
+        //         beca: "Sí",
+        //         tipoBeca: "Semilla",
+        //         carnetCompleto: "12345"
+        //     },
+        //     {
+        //         carnet: "5522",
+        //         nombre: "maria elena",
+        //         apellido: "rodriguez lopez",
+        //         telefono: "88888888",
+        //         email: "estudiante.25@itca.edu.sv",
+        //         faltas: 1,
+        //         ciclo: 1,
+        //         año: 2024,
+        //         correoPersonal: "maria@gmail.com",
+        //         estadoAlumno: "Activo",
+        //         añoEstudio: "2025",
+        //         beca: "No",
+        //         tipoBeca: "N/A",
+        //         carnetCompleto: "54321"
+        //     }
+        // ];
 
         function verDetalles(carnet) {
-            const estudiante = estudiantes.find(est => est.carnet === carnet);
+            const estudiante = estudiantes.find(estudiante => estudiante.carnet === carnet);
             if (estudiante) {
                 // Actualizar elementos con los datos del estudiante
-                document.getElementById('carnetDisplay').textContent = estudiante.carnetCompleto || estudiante.carnet;
+                document.getElementById('carnetDisplay').textContent = estudiante.carnet;
                 document.getElementById('nombreDisplay').textContent = estudiante.nombre;
                 document.getElementById('apellidoDisplay').textContent = estudiante.apellido;
-                document.getElementById('correoPersonalDisplay').textContent = estudiante.correoPersonal;
-                document.getElementById('correoInstitucionalDisplay').textContent = estudiante.email;
-                document.getElementById('estadoDisplay').textContent = estudiante.estadoAlumno;
-                document.getElementById('añoDisplay').textContent = estudiante.añoEstudio;
-                document.getElementById('becaDisplay').textContent = estudiante.beca;
-                document.getElementById('tipoBecaDisplay').textContent = estudiante.tipoBeca;
+                document.getElementById('correoPersonalDisplay').textContent = estudiante.email;
+                document.getElementById('estadoDisplay').textContent = estudiante.estadoAlumno==1?"Activo":"Inactivo";
+                document.getElementById('becaDisplay').textContent = estudiante.beca==1?"Sí":"No";
+                document.getElementById('tipoBecaDisplay').textContent = estudiante.tipobeca;
                 document.getElementById('telefonoDisplay').textContent = estudiante.telefono;
+                document.getElementById('FotoEstudianteDisplay').src = estudiante.foto == "" ? "/ProyectoInasistenciasItca/Vistas/Publico/Imagenes/12225881.png" : estudiante.foto;
                 
                 // Aplicar estilos según el estado
                 const estadoElement = document.getElementById('estadoDisplay');
                 estadoElement.className = 'status-badge';
-                if (estudiante.estadoAlumno === 'Activo') {
+                if (estudiante.estadoAlumno == 1) {
                     estadoElement.classList.add('status-active');
                 } else {
                     estadoElement.classList.add('status-inactive');
@@ -173,7 +175,7 @@
                 // Aplicar estilos según la beca
                 const becaElement = document.getElementById('becaDisplay');
                 becaElement.className = 'status-badge';
-                if (estudiante.beca === 'Sí') {
+                if (estudiante.beca == 1) {
                     becaElement.classList.add('status-active');
                 } else {
                     becaElement.classList.add('status-inactive');
