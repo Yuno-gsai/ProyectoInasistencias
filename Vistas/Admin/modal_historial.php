@@ -4,7 +4,6 @@ require_once "../../models/SeguimientosModel.php";
 // Obtener todos los estudiantes con sus seguimientos
 $dataALumnos = new SeguimientosModel();
 $dataALumnos = json_encode($dataALumnos->getAllEstudiantes());
-var_dump($dataALumnos); // solo para debug
 ?>
 
 <!-- Modal de Historial de Seguimientos -->
@@ -43,6 +42,9 @@ var_dump($dataALumnos); // solo para debug
             document.getElementById('studentLastName').textContent = estudianteActual.apellido;
             document.getElementById('studentPhone').textContent = estudianteActual.telefono;
             document.getElementById('studentEmail').textContent = estudianteActual.email;
+            document.getElementById('studentId').value = estudianteActual.idalumno;
+            document.getElementById('faltaid').value = estudianteActual.faltas[0].id_inasistencia;
+
             
             // Estado
             const statusElement = document.getElementById('studentStatus');
@@ -115,4 +117,14 @@ var_dump($dataALumnos); // solo para debug
             closeHistoryModal();
         }
     });
+
+    function openCancelModal() {
+            document.getElementById('cancelModal').classList.remove('hidden');
+            document.getElementById('cancelModal').classList.add('flex');
+        }
+
+    function closeCancelModal() {
+        document.getElementById('cancelModal').classList.add('hidden');
+        document.getElementById('cancelModal').classList.remove('flex');
+    }
 </script>

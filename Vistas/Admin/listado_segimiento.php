@@ -7,6 +7,24 @@ $dataAdmin=$_SESSION['administrador'];
 
 require_once "../../models/SeguimientosModel.php";
 $estudiantes = (new SeguimientosModel())->getAllEstudiantes();
+
+date_default_timezone_set('America/El_Salvador');
+
+if(isset($_POST['confirmarRetiro'])){
+    $idAlumno = $_POST['studentId'];
+    $motivo = $_POST['motivo'];
+    $estado = $_POST['estado'];
+    (new SeguimientosModel())->FinSeguimieto($estado, $motivo, $idAlumno, date('Y-m-d'));
+}
+
+if(isset($_POST['guardarSeguimiento'])){
+    $data = [
+        'id_inasistencia' => $_POST['faltaid'],
+        'accion' => $_POST['tipo_accion'],
+        'respuesta' => $_POST['detalle']
+    ];
+    (new SeguimientosModel())->Create($data);
+}
 ?>
 
 
@@ -264,18 +282,25 @@ $estudiantes = (new SeguimientosModel())->getAllEstudiantes();
                     <div class="lg:w-1/4">
                         <div class="bg-gray-100 p-6 rounded-lg h-full">
                             <h3 class="text-xl font-bold text-gray-800 mb-4 section-title">Tipo De Acción</h3>
+                            <form method="post">
                             <div class="mb-6">
-                                <input type="text" class="w-full p-3 rounded-lg border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-itca-red" value="Llamada telefónica" readonly>
+                                <select name="tipo_accion" id="tipo_accion">
+                                    <option value="llamada">Llamada</option>
+                                    <option value="correo">Correo</option>
+                                    <option value="visita">Visita</option>
+                                </select>
                             </div>
-                            
+                            <input type="text" id="faltaid" name="faltaid">
+
                             <h3 class="text-xl font-bold text-gray-800 mb-4 section-title">Detalles</h3>
                             <div class="mb-6">
-                                <textarea class="w-full h-40 p-3 rounded-lg border border-gray-300 bg-white resize-none focus:outline-none focus:ring-2 focus:ring-itca-red" readonly>Ya no viene porque es muy pobre y no le alcanza para pagar. Se llamó al alumno y no contestó.</textarea>
+                                <textarea name="detalle" id="detalle" class="w-full h-40 p-3 rounded-lg border border-gray-300 bg-white resize-none focus:outline-none focus:ring-2 focus:ring-itca-red" readonly>Ya no viene porque es muy pobre y no le alcanza para pagar. Se llamó al alumno y no contestó.</textarea>
                             </div>
                             
-                            <button onclick="closeDetailsModal()" class="w-full bg-itca-red hover:bg-itca-dark-red text-white px-4 py-3 rounded-lg font-medium transition-colors shadow-md">
+                            <button type="submit" name="guardarSeguimiento" class="w-full bg-itca-red hover:bg-itca-dark-red text-white px-4 py-3 rounded-lg font-medium transition-colors shadow-md">
                                 Guardar
                             </button>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -291,30 +316,31 @@ $estudiantes = (new SeguimientosModel())->getAllEstudiantes();
                 <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Cancelar Seguimiento</h2>
                 
                 <div class="space-y-6">
+                    <form method="post">
                     <div>
                         <h3 class="text-lg font-semibold text-gray-700 mb-3">Estado Final</h3>
-                        <select class="w-full p-3 rounded-lg border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-itca-red">
+                        <select name="estado" class="w-full p-3 rounded-lg border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-itca-red">
                             <option>Seleccione una opción</option>
                             <option>Retirado</option>
                             <option>Suspendido</option>
                             <option>Transferido</option>
                         </select>
                     </div>
-                    
+                    <input type="hidden" id="studentId" name="studentId">
                     <div>
                         <h3 class="text-lg font-semibold text-gray-700 mb-3">Motivo de Retiro</h3>
-                        <textarea class="w-full h-32 p-3 rounded-lg border border-gray-300 bg-white resize-none focus:outline-none focus:ring-2 focus:ring-itca-red">Ya no viene porque es muy pobre y no le alcanza para pagar. Se llamó al alumno y no contestó.</textarea>
+                        <textarea name="motivo" class="w-full h-32 p-3 rounded-lg border border-gray-300 bg-white resize-none focus:outline-none focus:ring-2 focus:ring-itca-red">Ya no viene porque es muy pobre y no le alcanza para pagar. Se llamó al alumno y no contestó.</textarea>
                     </div>
                     
                     <div class="flex justify-end space-x-4 pt-4">
                         <button onclick="closeCancelModal()" class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors">
                             Cancelar
                         </button>
-                        <button onclick="closeCancelModal()" class="bg-itca-red hover:bg-itca-dark-red text-white px-6 py-2 rounded-lg font-medium transition-colors shadow-md">
+                        <button type="submit" name="confirmarRetiro" onclick="closeCancelModal()" class="bg-itca-red hover:bg-itca-dark-red text-white px-6 py-2 rounded-lg font-medium transition-colors shadow-md">
                             Confirmar
                         </button>
                     </div>
-                </div>
+                </form>
             </div>
         </div>
     </div>

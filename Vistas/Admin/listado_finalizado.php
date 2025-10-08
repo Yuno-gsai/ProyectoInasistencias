@@ -1,3 +1,15 @@
+<?php
+session_start();
+if(!isset($_SESSION['administrador'])){
+    header("Location: /ProyectoInasistenciasItca/index.php");
+}
+$dataAdmin=$_SESSION['administrador'];
+
+require_once "../../models/SeguimientosModel.php";
+$estudiantes = (new SeguimientosModel())->getSeguimietosFinalizados();
+?>
+
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -189,67 +201,34 @@
                             <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Nombre</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Apellido</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Fecha Final</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Última Acción</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Fecha Ultimo Seguimiento</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Motivo</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Acción</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
+                        <?php foreach ($estudiantes as $estudiante) { ?>
                         <tr class="hover:bg-gray-50 transition-colors duration-150">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">5521</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">german jose</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">perdomo moran</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">16/09/25</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">llamada al celular</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Retiro</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><?php echo $estudiante['carnet'];?></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><?php echo $estudiante['nombre'];?></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><?php echo $estudiante['apellido'];?></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><?php echo $estudiante['fecha_estado'];?></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><?php echo $estudiante['ultima_fecha_seguimiento'];?></td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><?php echo $estudiante['motivo'];?></td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm space-x-2">
                                 <button class="bg-itca-red text-white px-3 py-1 rounded text-xs font-medium hover:bg-itca-dark-red transition-colors duration-200"
-                                onclick="verDetalles('5521')">
+                                onclick="verDetalles('<?php echo $estudiante['idalumno'];?>')">
                                     Ver detalles
                                 </button>
                                 <button class="bg-itca-red text-white px-3 py-1 rounded text-xs font-medium hover:bg-itca-dark-red transition-colors duration-200"
-                                onclick="verHistorial('5521')">
+                                onclick="openHistoryModal('<?php echo $estudiante['idalumno'];?>')">
                                     Historial
                                 </button>
                             </td>
                         </tr>
+                        <?php } ?>
                         <!-- Filas adicionales de ejemplo -->
-                        <tr class="hover:bg-gray-50 transition-colors duration-150">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">5522</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">maria elena</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">rodriguez lopez</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">15/09/25</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">correo electrónico</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Activo</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm space-x-2">
-                                <button class="bg-itca-red text-white px-3 py-1 rounded text-xs font-medium hover:bg-itca-dark-red transition-colors duration-200"
-                                onclick="verDetalles('5522')">
-                                    Ver detalles
-                                </button>
-                                <button class="bg-itca-red text-white px-3 py-1 rounded text-xs font-medium hover:bg-itca-dark-red transition-colors duration-200"
-                                onclick="verHistorial('5522')">
-                                    Historial
-                                </button>
-                            </td>
-                        </tr>
-                        <tr class="hover:bg-gray-50 transition-colors duration-150">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">5523</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">carlos antonio</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">martinez silva</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">14/09/25</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">visita presencial</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Suspendido</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm space-x-2">
-                                <button class="bg-itca-red text-white px-3 py-1 rounded text-xs font-medium hover:bg-itca-dark-red transition-colors duration-200"
-                                onclick="verDetalles('5523')">
-                                    Ver detalles
-                                </button>
-                                <button class="bg-itca-red text-white px-3 py-1 rounded text-xs font-medium hover:bg-itca-dark-red transition-colors duration-200"
-                                onclick="verHistorial('5523')">
-                                    Historial
-                                </button>
-                            </td>
-                        </tr>
+                      
                     </tbody>
                 </table>
             </div>
@@ -319,10 +298,7 @@
                                     </div>
                                 </div>
                                 
-                                <div class="info-card">
-                                    <div class="text-sm font-semibold text-gray-600 mb-1">Año</div>
-                                    <div class="text-lg text-gray-800 font-medium" id="añoDisplay">2025</div>
-                                </div>
+              
                             </div>
 
                             <!-- Segunda columna -->
@@ -347,10 +323,7 @@
 
                             <!-- Tercera columna -->
                             <div class="space-y-6">
-                                <div class="info-card">
-                                    <div class="text-sm font-semibold text-gray-600 mb-1">Correo personal</div>
-                                    <div class="text-lg text-blue-600 font-medium" id="correoPersonalDisplay">estudiante@gmail.com</div>
-                                </div>
+                    
                                 
                                 <div class="info-card">
                                     <div class="text-sm font-semibold text-gray-600 mb-1">Correo Institucional</div>
@@ -403,133 +376,134 @@
 
     <script>
         // Datos de ejemplo para los estudiantes
-        const estudiantes = [
-            {
-                carnet: "5521",
-                nombre: "german jose",
-                apellido: "perdomo moran",
-                telefono: "77777777",
-                email: "estudiante.24@itca.edu.sv",
-                faltas: 2,
-                ciclo: 2,
-                año: 2024,
-                correoPersonal: "german.perdomo@gmail.com",
-                estadoAlumno: "Activo",
-                añoEstudio: "2025",
-                beca: "Sí",
-                tipoBeca: "Semilla",
-                carnetCompleto: "12345",
-                historial: [
-                    {
-                        tipo: "Llamada telefónica",
-                        fecha: "15 de septiembre, 2024",
-                        estado: "Realizada",
-                        descripcion: "Se contactó al estudiante para verificar su situación académica."
-                    },
-                    {
-                        tipo: "Correo electrónico",
-                        fecha: "10 de septiembre, 2024",
-                        estado: "Enviado",
-                        descripcion: "Se envió recordatorio sobre las faltas acumuladas."
-                    },
-                    {
-                        tipo: "Reunión con coordinador",
-                        fecha: "5 de septiembre, 2024",
-                        estado: "Pendiente",
-                        descripcion: "Programada para evaluar situación académica del estudiante."
-                    }
-                ]
-            },
-            {
-                carnet: "5522",
-                nombre: "maria elena",
-                apellido: "rodriguez lopez",
-                telefono: "88888888",
-                email: "estudiante.25@itca.edu.sv",
-                faltas: 1,
-                ciclo: 1,
-                año: 2024,
-                correoPersonal: "maria.rodriguez@gmail.com",
-                estadoAlumno: "Activo",
-                añoEstudio: "2025",
-                beca: "No",
-                tipoBeca: "N/A",
-                carnetCompleto: "54321",
-                historial: [
-                    {
-                        tipo: "Correo electrónico",
-                        fecha: "12 de septiembre, 2024",
-                        estado: "Enviado",
-                        descripcion: "Se envió información sobre tutorías disponibles."
-                    },
-                    {
-                        tipo: "Entrevista personal",
-                        fecha: "8 de septiembre, 2024",
-                        estado: "Realizada",
-                        descripcion: "Se evaluaron las dificultades académicas del estudiante."
-                    }
-                ]
-            },
-            {
-                carnet: "5523",
-                nombre: "carlos antonio",
-                apellido: "martinez silva",
-                telefono: "99999999",
-                email: "estudiante.26@itca.edu.sv",
-                faltas: 3,
-                ciclo: 3,
-                año: 2024,
-                correoPersonal: "carlos.martinez@gmail.com",
-                estadoAlumno: "Suspendido",
-                añoEstudio: "2025",
-                beca: "Sí",
-                tipoBeca: "Completa",
-                carnetCompleto: "67890",
-                historial: [
-                    {
-                        tipo: "Llamada telefónica",
-                        fecha: "18 de septiembre, 2024",
-                        estado: "No contestó",
-                        descripcion: "Se intentó contactar al estudiante sin éxito."
-                    },
-                    {
-                        tipo: "Correo electrónico",
-                        fecha: "14 de septiembre, 2024",
-                        estado: "Enviado",
-                        descripcion: "Se notificó sobre situación de riesgo académico."
-                    },
-                    {
-                        tipo: "Visita domiciliaria",
-                        fecha: "10 de septiembre, 2024",
-                        estado: "Programada",
-                        descripcion: "Se programó visita para evaluar situación personal."
-                    }
-                ]
-            }
-        ];
+        const estudiantes = <?php echo json_encode($estudiantes); ?>;
+        
+        //     {
+        //         carnet: "5521",
+        //         nombre: "german jose",
+        //         apellido: "perdomo moran",
+        //         telefono: "77777777",
+        //         email: "estudiante.24@itca.edu.sv",
+        //         faltas: 2,
+        //         ciclo: 2,
+        //         año: 2024,
+        //         correoPersonal: "german.perdomo@gmail.com",
+        //         estadoAlumno: "Activo",
+        //         añoEstudio: "2025",
+        //         beca: "Sí",
+        //         tipoBeca: "Semilla",
+        //         carnetCompleto: "12345",
+        //         historial: [
+        //             {
+        //                 tipo: "Llamada telefónica",
+        //                 fecha: "15 de septiembre, 2024",
+        //                 estado: "Realizada",
+        //                 descripcion: "Se contactó al estudiante para verificar su situación académica."
+        //             },
+        //             {
+        //                 tipo: "Correo electrónico",
+        //                 fecha: "10 de septiembre, 2024",
+        //                 estado: "Enviado",
+        //                 descripcion: "Se envió recordatorio sobre las faltas acumuladas."
+        //             },
+        //             {
+        //                 tipo: "Reunión con coordinador",
+        //                 fecha: "5 de septiembre, 2024",
+        //                 estado: "Pendiente",
+        //                 descripcion: "Programada para evaluar situación académica del estudiante."
+        //             }
+        //         ]
+        //     },
+        //     {
+        //         carnet: "5522",
+        //         nombre: "maria elena",
+        //         apellido: "rodriguez lopez",
+        //         telefono: "88888888",
+        //         email: "estudiante.25@itca.edu.sv",
+        //         faltas: 1,
+        //         ciclo: 1,
+        //         año: 2024,
+        //         correoPersonal: "maria.rodriguez@gmail.com",
+        //         estadoAlumno: "Activo",
+        //         añoEstudio: "2025",
+        //         beca: "No",
+        //         tipoBeca: "N/A",
+        //         carnetCompleto: "54321",
+        //         historial: [
+        //             {
+        //                 tipo: "Correo electrónico",
+        //                 fecha: "12 de septiembre, 2024",
+        //                 estado: "Enviado",
+        //                 descripcion: "Se envió información sobre tutorías disponibles."
+        //             },
+        //             {
+        //                 tipo: "Entrevista personal",
+        //                 fecha: "8 de septiembre, 2024",
+        //                 estado: "Realizada",
+        //                 descripcion: "Se evaluaron las dificultades académicas del estudiante."
+        //             }
+        //         ]
+        //     },
+        //     {
+        //         carnet: "5523",
+        //         nombre: "carlos antonio",
+        //         apellido: "martinez silva",
+        //         telefono: "99999999",
+        //         email: "estudiante.26@itca.edu.sv",
+        //         faltas: 3,
+        //         ciclo: 3,
+        //         año: 2024,
+        //         correoPersonal: "carlos.martinez@gmail.com",
+        //         estadoAlumno: "Suspendido",
+        //         añoEstudio: "2025",
+        //         beca: "Sí",
+        //         tipoBeca: "Completa",
+        //         carnetCompleto: "67890",
+        //         historial: [
+        //             {
+        //                 tipo: "Llamada telefónica",
+        //                 fecha: "18 de septiembre, 2024",
+        //                 estado: "No contestó",
+        //                 descripcion: "Se intentó contactar al estudiante sin éxito."
+        //             },
+        //             {
+        //                 tipo: "Correo electrónico",
+        //                 fecha: "14 de septiembre, 2024",
+        //                 estado: "Enviado",
+        //                 descripcion: "Se notificó sobre situación de riesgo académico."
+        //             },
+        //             {
+        //                 tipo: "Visita domiciliaria",
+        //                 fecha: "10 de septiembre, 2024",
+        //                 estado: "Programada",
+        //                 descripcion: "Se programó visita para evaluar situación personal."
+        //             }
+        //         ]
+        //     }
+        // ];
 
         // Función para abrir el modal de detalles
-        function verDetalles(carnet) {
-            const estudiante = estudiantes.find(est => est.carnet === carnet);
-            if (estudiante) {
+        let estudianteActual = null;
+
+        function verDetalles(idalumno) {
+            estudianteActual = estudiantes.find(est => est.idalumno == idalumno);
+            if (estudianteActual) {
                 // Actualizar elementos con los datos del estudiante
-                document.getElementById('carnetDisplay').textContent = estudiante.carnetCompleto || estudiante.carnet;
-                document.getElementById('nombreDisplay').textContent = estudiante.nombre;
-                document.getElementById('apellidoDisplay').textContent = estudiante.apellido;
-                document.getElementById('correoPersonalDisplay').textContent = estudiante.correoPersonal;
-                document.getElementById('correoInstitucionalDisplay').textContent = estudiante.email;
-                document.getElementById('estadoDisplay').textContent = estudiante.estadoAlumno;
-                document.getElementById('añoDisplay').textContent = estudiante.añoEstudio;
-                document.getElementById('becaDisplay').textContent = estudiante.beca;
-                document.getElementById('tipoBecaDisplay').textContent = estudiante.tipoBeca;
-                document.getElementById('telefonoDisplay').textContent = estudiante.telefono;
+                document.getElementById('carnetDisplay').textContent = estudianteActual.carnet;
+                document.getElementById('nombreDisplay').textContent = estudianteActual.nombre;
+                document.getElementById('apellidoDisplay').textContent = estudianteActual.apellido;
+                document.getElementById('correoInstitucionalDisplay').textContent = estudianteActual.email;
+                document.getElementById('estadoDisplay').textContent = estudianteActual.estadoAlumno==1?"Activo":"Inactivo";
+                document.getElementById('becaDisplay').textContent = estudianteActual.beca==1?"Sí":"No";
+                document.getElementById('tipoBecaDisplay').textContent = estudianteActual.tipobeca;
+                document.getElementById('telefonoDisplay').textContent = estudianteActual.telefono;
                 
                 // Aplicar estilos según el estado
                 const estadoElement = document.getElementById('estadoDisplay');
                 estadoElement.className = 'status-badge';
-                if (estudiante.estadoAlumno === 'Activo') {
+                if (estudianteActual.estadoAlumno === 'Activo') {
                     estadoElement.classList.add('status-active');
-                } else if (estudiante.estadoAlumno === 'Suspendido') {
+                } else if (estudianteActual.estadoAlumno === 'Suspendido') {
                     estadoElement.classList.add('status-suspended');
                 } else {
                     estadoElement.classList.add('status-inactive');
@@ -538,7 +512,7 @@
                 // Aplicar estilos según la beca
                 const becaElement = document.getElementById('becaDisplay');
                 becaElement.className = 'status-badge';
-                if (estudiante.beca === 'Sí') {
+                if (estudianteActual.beca === 'Sí') {
                     becaElement.classList.add('status-active');
                 } else {
                     becaElement.classList.add('status-inactive');
@@ -550,43 +524,40 @@
         }
 
         // Función para abrir el modal de historial
-        function verHistorial(carnet) {
-            const estudiante = estudiantes.find(est => est.carnet === carnet);
-            if (estudiante) {
-                // Limpiar contenido anterior
-                const historialContent = document.getElementById('historialContent');
-                historialContent.innerHTML = '';
-                
-                // Cargar historial del estudiante
-                estudiante.historial.forEach(item => {
-                    const itemElement = document.createElement('div');
-                    itemElement.className = 'bg-gray-50 p-4 rounded-lg border-l-4 border-itca-red';
-                    
-                    let estadoClass = 'status-active';
-                    if (item.estado === 'Pendiente' || item.estado === 'Programada') {
-                        estadoClass = 'status-pending';
-                    } else if (item.estado === 'No contestó') {
-                        estadoClass = 'status-suspended';
-                    }
-                    
-                    itemElement.innerHTML = `
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <h3 class="font-semibold text-gray-800">${item.tipo}</h3>
-                                <p class="text-sm text-gray-600">${item.fecha}</p>
-                            </div>
-                            <span class="status-badge ${estadoClass}">${item.estado}</span>
-                        </div>
-                        <p class="mt-2 text-gray-700">${item.descripcion}</p>
-                    `;
-                    
-                    historialContent.appendChild(itemElement);
-                });
-                
-                // Mostrar modal
-                document.getElementById('modalHistorial').classList.add('show');
-            }
-        }
+        function openHistoryModal(idalumno) {
+    estudianteActual = estudiantes.find(est => est.idalumno == idalumno);
+
+    const historialContent = document.getElementById('historialContent');
+    historialContent.innerHTML = '';
+
+    if (Array.isArray(estudianteActual.seguimientos) && estudianteActual.seguimientos.length > 0) {
+        estudianteActual.seguimientos.forEach(s => {
+            let borderColor = 'border-itca-red';
+            if (s.accion?.toLowerCase().includes('llamada')) borderColor = 'border-blue-500';
+            else if (s.accion?.toLowerCase().includes('correo') || s.accion?.toLowerCase().includes('email')) borderColor = 'border-green-500';
+            else if (s.accion?.toLowerCase().includes('visita')) borderColor = 'border-yellow-500';
+
+            const itemElement = document.createElement('div');
+            itemElement.className = `relative bg-gray-50 p-4 rounded-lg shadow-md ${borderColor} border-l-4`;
+            itemElement.innerHTML = `
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-sm text-gray-500 font-medium">${s.fecha}</span>
+                    <span class="text-sm font-semibold ${borderColor.replace('border', 'text')}">${s.accion}</span>
+                </div>
+                <p class="text-gray-700">${s.respuesta}</p>
+            `;
+            historialContent.appendChild(itemElement);
+        });
+    } else {
+        historialContent.innerHTML = "<p class='text-gray-500 text-center'>No hay seguimientos registrados.</p>";
+    }
+
+    // Cambiar estas líneas
+    const modal = document.getElementById('modalHistorial');
+    modal.classList.remove('hidden');
+    modal.classList.add('show');
+}
+
 
         // Función para cerrar el modal de detalles
         function cerrarModalDetalles() {

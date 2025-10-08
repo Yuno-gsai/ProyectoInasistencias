@@ -130,6 +130,7 @@ CREATE TABLE IF NOT EXISTS alumnos_extra (
     observaciones TEXT,
     estado VARCHAR(15) DEFAULT 'Activo',
     motivo VARCHAR(255),
+    fecha_estado DATE,
     CONSTRAINT fk_extra_alumno FOREIGN KEY (idalumno) REFERENCES alumno(idalumno)
         ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
