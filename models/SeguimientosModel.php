@@ -42,25 +42,61 @@ class SeguimientosModel extends BaseModel{
         return true;
     }
 
-    public function getAllEstudiantes(){
+    public function getAllEstudiantes() {
         $query = "SELECT 
-                a.idalumno,
-                a.carnet,
-                a.nombre,
-                a.apellido,
-                COUNT(DISTINCT i.id_inasistencia) AS total_faltas,
-                COUNT(s.id_seguimiento) AS total_seguimientos,
-                MAX(s.fecha) AS ultima_fecha_seguimiento
-            FROM alumno a
-            INNER JOIN inasistencia i ON a.idalumno = i.idalumno
-            INNER JOIN seguimiento s ON s.id_inasistencia = i.id_inasistencia
-            GROUP BY a.idalumno, a.carnet, a.nombre, a.apellido
-            HAVING COUNT(s.id_seguimiento) > 0
-            ORDER BY ultima_fecha_seguimiento DESC;";
+                    a.idalumno,
+                    a.carnet,
+                    a.nombre,
+                    a.apellido,
+                    a.email,
+                    a.estadoAlumno,
+                    a.beca,
+                    a.tipobeca,
+                    a.telefono,
+                    d.ciclo,
+                    d.year,
+                    COUNT(DISTINCT i.id_inasistencia) AS total_faltas,
+                    COUNT(s.id_seguimiento) AS total_seguimientos,
+                    MAX(s.fecha) AS ultima_fecha_seguimiento
+                FROM alumno a
+                LEFT JOIN inasistencia i ON a.idalumno = i.idalumno
+                LEFT JOIN detalle d ON i.id_detalle = d.id_detalle
+                LEFT JOIN seguimiento s ON s.id_inasistencia = i.id_inasistencia
+                GROUP BY 
+                    a.idalumno, a.carnet, a.nombre, a.apellido, d.ciclo, d.year
+                ORDER BY d.year DESC, d.ciclo ASC, ultima_fecha_seguimiento DESC";
+    
         $stmt = $this->getConnection()->prepare($query);
         $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $alumnos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+        // Transformar faltas y seguimientos a arrays
+        foreach ($alumnos as &$alumno) {
+            // Faltas
+            $stmtFaltas = $this->getConnection()->prepare(
+                "SELECT id_inasistencia, fecha_falta, cantidadHoras, observacion 
+                 FROM inasistencia 
+                 WHERE idalumno = ?"
+            );
+            $stmtFaltas->execute([$alumno['idalumno']]);
+            $alumno['faltas'] = $stmtFaltas->fetchAll(PDO::FETCH_ASSOC);
+    
+            // Seguimientos
+            $stmtSeguimientos = $this->getConnection()->prepare(
+                "SELECT id_seguimiento, fecha, accion, respuesta 
+                 FROM seguimiento 
+                 WHERE id_inasistencia IN (
+                     SELECT id_inasistencia FROM inasistencia WHERE idalumno = ?
+                 )"
+            );
+            $stmtSeguimientos->execute([$alumno['idalumno']]);
+            $alumno['seguimientos'] = $stmtSeguimientos->fetchAll(PDO::FETCH_ASSOC);
+        }
+    
+        return $alumnos; // fetchAll asociativo listo para usar
     }
+    
+    
 
     public function FinSeguimieto($data){
         $query = "UPDATE alumnos_extra SET estado = :estado, motivo = :motivo, observaciones = :observaciones WHERE idalumno = :idalumno;";

@@ -57,6 +57,12 @@ $estudiantes = json_encode($alumnos);
                                     </div>
                                 </div>
                                 
+                                <div class="info-card">
+                                    <div class="text-sm font-semibold text-gray-600 mb-1">Contacto de emergencia</div>
+                                    <div>
+                                        <span id="contactoEmergenciaDisplay" class="text-lg text-gray-800 font-medium">Activo</span>
+                                    </div>
+                                </div>
                
                             </div>
 
@@ -89,22 +95,31 @@ $estudiantes = json_encode($alumnos);
                 
                                 
                                 <div class="info-card">
-                                    <div class="text-sm font-semibold text-gray-600 mb-1">Teléfono</div>
-                                    <div class="text-lg text-gray-800 font-medium" id="telefonoDisplay">76267471</div>
+                                        <div class="text-sm font-semibold text-gray-600 mb-1">Teléfono</div>
+                                        <div class="text-lg text-gray-800 font-medium" id="telefonoDisplay">76267471</div>
+                                    </div>
+
+                                    <div class="info-card">
+                                    <div class="text-sm font-semibold text-gray-600 mb-1">Observaciones</div>
+                                    <div class="text-lg text-gray-800 font-medium" id="observacionesDisplay">76267471</div>
                                 </div>
-                            </div>
+
+                                </div>
+                                
+                            
                         </div>
                         
                         <!-- Información adicional -->
                         <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div class="info-card">
                                 <div class="text-sm font-semibold text-gray-600 mb-1">Ciclo actual</div>
-                                <div class="text-lg text-gray-800 font-medium">2</div>
+                                <div id="cicloDisplay" class="text-lg text-gray-800 font-medium">2</div>
                             </div>
                             <div class="info-card">
                                 <div class="text-sm font-semibold text-gray-600 mb-1">Faltas acumuladas</div>
-                                <div class="text-lg text-red-600 font-medium">2</div>
+                                <div id="faltasDisplay" class="text-lg text-red-600 font-medium">2</div>
                             </div>
+                            
                         </div>
                     </div>
                 </div>
@@ -162,6 +177,10 @@ $estudiantes = json_encode($alumnos);
                 document.getElementById('tipoBecaDisplay').textContent = estudiante.tipobeca;
                 document.getElementById('telefonoDisplay').textContent = estudiante.telefono;
                 document.getElementById('FotoEstudianteDisplay').src = estudiante.foto == "" ? "/ProyectoInasistenciasItca/Vistas/Publico/Imagenes/12225881.png" : estudiante.foto;
+                document.getElementById('cicloDisplay').textContent = estudiante.ciclo;
+                document.getElementById('faltasDisplay').textContent = estudiante.total_faltas;
+                document.getElementById('contactoEmergenciaDisplay').textContent = estudiante.telefono_emergencia;
+                document.getElementById('observacionesDisplay').textContent = estudiante.observaciones;
                 
                 // Aplicar estilos según el estado
                 const estadoElement = document.getElementById('estadoDisplay');
