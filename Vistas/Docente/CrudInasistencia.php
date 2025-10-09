@@ -1,7 +1,7 @@
 <?php
 session_start();
 if(!isset($_SESSION['docente'])){
-    header("Location: /ProyectoInasistenciasItca/index.php");
+    header("Location: /ProyectoInasistencias/index.php");
 }
 $dataDocente=$_SESSION['docente'];
 
@@ -116,7 +116,7 @@ $inasistencias = $inasistencia->getFaltasByDocenteId($dataDocente['id_docente'])
                     <th class="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Fecha</th>
                     <th class="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Horas</th>
                     <th class="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Materia</th>
-                    <th class="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Observaciones</th>
+                    <th class="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Justificación</th>
                     <th class="px-4 py-3 text-right text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Acciones</th>
                 </tr>
                 </thead>
@@ -188,11 +188,16 @@ $inasistencias = $inasistencia->getFaltasByDocenteId($dataDocente['id_docente'])
         if (!rows.length) {
             tbody.innerHTML = '';
             empty.classList.remove('hidden');
-            document.getElementById('summaryCount').textContent = '0';
             return;
         }
         empty.classList.add('hidden');
-        tbody.innerHTML = rows.map((r, idx) => `
+        tbody.innerHTML = rows.map((r, idx) => {
+            const tieneJustificacion = r.tiene_justificacion == 1;
+            const justificacionBadge = tieneJustificacion 
+                ? '<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800"><i class="fas fa-check-circle mr-1"></i>Sí</span>'
+                : '<span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600"><i class="fas fa-times-circle mr-1"></i>No</span>';
+            
+            return `
             <tr class="hover:bg-gray-50 ${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}">
                 <td class="px-4 py-2 align-top">
                     <div class="font-medium text-gray-800">${r.nombre} ${r.apellido}</div>
@@ -202,18 +207,18 @@ $inasistencias = $inasistencia->getFaltasByDocenteId($dataDocente['id_docente'])
                 <td class="px-4 py-2 align-top">${r.fecha_falta}</td>
                 <td class="px-4 py-2 align-top">${r.cantidadHoras}</td>
                 <td class="px-4 py-2 align-top">${r.materia}</td>
-                <td class="px-4 py-2 align-top">${r.observacion}</td>
+                <td class="px-4 py-2 align-top">${justificacionBadge}</td>
                 <td class="px-4 py-2 align-top text-right space-x-2 whitespace-nowrap">
                     <a href="EditarInasistencia.php?id=${r.id_inasistencia}" class="inline-flex items-center bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 text-xs">
                         <i class="fas fa-pen mr-1"></i> Editar
                     </a>
-                    <a href="CambiarEstado.php?id=${r.id_inasistencia}&estado=Eliminada" class="btn-delete inline-flex items-center bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 text-xs">
+                    <button type="button" data-id="${r.id_inasistencia}" class="btn-delete inline-flex items-center bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 text-xs">
                         <i class="fas fa-trash mr-1"></i> Eliminar
-                    </a>
+                    </button>
                 </td>
             </tr>
-        `).join('');
-        document.getElementById('summaryCount').textContent = String(rows.length);
+        `;
+        }).join('');
     }
 
     function applyFilters() {
@@ -237,14 +242,11 @@ $inasistencias = $inasistencia->getFaltasByDocenteId($dataDocente['id_docente'])
     document.addEventListener('click', function (e) {
         const btn = e.target.closest('.btn-delete');
         if (btn) {
+            e.preventDefault();
             const id = parseInt(btn.dataset.id, 10);
             const item = inasistencias.find(x => x.id_inasistencia === id);
             if (confirm(`¿Eliminar inasistencia de ${item.nombre} ${item.apellido} del ${item.fecha_falta}?`)) {
-                const idx = inasistencias.findIndex(x => x.id_inasistencia === id);
-                if (idx >= 0) {
-                    inasistencias.splice(idx, 1);
-                    applyFilters();
-                }
+                window.location.href = `CambiarEstado.php?id=${id}&estado=Eliminada`;
             }
         }
     });

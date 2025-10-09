@@ -12,12 +12,12 @@ if(isset($_POST['username']) && isset($_POST['password'])) {
         $dataDocente=$docente->CustongetAll($username, $password);
         if($tipoUsuario == 'docente' && $dataDocente['estado'] == 'Activo'){
             $_SESSION['docente'] = $dataDocente;
-            header("Location: " . "/ProyectoInasistenciasItca/Vistas/Docente/DashboardDocente.php");
+            header("Location: " . "/ProyectoInasistencias/Vistas/Docente/DashboardDocente.php");
             exit();
         }
         if($tipoUsuario == 'administrador' && $dataDocente['estado'] == 'Activo' && $dataDocente['esadministrador'] == 1){
             $_SESSION['administrador'] = $dataDocente;
-            header("Location: " . "/ProyectoInasistenciasItca/Vistas/Admin/dashboard.php");
+            header("Location: " . "/ProyectoInasistencias/Vistas/Admin/dashboard.php");
                 exit();
             }
         else{

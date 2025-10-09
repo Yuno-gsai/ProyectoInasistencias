@@ -1,7 +1,7 @@
 <?php
 session_start();
 if(!isset($_SESSION['administrador'])){
-    header("Location: /ProyectoInasistenciasItca/index.php");
+    header("Location: /ProyectoInasistencias/index.php");
 }
 $dataAdmin=$_SESSION['administrador'];
 
@@ -17,15 +17,12 @@ $estudiantes = json_encode($alumnos);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ITCA FEPADE - Sistema de Estudiantes</title>
+    <title>Listado de Alumnos - ITCA FEPADE</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .logo-orange { color: #FF6B00; }
-        .bg-itca-red { background-color: #8B1538; }
-        .bg-header { background-color: #E5E5E5; }
-        .bg-table-header { background-color: #9CA3AF; }
-        .bg-table-row { background-color: #D1D5DB; }
-        .bg-details { background-color: #E5E7EB; }
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Poppins', sans-serif; }
         
         /* Modal styles mejorados */
         .modal {
@@ -145,90 +142,149 @@ $estudiantes = json_encode($alumnos);
         }
     </style>
 </head>
-<body class="bg-gray-100">
-    <!-- Header -->
-    <?php include "menu.php" ?>
-
-    <!-- Contenido principal -->
-    <div class="container mx-auto px-6 py-8 max-w-7xl">
-        <!-- Título principal -->
-        <div class="mb-8">
-            <h1 class="text-3xl font-bold text-gray-800 mb-2">Listado de Alumnos</h1>
-            <p class="text-gray-600">Gestión y consulta de información estudiantil</p>
+<body class="bg-gray-100 min-h-screen">
+<!--Navbar-->
+<nav class="bg-white shadow-sm">
+    <div class="container mx-auto px-4 py-2 flex justify-between items-center">
+        <div class="flex items-center space-x-2">
+            <img src="../Publico/Imagenes/ItcaLogo.png" alt="Logo ITCA FEPADE" class="h-8">
+            <p class="text-sm font-semibold text-gray-700">Registro de Inasistencias</p>
         </div>
-
-        <!-- Barra de búsqueda -->
-        <div class="bg-itca-red px-6 py-5 mb-8 rounded-lg shadow-lg flex flex-wrap items-end gap-4">
-            <div class="flex-1 min-w-48">
-                <label class="block text-white text-sm font-medium mb-2">Buscar por:</label>
-                <select class="w-full px-4 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-red-300 focus:border-transparent" id="searchType">
-                    <option value="">Seleccione una opción</option>
-                    <option value="carnet">Carnet</option>
-                    <option value="nombre">Nombre</option>
-                    <option value="apellido">Apellido</option>
-                    <option value="email">Email</option>
-                </select>
-            </div>
-            <div class="flex-1 min-w-48">
-                <label class="block text-white text-sm font-medium mb-2">Dato:</label>
-                <input type="text" class="w-full px-4 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-red-300 focus:border-transparent" id="searchInput" placeholder="Ingrese término de búsqueda">
-            </div>
-            <div>
-                <button class="bg-white text-itca-red px-8 py-2 rounded-md font-semibold transition-all duration-200 shadow-md hover:shadow-lg hover:bg-gray-50" onclick="buscarEstudiantes()">
-                    Buscar
-                </button>
-            </div>
-        </div>
-
-        <!-- Tabla de estudiantes -->
-        <div class="bg-white rounded-xl shadow-xl overflow-hidden border border-gray-200">
-            <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b border-gray-200">
-                <h2 class="text-xl font-semibold text-gray-800">Estudiantes Registrados</h2>
-                <p class="text-sm text-gray-600 mt-1">Total de registros: 2</p>
-            </div>
-            <div class="overflow-x-auto">
-                <table class="w-full">
-                    <thead class="bg-gradient-to-r from-gray-100 to-gray-200">
-                        <tr>
-                            <th class="px-6 py-4 text-left text-sm font-bold text-gray-800 uppercase tracking-wider">Carnet</th>
-                            <th class="px-6 py-4 text-left text-sm font-bold text-gray-800 uppercase tracking-wider">Nombre</th>
-                            <th class="px-6 py-4 text-left text-sm font-bold text-gray-800 uppercase tracking-wider">Apellido</th>
-                            <th class="px-6 py-4 text-left text-sm font-bold text-gray-800 uppercase tracking-wider">Teléfono</th>
-                            <th class="px-6 py-4 text-left text-sm font-bold text-gray-800 uppercase tracking-wider">Email</th>
-                            <th class="px-6 py-4 text-left text-sm font-bold text-gray-800 uppercase tracking-wider">Faltas</th>
-                            <th class="px-6 py-4 text-left text-sm font-bold text-gray-800 uppercase tracking-wider">Ciclo</th>
-                            <th class="px-6 py-4 text-left text-sm font-bold text-gray-800 uppercase tracking-wider">Año</th>
-                            <th class="px-6 py-4 text-left text-sm font-bold text-gray-800 uppercase tracking-wider">Acción</th>
-                        </tr>
-                    </thead>
-                    <tbody id="studentsTable">
-                        <tr class="bg-white hover:bg-gray-50 border-b border-gray-200 transition-colors duration-150">
-                        <?php foreach ($alumnos as $alumno) { ?>    
-                        <td class="px-6 py-4 text-sm font-medium text-gray-900"><?php echo $alumno['carnet']; ?></td>
-                            <td class="px-6 py-4 text-sm text-gray-800 capitalize"><?php echo $alumno['nombre']; ?></td>
-                            <td class="px-6 py-4 text-sm text-gray-800 capitalize"><?php echo $alumno['apellido']; ?></td>
-                            <td class="px-6 py-4 text-sm text-gray-800"><?php echo $alumno['telefono']; ?></td>
-                            <td class="px-6 py-4 text-sm text-blue-600"><?php echo $alumno['email']; ?></td>
-                            <td class="px-6 py-4 text-sm text-gray-800">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                    <?php echo $alumno['total_faltas']; ?> faltas
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 text-sm text-gray-800"><?php echo $alumno['ciclo']; ?></td>
-                            <td class="px-6 py-4 text-sm text-gray-800"><?php echo $alumno['year']; ?></td>
-                            <td class="px-6 py-4">
-                                <button class="bg-itca-red text-white px-4 py-2 text-sm rounded-md hover:bg-red-800 transition-all duration-200 shadow-md hover:shadow-lg font-medium" 
-                                        onclick="verDetalles('<?php echo $alumno['carnet']; ?>')">
-                                    Ver detalles
-                                </button>
-                            </td>
-                        </tr>
-                        <?php } ?>
-                    </tbody>
-                </table>
-            </div>
+        <div class="flex items-center space-x-3">
+            <span class="text-sm text-gray-700 font-medium" id="userName"><?php echo $dataAdmin['nom_usuario'] . ' ' . $dataAdmin['ape_usuario']; ?></span>
+            <button id="backBtn"
+                    class="flex items-center bg-gray-600 text-white py-1 px-3 rounded-md text-sm hover:bg-gray-700 transition">
+                <i class="fas fa-arrow-left mr-1"></i>
+                <span class="hidden sm:inline">Regresar</span>
+            </button>
+            <button id="logoutBtn"
+                    class="flex items-center bg-red-600 text-white py-1 px-3 rounded-md text-sm hover:bg-red-700 transition">
+                <i class="fas fa-sign-out-alt mr-1"></i>
+                <span class="hidden sm:inline">Salir</span>
+            </button>
         </div>
     </div>
-    <?php include 'modal_detalles_alumno.php'; ?>
+</nav>
+
+<!-- Main Content -->
+<main class="flex justify-center bg-gray-100 mt-8 px-4">
+    <div class="bg-white rounded-xl shadow-lg p-6 max-w-6xl w-full">
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h2 class="text-2xl font-bold text-gray-800">Listado de Alumnos</h2>
+                <p class="text-sm text-gray-500">Gestión y consulta de información estudiantil</p>
+            </div>
+        </div>
+
+        <!-- Filtros -->
+        <div class="bg-blue-50 border-l-4 border-blue-600 p-4 rounded-lg mb-4">
+            <div class="flex items-center mb-4">
+                <div class="bg-blue-100 p-2 rounded-full mr-3">
+                    <i class="fas fa-filter text-blue-600"></i>
+                </div>  
+                <h3 class="font-semibold text-gray-800">Filtros de Búsqueda</h3>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                <div class="md:col-span-2">
+                    <label for="searchInput" class="block text-sm text-gray-600 mb-1">
+                        <i class="fas fa-search mr-1"></i>Buscar por Carnet, Nombre o Apellido
+                    </label>
+                    <input type="text" id="searchInput" placeholder="Escriba para buscar..."
+                           class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" autocomplete="off">
+                </div>
+                <div>
+                    <button onclick="limpiarFiltros()" class="w-full inline-flex items-center justify-center bg-gray-600 text-white py-2 px-4 rounded hover:bg-gray-700 transition text-sm">
+                        <i class="fas fa-eraser mr-2"></i>Limpiar Filtros
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla -->
+        <div class="border border-gray-200 rounded-lg overflow-hidden">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50 sticky top-0 z-10">
+                <tr>
+                    <th class="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Carnet</th>
+                    <th class="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Nombre</th>
+                    <th class="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Apellido</th>
+                    <th class="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Teléfono</th>
+                    <th class="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Email</th>
+                    <th class="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Faltas</th>
+                    <th class="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Ciclo</th>
+                    <th class="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Año</th>
+                    <th class="px-4 py-3 text-right text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Acción</th>
+                </tr>
+                </thead>
+                <tbody id="studentsTable" class="bg-white divide-y divide-gray-100 text-sm">
+                    <?php foreach ($alumnos as $idx => $alumno) { ?>
+                    <tr class="hover:bg-gray-50 <?php echo $idx % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'; ?>">
+                        <td class="px-4 py-2 align-top font-medium text-gray-800"><?php echo $alumno['carnet']; ?></td>
+                        <td class="px-4 py-2 align-top"><?php echo $alumno['nombre']; ?></td>
+                        <td class="px-4 py-2 align-top"><?php echo $alumno['apellido']; ?></td>
+                        <td class="px-4 py-2 align-top"><?php echo $alumno['telefono']; ?></td>
+                        <td class="px-4 py-2 align-top text-blue-600"><?php echo $alumno['email']; ?></td>
+                        <td class="px-4 py-2 align-top">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                <?php echo $alumno['total_faltas']; ?>
+                            </span>
+                        </td>
+                        <td class="px-4 py-2 align-top"><?php echo $alumno['ciclo']; ?></td>
+                        <td class="px-4 py-2 align-top"><?php echo $alumno['year']; ?></td>
+                        <td class="px-4 py-2 align-top text-right">
+                            <a href="detalles_alumno.php?carnet=<?php echo $alumno['carnet']; ?>" class="inline-flex items-center bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 text-xs">
+                                <i class="fas fa-eye mr-1"></i> Ver
+                            </a>
+                        </td>
+                    </tr>
+                    <?php } ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+<script>
+    // Navegación
+    document.getElementById('backBtn').addEventListener('click', function() {
+        if (confirm('¿Está seguro que desea regresar?')) {
+            window.location.href = 'dashboard.php';
+        }
+    });
+    document.getElementById('logoutBtn').addEventListener('click', function() {
+        if (confirm('¿Está seguro que desea cerrar sesión?')) {
+            window.location.href = '../Login/Logout.php';
+        }
+    });
+
+    // Filtrado en tiempo real
+    const searchInput = document.getElementById('searchInput');
+    const tableBody = document.getElementById('studentsTable');
+    const allRows = Array.from(tableBody.getElementsByTagName('tr'));
+
+    searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase().trim();
+        
+        allRows.forEach(row => {
+            const carnet = row.cells[0]?.textContent.toLowerCase() || '';
+            const nombre = row.cells[1]?.textContent.toLowerCase() || '';
+            const apellido = row.cells[2]?.textContent.toLowerCase() || '';
+            
+            const matches = carnet.includes(searchTerm) || 
+                          nombre.includes(searchTerm) || 
+                          apellido.includes(searchTerm);
+            
+            row.style.display = matches ? '' : 'none';
+        });
+    });
+
+    // Limpiar filtros
+    function limpiarFiltros() {
+        searchInput.value = '';
+        allRows.forEach(row => {
+            row.style.display = '';
+        });
+    }
+</script>
 </body>
 </html>

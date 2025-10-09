@@ -1,6 +1,6 @@
 <?php
 if(!isset($_SESSION['administrador'])){
-    header("Location: /ProyectoInasistenciasItca/index.php");
+    header("Location: /ProyectoInasistencias/index.php");
 }
 $dataAdmin=$_SESSION['administrador'];
 ?>

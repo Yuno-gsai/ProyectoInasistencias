@@ -60,7 +60,8 @@ class Faltas extends BaseModel {
     }
 
     public function create($data) {
-        $query = "INSERT INTO inasistencia (idalumno,id_docente,id_detalle, fecha_falta, cantidadHoras, observacion) VALUES (:idalumno,:id_docente,:id_detalle, :fecha_falta, :cantidadHoras, :observacion)";
+        $query = "INSERT INTO inasistencia (idalumno, id_docente, id_detalle, fecha_falta, cantidadHoras, observacion, justificacion_texto, justificacion_imagen, tiene_justificacion) 
+                  VALUES (:idalumno, :id_docente, :id_detalle, :fecha_falta, :cantidadHoras, :observacion, :justificacion_texto, :justificacion_imagen, :tiene_justificacion)";
         $stmt = $this->getConnection()->prepare($query);
         $stmt->execute([
             'idalumno' => $data['idalumno'],
@@ -68,7 +69,11 @@ class Faltas extends BaseModel {
             'id_detalle' => $data['id_detalle'],
             'fecha_falta' => $data['fecha_falta'],
             'cantidadHoras' => $data['cantidadHoras'],
-            'observacion' => $data['observacion']]);
+            'observacion' => $data['observacion'],
+            'justificacion_texto' => $data['justificacion_texto'] ?? null,
+            'justificacion_imagen' => $data['justificacion_imagen'] ?? null,
+            'tiene_justificacion' => $data['tiene_justificacion'] ?? 0
+        ]);
         return true;
     }
 
@@ -119,7 +124,17 @@ class Faltas extends BaseModel {
 
 
     public function update($data) {
-        $query = "UPDATE inasistencia SET idalumno = :idalumno, id_docente = :id_docente, id_detalle = :id_detalle, fecha_falta = :fecha_falta, cantidadHoras = :cantidadHoras, observacion = :observacion WHERE id_inasistencia = :id_inasistencia";
+        $query = "UPDATE inasistencia SET 
+                  idalumno = :idalumno, 
+                  id_docente = :id_docente, 
+                  id_detalle = :id_detalle, 
+                  fecha_falta = :fecha_falta, 
+                  cantidadHoras = :cantidadHoras, 
+                  observacion = :observacion,
+                  justificacion_texto = :justificacion_texto,
+                  justificacion_imagen = :justificacion_imagen,
+                  tiene_justificacion = :tiene_justificacion
+                  WHERE id_inasistencia = :id_inasistencia";
         $stmt = $this->getConnection()->prepare($query);
         $stmt->execute([
             'id_inasistencia' => $data['id_inasistencia'],
@@ -128,7 +143,11 @@ class Faltas extends BaseModel {
             'id_detalle' => $data['id_detalle'],
             'fecha_falta' => $data['fecha_falta'],
             'cantidadHoras' => $data['cantidadHoras'],
-            'observacion' => $data['observacion']]);
+            'observacion' => $data['observacion'],
+            'justificacion_texto' => $data['justificacion_texto'] ?? null,
+            'justificacion_imagen' => $data['justificacion_imagen'] ?? null,
+            'tiene_justificacion' => $data['tiene_justificacion'] ?? 0
+        ]);
         return true;
     } 
 

@@ -176,7 +176,7 @@ $estudiantes = json_encode($alumnos);
                 document.getElementById('becaDisplay').textContent = estudiante.beca==1?"Sí":"No";
                 document.getElementById('tipoBecaDisplay').textContent = estudiante.tipobeca;
                 document.getElementById('telefonoDisplay').textContent = estudiante.telefono;
-                document.getElementById('FotoEstudianteDisplay').src = estudiante.foto == "" ? "/ProyectoInasistenciasItca/Vistas/Publico/Imagenes/12225881.png" : estudiante.foto;
+                document.getElementById('FotoEstudianteDisplay').src = estudiante.foto == "" ? "/ProyectoInasistencias/Vistas/Publico/Imagenes/12225881.png" : estudiante.foto;
                 document.getElementById('cicloDisplay').textContent = estudiante.ciclo;
                 document.getElementById('faltasDisplay').textContent = estudiante.total_faltas;
                 document.getElementById('contactoEmergenciaDisplay').textContent = estudiante.telefono_emergencia;

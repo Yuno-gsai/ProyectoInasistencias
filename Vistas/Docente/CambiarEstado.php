@@ -1,7 +1,7 @@
 <?php
 session_start();
 if(!isset($_SESSION['docente'])){
-    header("Location: /ProyectoInasistenciasItca/index.php");
+    header("Location: /ProyectoInasistencias/index.php");
     exit();
 }
 require_once "../../models/FaltasModel.php";
@@ -16,7 +16,7 @@ if (!$idInasistencia || !$estado) {
         'message' => 'Parámetros inválidos',
         'details' => 'No se proporcionó el ID o el estado de la inasistencia'
     ];
-    header("Location: /ProyectoInasistenciasItca/Vistas/Docente/CrudInasistencia.php");
+    header("Location: /ProyectoInasistencias/Vistas/Docente/CrudInasistencia.php");
     exit();
 }
 
@@ -39,5 +39,5 @@ try {
     ];
 }
 
-header("Location: /ProyectoInasistenciasItca/Vistas/Docente/CrudInasistencia.php");
+header("Location: /ProyectoInasistencias/Vistas/Docente/CrudInasistencia.php");
 exit();

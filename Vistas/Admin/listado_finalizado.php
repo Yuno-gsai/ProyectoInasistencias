@@ -1,7 +1,7 @@
 <?php
 session_start();
 if(!isset($_SESSION['administrador'])){
-    header("Location: /ProyectoInasistenciasItca/index.php");
+    header("Location: /ProyectoInasistencias/index.php");
 }
 $dataAdmin=$_SESSION['administrador'];
 
@@ -15,9 +15,12 @@ $estudiantes = (new SeguimientosModel())->getSeguimietosFinalizados();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Estudiantes - ITCA FEPADE</title>
+    <title>Listado Finalizado - ITCA FEPADE</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Poppins', sans-serif; }
         /* Estilos para el modal */
         .modal {
             display: none;
@@ -139,475 +142,163 @@ $estudiantes = (new SeguimientosModel())->getSeguimietosFinalizados();
             animation: modalFadeIn 0.3s ease-out;
         }
     </style>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'itca-red': '#B91C1C',
-                        'itca-dark-red': '#991B1B',
-                        'itca-gold': '#D97706'
-                    }
-                }
-            }
-        }
-    </script>
 </head>
 <body class="bg-gray-100 min-h-screen">
-    <!-- Header -->
-    <?php include "menu.php" ?>
-     <!-- Título principal -->
-     
-    <!-- Contenido principal -->
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <div class="mb-8">
-            <h1 class="text-3xl font-bold text-gray-800 mb-2">Listado de Finalizados</h1>
-            <p class="text-gray-600">Gestión y consulta de información estudiantil</p>
+<!--Navbar-->
+<nav class="bg-white shadow-sm">
+    <div class="container mx-auto px-4 py-2 flex justify-between items-center">
+        <div class="flex items-center space-x-2">
+            <img src="../Publico/Imagenes/ItcaLogo.png" alt="Logo ITCA FEPADE" class="h-8">
+            <p class="text-sm font-semibold text-gray-700">Registro de Inasistencias</p>
         </div>
-        <!-- Formulario de búsqueda -->
-        <div class="bg-itca-red p-6 rounded-lg shadow-lg mb-8">
-            <form class="flex flex-wrap items-end gap-4">
-                <div class="flex-1 min-w-48">
-                    <label class="block text-white text-sm font-medium mb-2">Buscar por:</label>
-                    <select id="searchType" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent">
-                        <option>Seleccione una opción</option>
-                        <option>Carnet</option>
-                        <option>Nombre</option>
-                        <option>Apellido</option>
-                        <option>Fecha</option>
-                    </select>
+        <div class="flex items-center space-x-3">
+            <span class="text-sm text-gray-700 font-medium" id="userName"><?php echo $dataAdmin['nom_usuario'] . ' ' . $dataAdmin['ape_usuario']; ?></span>
+            <button id="backBtn"
+                    class="flex items-center bg-gray-600 text-white py-1 px-3 rounded-md text-sm hover:bg-gray-700 transition">
+                <i class="fas fa-arrow-left mr-1"></i>
+                <span class="hidden sm:inline">Regresar</span>
+            </button>
+            <button id="logoutBtn"
+                    class="flex items-center bg-red-600 text-white py-1 px-3 rounded-md text-sm hover:bg-red-700 transition">
+                <i class="fas fa-sign-out-alt mr-1"></i>
+                <span class="hidden sm:inline">Salir</span>
+            </button>
+        </div>
+    </div>
+</nav>
+
+<!-- Main Content -->
+<main class="flex justify-center bg-gray-100 mt-8 px-4">
+    <div class="bg-white rounded-xl shadow-lg p-6 max-w-6xl w-full">
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h2 class="text-2xl font-bold text-gray-800">Listado de Finalizados</h2>
+                <p class="text-sm text-gray-500">Gestión y consulta de información estudiantil</p>
+            </div>
+        </div>
+        <!-- Filtros -->
+        <div class="bg-blue-50 border-l-4 border-blue-600 p-4 rounded-lg mb-4">
+            <div class="flex items-center mb-4">
+                <div class="bg-blue-100 p-2 rounded-full mr-3">
+                    <i class="fas fa-filter text-blue-600"></i>
+                </div>  
+                <h3 class="font-semibold text-gray-800">Filtros de Búsqueda</h3>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                <div class="md:col-span-2">
+                    <label for="searchInput" class="block text-sm text-gray-600 mb-1">
+                        <i class="fas fa-search mr-1"></i>Buscar por Carnet, Nombre o Apellido
+                    </label>
+                    <input type="text" id="searchInput" placeholder="Escriba para buscar..."
+                           class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" autocomplete="off">
                 </div>
-                
-                <div class="flex-1 min-w-48">
-                    <label class="block text-white text-sm font-medium mb-2">Dato:</label>
-                    <input id="searchInput" type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent" placeholder="Ingrese el dato a buscar">
-                </div>
-                
                 <div>
-                    <button type="button" onclick="buscarEstudiantes()" class="bg-white text-itca-red px-8 py-2 rounded-md font-semibold hover:bg-gray-100 transition-colors duration-200 shadow-md">
-                        Buscar
-                    </button>
+                    <label for="dateFilter" class="block text-sm text-gray-600 mb-1">
+                        <i class="fas fa-calendar mr-1"></i>Filtrar por Fecha
+                    </label>
+                    <input type="date" id="dateFilter"
+                           class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
-            </form>
-        </div>
-
-        <!-- Tabla de resultados -->
-        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-            <div class="overflow-x-auto">
-                <table class="min-w-full">
-                    <thead class="bg-gray-400">
-                        <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Carnet</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Nombre</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Apellido</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Fecha Final</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Fecha Ultimo Seguimiento</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Motivo</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider">Acción</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        <?php foreach ($estudiantes as $estudiante) { ?>
-                        <tr class="hover:bg-gray-50 transition-colors duration-150">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><?php echo $estudiante['carnet'];?></td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><?php echo $estudiante['nombre'];?></td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><?php echo $estudiante['apellido'];?></td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><?php echo $estudiante['fecha_estado'];?></td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><?php echo $estudiante['ultima_fecha_seguimiento'];?></td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><?php echo $estudiante['motivo'];?></td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm space-x-2">
-                                <button class="bg-itca-red text-white px-3 py-1 rounded text-xs font-medium hover:bg-itca-dark-red transition-colors duration-200"
-                                onclick="verDetalles('<?php echo $estudiante['idalumno'];?>')">
-                                    Ver detalles
-                                </button>
-                                <button class="bg-itca-red text-white px-3 py-1 rounded text-xs font-medium hover:bg-itca-dark-red transition-colors duration-200"
-                                onclick="openHistoryModal('<?php echo $estudiante['idalumno'];?>')">
-                                    Historial
-                                </button>
-                            </td>
-                        </tr>
-                        <?php } ?>
-                        <!-- Filas adicionales de ejemplo -->
-                      
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        
-        <!-- Paginación -->
-        <div class="mt-6 flex items-center justify-between">
-            <div class="text-sm text-gray-700">
-                Mostrando <span class="font-medium">1</span> a <span class="font-medium">3</span> de <span class="font-medium">3</span> resultados
-            </div>
-            <div class="flex space-x-2">
-                <button class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50" disabled>
-                    Anterior
-                </button>
-                <button class="px-3 py-2 text-sm font-medium text-white bg-itca-red border border-transparent rounded-md">
-                    1
-                </button>
-                <button class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50" disabled>
-                    Siguiente
-                </button>
-            </div>
-        </div>
-    </main>
-
-    <!-- Modal de detalles del estudiante -->
-    <div id="modalDetalles" class="modal">
-        <div class="modal-content bg-white rounded-xl">
-            <div class="bg-gradient-to-br from-gray-50 to-gray-100 p-8 relative">
-                <!-- Botón cerrar mejorado -->
-                <button onclick="cerrarModalDetalles()" class="close-btn">×</button>
-                
-                <div class="flex flex-col lg:flex-row gap-8">
-                    <!-- Columna izquierda: Foto y carnet -->
-                    <div class="lg:w-1/3 flex flex-col items-center">
-                        <div class="student-photo p-4 mb-6 w-full max-w-xs rounded-lg shadow-lg flex items-center justify-center">
-                            <img src="https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=300&h=400&fit=crop" 
-                                 alt="Foto del estudiante" 
-                                 class="w-full h-64 object-cover rounded">
-                        </div>
-                        <div class="text-center mb-8 w-full">
-                            <div class="text-xl font-semibold text-gray-600 mb-3">Carnet</div>
-                            <div class="info-card text-center py-4">
-                                <div id="carnetDisplay" class="text-3xl font-bold text-gray-800">12345</div>
-                            </div>
-                        </div>
-                        
-                    </div>
-
-                    <!-- Columna derecha: Datos personales -->
-                    <div class="lg:w-2/3">
-                        <div class="mb-8">
-                            <h1 class="text-3xl font-bold text-gray-800 mb-2 section-title">DATOS PERSONALES</h1>
-                        </div>
-                        
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            <!-- Primera columna -->
-                            <div class="space-y-6">
-                                <div class="info-card">
-                                    <div class="text-sm font-semibold text-gray-600 mb-1">Nombre</div>
-                                    <div class="text-lg text-gray-800 font-medium" id="nombreDisplay">German Jose</div>
-                                </div>
-                                
-                                <div class="info-card">
-                                    <div class="text-sm font-semibold text-gray-600 mb-1">Estado de alumno</div>
-                                    <div>
-                                        <span id="estadoDisplay" class="status-badge status-active">Activo</span>
-                                    </div>
-                                </div>
-                                
-              
-                            </div>
-
-                            <!-- Segunda columna -->
-                            <div class="space-y-6">
-                                <div class="info-card">
-                                    <div class="text-sm font-semibold text-gray-600 mb-1">Apellido</div>
-                                    <div class="text-lg text-gray-800 font-medium" id="apellidoDisplay">Perdomo Moran</div>
-                                </div>
-                                
-                                <div class="info-card">
-                                    <div class="text-sm font-semibold text-gray-600 mb-1">Beca</div>
-                                    <div>
-                                        <span id="becaDisplay" class="status-badge status-active">Sí</span>
-                                    </div>
-                                </div>
-                                
-                                <div class="info-card">
-                                    <div class="text-sm font-semibold text-gray-600 mb-1">Tipo de beca</div>
-                                    <div class="text-lg text-gray-800 font-medium" id="tipoBecaDisplay">Semilla</div>
-                                </div>
-                            </div>
-
-                            <!-- Tercera columna -->
-                            <div class="space-y-6">
-                    
-                                
-                                <div class="info-card">
-                                    <div class="text-sm font-semibold text-gray-600 mb-1">Correo Institucional</div>
-                                    <div class="text-lg text-blue-600 font-medium" id="correoInstitucionalDisplay">estudiante@itca.edu.com</div>
-                                </div>
-                                
-                                <div class="info-card">
-                                    <div class="text-sm font-semibold text-gray-600 mb-1">Teléfono</div>
-                                    <div class="text-lg text-gray-800 font-medium" id="telefonoDisplay">76267471</div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Información adicional -->
-                        <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div class="info-card">
-                                <div class="text-sm font-semibold text-gray-600 mb-1">Ciclo actual</div>
-                                <div class="text-lg text-gray-800 font-medium">2</div>
-                            </div>
-                            <div class="info-card">
-                                <div class="text-sm font-semibold text-gray-600 mb-1">Faltas acumuladas</div>
-                                <div class="text-lg text-red-600 font-medium">2</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal de Historial -->
-    <div id="modalHistorial" class="modal">
-        <div class="modal-content bg-white rounded-xl modal-content-historial">
-            <div class="p-8 relative">
-                <button onclick="cerrarModalHistorial()" class="close-btn">×</button>
-                <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center section-title">Historial de Seguimiento</h2>
-                
-                <div id="historialContent" class="space-y-4">
-                    <!-- El contenido del historial se cargará dinámicamente aquí -->
-                </div>
-                
-                <div class="flex justify-end mt-6">
-                    <button onclick="cerrarModalHistorial()" class="bg-itca-red hover:bg-itca-dark-red text-white px-6 py-2 rounded-lg font-medium transition-colors shadow-md">
-                        Cerrar
+                <div>
+                    <button onclick="limpiarFiltros()" class="w-full inline-flex items-center justify-center bg-gray-600 text-white py-2 px-4 rounded hover:bg-gray-700 transition text-sm">
+                        <i class="fas fa-eraser mr-2"></i>Limpiar Filtros
                     </button>
                 </div>
             </div>
         </div>
+
+        <!-- Tabla -->
+        <div class="border border-gray-200 rounded-lg overflow-hidden">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50 sticky top-0 z-10">
+                <tr>
+                    <th class="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Carnet</th>
+                    <th class="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Nombre</th>
+                    <th class="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Apellido</th>
+                    <th class="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Fecha Final</th>
+                    <th class="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Último Seguimiento</th>
+                    <th class="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Motivo</th>
+                    <th class="px-4 py-3 text-right text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Acción</th>
+                </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-100 text-sm">
+                    <?php foreach ($estudiantes as $idx => $estudiante) { ?>
+                    <tr class="hover:bg-gray-50 <?php echo $idx % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'; ?>">
+                        <td class="px-4 py-2 align-top font-medium text-gray-800"><?php echo $estudiante['carnet'];?></td>
+                        <td class="px-4 py-2 align-top"><?php echo $estudiante['nombre'];?></td>
+                        <td class="px-4 py-2 align-top"><?php echo $estudiante['apellido'];?></td>
+                        <td class="px-4 py-2 align-top"><?php echo $estudiante['fecha_estado'];?></td>
+                        <td class="px-4 py-2 align-top"><?php echo $estudiante['ultima_fecha_seguimiento'];?></td>
+                        <td class="px-4 py-2 align-top"><?php echo $estudiante['motivo'];?></td>
+                        <td class="px-4 py-2 align-top text-right space-x-2 whitespace-nowrap">
+                            <a href="detalles_alumno.php?carnet=<?php echo $estudiante['carnet'];?>" class="inline-flex items-center bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 text-xs">
+                                <i class="fas fa-eye mr-1"></i> Ver
+                            </a>
+                            <a href="historial_seguimiento.php?idalumno=<?php echo $estudiante['idalumno'];?>" class="inline-flex items-center bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 text-xs">
+                                <i class="fas fa-history mr-1"></i> Historial
+                            </a>
+                        </td>
+                    </tr>
+                    <?php } ?>
+                </tbody>
+            </table>
+        </div>
     </div>
+</main>
 
-    <script>
-        // Datos de ejemplo para los estudiantes
-        const estudiantes = <?php echo json_encode($estudiantes); ?>;
-        
-        //     {
-        //         carnet: "5521",
-        //         nombre: "german jose",
-        //         apellido: "perdomo moran",
-        //         telefono: "77777777",
-        //         email: "estudiante.24@itca.edu.sv",
-        //         faltas: 2,
-        //         ciclo: 2,
-        //         año: 2024,
-        //         correoPersonal: "german.perdomo@gmail.com",
-        //         estadoAlumno: "Activo",
-        //         añoEstudio: "2025",
-        //         beca: "Sí",
-        //         tipoBeca: "Semilla",
-        //         carnetCompleto: "12345",
-        //         historial: [
-        //             {
-        //                 tipo: "Llamada telefónica",
-        //                 fecha: "15 de septiembre, 2024",
-        //                 estado: "Realizada",
-        //                 descripcion: "Se contactó al estudiante para verificar su situación académica."
-        //             },
-        //             {
-        //                 tipo: "Correo electrónico",
-        //                 fecha: "10 de septiembre, 2024",
-        //                 estado: "Enviado",
-        //                 descripcion: "Se envió recordatorio sobre las faltas acumuladas."
-        //             },
-        //             {
-        //                 tipo: "Reunión con coordinador",
-        //                 fecha: "5 de septiembre, 2024",
-        //                 estado: "Pendiente",
-        //                 descripcion: "Programada para evaluar situación académica del estudiante."
-        //             }
-        //         ]
-        //     },
-        //     {
-        //         carnet: "5522",
-        //         nombre: "maria elena",
-        //         apellido: "rodriguez lopez",
-        //         telefono: "88888888",
-        //         email: "estudiante.25@itca.edu.sv",
-        //         faltas: 1,
-        //         ciclo: 1,
-        //         año: 2024,
-        //         correoPersonal: "maria.rodriguez@gmail.com",
-        //         estadoAlumno: "Activo",
-        //         añoEstudio: "2025",
-        //         beca: "No",
-        //         tipoBeca: "N/A",
-        //         carnetCompleto: "54321",
-        //         historial: [
-        //             {
-        //                 tipo: "Correo electrónico",
-        //                 fecha: "12 de septiembre, 2024",
-        //                 estado: "Enviado",
-        //                 descripcion: "Se envió información sobre tutorías disponibles."
-        //             },
-        //             {
-        //                 tipo: "Entrevista personal",
-        //                 fecha: "8 de septiembre, 2024",
-        //                 estado: "Realizada",
-        //                 descripcion: "Se evaluaron las dificultades académicas del estudiante."
-        //             }
-        //         ]
-        //     },
-        //     {
-        //         carnet: "5523",
-        //         nombre: "carlos antonio",
-        //         apellido: "martinez silva",
-        //         telefono: "99999999",
-        //         email: "estudiante.26@itca.edu.sv",
-        //         faltas: 3,
-        //         ciclo: 3,
-        //         año: 2024,
-        //         correoPersonal: "carlos.martinez@gmail.com",
-        //         estadoAlumno: "Suspendido",
-        //         añoEstudio: "2025",
-        //         beca: "Sí",
-        //         tipoBeca: "Completa",
-        //         carnetCompleto: "67890",
-        //         historial: [
-        //             {
-        //                 tipo: "Llamada telefónica",
-        //                 fecha: "18 de septiembre, 2024",
-        //                 estado: "No contestó",
-        //                 descripcion: "Se intentó contactar al estudiante sin éxito."
-        //             },
-        //             {
-        //                 tipo: "Correo electrónico",
-        //                 fecha: "14 de septiembre, 2024",
-        //                 estado: "Enviado",
-        //                 descripcion: "Se notificó sobre situación de riesgo académico."
-        //             },
-        //             {
-        //                 tipo: "Visita domiciliaria",
-        //                 fecha: "10 de septiembre, 2024",
-        //                 estado: "Programada",
-        //                 descripcion: "Se programó visita para evaluar situación personal."
-        //             }
-        //         ]
-        //     }
-        // ];
-
-        // Función para abrir el modal de detalles
-        let estudianteActual = null;
-
-        function verDetalles(idalumno) {
-            estudianteActual = estudiantes.find(est => est.idalumno == idalumno);
-            if (estudianteActual) {
-                // Actualizar elementos con los datos del estudiante
-                document.getElementById('carnetDisplay').textContent = estudianteActual.carnet;
-                document.getElementById('nombreDisplay').textContent = estudianteActual.nombre;
-                document.getElementById('apellidoDisplay').textContent = estudianteActual.apellido;
-                document.getElementById('correoInstitucionalDisplay').textContent = estudianteActual.email;
-                document.getElementById('estadoDisplay').textContent = estudianteActual.estadoAlumno==1?"Activo":"Inactivo";
-                document.getElementById('becaDisplay').textContent = estudianteActual.beca==1?"Sí":"No";
-                document.getElementById('tipoBecaDisplay').textContent = estudianteActual.tipobeca;
-                document.getElementById('telefonoDisplay').textContent = estudianteActual.telefono;
-                
-                // Aplicar estilos según el estado
-                const estadoElement = document.getElementById('estadoDisplay');
-                estadoElement.className = 'status-badge';
-                if (estudianteActual.estadoAlumno === 'Activo') {
-                    estadoElement.classList.add('status-active');
-                } else if (estudianteActual.estadoAlumno === 'Suspendido') {
-                    estadoElement.classList.add('status-suspended');
-                } else {
-                    estadoElement.classList.add('status-inactive');
-                }
-                
-                // Aplicar estilos según la beca
-                const becaElement = document.getElementById('becaDisplay');
-                becaElement.className = 'status-badge';
-                if (estudianteActual.beca === 'Sí') {
-                    becaElement.classList.add('status-active');
-                } else {
-                    becaElement.classList.add('status-inactive');
-                }
-                
-                // Mostrar modal
-                document.getElementById('modalDetalles').classList.add('show');
-            }
+<script>
+    // Navegación
+    document.getElementById('backBtn').addEventListener('click', function() {
+        if (confirm('¿Está seguro que desea regresar?')) {
+            window.location.href = 'dashboard.php';
         }
+    });
+    document.getElementById('logoutBtn').addEventListener('click', function() {
+        if (confirm('¿Está seguro que desea cerrar sesión?')) {
+            window.location.href = '../Login/Logout.php';
+        }
+    });
 
-        // Función para abrir el modal de historial
-        function openHistoryModal(idalumno) {
-    estudianteActual = estudiantes.find(est => est.idalumno == idalumno);
+    // Filtrado en tiempo real
+    const searchInput = document.getElementById('searchInput');
+    const dateFilter = document.getElementById('dateFilter');
+    const tableBody = document.querySelector('tbody');
+    const allRows = Array.from(tableBody.getElementsByTagName('tr'));
 
-    const historialContent = document.getElementById('historialContent');
-    historialContent.innerHTML = '';
-
-    if (Array.isArray(estudianteActual.seguimientos) && estudianteActual.seguimientos.length > 0) {
-        estudianteActual.seguimientos.forEach(s => {
-            let borderColor = 'border-itca-red';
-            if (s.accion?.toLowerCase().includes('llamada')) borderColor = 'border-blue-500';
-            else if (s.accion?.toLowerCase().includes('correo') || s.accion?.toLowerCase().includes('email')) borderColor = 'border-green-500';
-            else if (s.accion?.toLowerCase().includes('visita')) borderColor = 'border-yellow-500';
-
-            const itemElement = document.createElement('div');
-            itemElement.className = `relative bg-gray-50 p-4 rounded-lg shadow-md ${borderColor} border-l-4`;
-            itemElement.innerHTML = `
-                <div class="flex justify-between items-center mb-2">
-                    <span class="text-sm text-gray-500 font-medium">${s.fecha}</span>
-                    <span class="text-sm font-semibold ${borderColor.replace('border', 'text')}">${s.accion}</span>
-                </div>
-                <p class="text-gray-700">${s.respuesta}</p>
-            `;
-            historialContent.appendChild(itemElement);
+    function aplicarFiltros() {
+        const searchTerm = searchInput.value.toLowerCase().trim();
+        const selectedDate = dateFilter.value;
+        
+        allRows.forEach(row => {
+            const carnet = row.cells[0]?.textContent.toLowerCase() || '';
+            const nombre = row.cells[1]?.textContent.toLowerCase() || '';
+            const apellido = row.cells[2]?.textContent.toLowerCase() || '';
+            const fechaFinal = row.cells[3]?.textContent.trim() || '';
+            
+            // Filtro de búsqueda
+            const matchesSearch = !searchTerm || 
+                                carnet.includes(searchTerm) || 
+                                nombre.includes(searchTerm) || 
+                                apellido.includes(searchTerm);
+            
+            // Filtro de fecha
+            const matchesDate = !selectedDate || fechaFinal === selectedDate;
+            
+            row.style.display = (matchesSearch && matchesDate) ? '' : 'none';
         });
-    } else {
-        historialContent.innerHTML = "<p class='text-gray-500 text-center'>No hay seguimientos registrados.</p>";
     }
 
-    // Cambiar estas líneas
-    const modal = document.getElementById('modalHistorial');
-    modal.classList.remove('hidden');
-    modal.classList.add('show');
-}
+    searchInput.addEventListener('input', aplicarFiltros);
+    dateFilter.addEventListener('change', aplicarFiltros);
 
-
-        // Función para cerrar el modal de detalles
-        function cerrarModalDetalles() {
-            document.getElementById('modalDetalles').classList.remove('show');
-        }
-
-        // Función para cerrar el modal de historial
-        function cerrarModalHistorial() {
-            document.getElementById('modalHistorial').classList.remove('show');
-        }
-
-        function iniciarSeguimiento() {
-            alert('Iniciando seguimiento del estudiante...');
-            // Aquí puedes agregar la lógica para iniciar el seguimiento
-        }
-
-        function buscarEstudiantes() {
-            const tipo = document.getElementById('searchType').value;
-            const dato = document.getElementById('searchInput').value.toLowerCase();
-            
-            if (!tipo || tipo === 'Seleccione una opción' || !dato) {
-                alert('Por favor seleccione un tipo de búsqueda e ingrese un dato');
-                return;
-            }
-            
-            // Aquí podrías implementar la lógica de búsqueda
-            console.log('Buscando por', tipo, ':', dato);
-            alert(`Buscando estudiantes por ${tipo}: ${dato}`);
-        }
-
-        // Cerrar modales al hacer clic fuera de ellos
-        window.onclick = function(event) {
-            const modalDetalles = document.getElementById('modalDetalles');
-            const modalHistorial = document.getElementById('modalHistorial');
-            
-            if (event.target === modalDetalles) {
-                cerrarModalDetalles();
-            }
-            if (event.target === modalHistorial) {
-                cerrarModalHistorial();
-            }
-        }
-
-        // Cerrar modales con la tecla Escape
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'Escape') {
-                cerrarModalDetalles();
-                cerrarModalHistorial();
-            }
+    // Limpiar filtros
+    function limpiarFiltros() {
+        searchInput.value = '';
+        dateFilter.value = '';
+        allRows.forEach(row => {
+            row.style.display = '';
         });
-    </script>
+    }
+</script>
 </body>
 </html>

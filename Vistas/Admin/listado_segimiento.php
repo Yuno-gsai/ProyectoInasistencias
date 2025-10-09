@@ -1,7 +1,7 @@
 <?php
 session_start();
 if(!isset($_SESSION['administrador'])){
-    header("Location: /ProyectoInasistenciasItca/index.php");
+    header("Location: /ProyectoInasistencias/index.php");
 }
 $dataAdmin=$_SESSION['administrador'];
 
@@ -33,24 +33,12 @@ if(isset($_POST['guardarSeguimiento'])){
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ITCA FEPADE - Listado de Seguimiento</title>
+    <title>Listado de Seguimiento - ITCA FEPADE</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'itca-red': '#8B1538',
-                        'itca-dark-red': '#6A1029',
-                        'itca-light-red': '#A91B47',
-                        'itca-gray': '#4A5568',
-                        'itca-light-gray': '#F7FAFC'
-                    }
-                }
-            }
-        }
-    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Poppins', sans-serif; }
         .modal-backdrop {
             backdrop-filter: blur(4px);
         }
@@ -134,217 +122,147 @@ if(isset($_POST['guardarSeguimiento'])){
         }
     </style>
 </head>
-<body class="bg-gray-100">
-    <!-- Header -->
-    <?php include "menu.php" ?>
+<body class="bg-gray-100 min-h-screen">
+<!--Navbar-->
+<nav class="bg-white shadow-sm">
+    <div class="container mx-auto px-4 py-2 flex justify-between items-center">
+        <div class="flex items-center space-x-2">
+            <img src="../Publico/Imagenes/ItcaLogo.png" alt="Logo ITCA FEPADE" class="h-8">
+            <p class="text-sm font-semibold text-gray-700">Registro de Inasistencias</p>
+        </div>
+        <div class="flex items-center space-x-3">
+            <span class="text-sm text-gray-700 font-medium" id="userName"><?php echo $dataAdmin['nom_usuario'] . ' ' . $dataAdmin['ape_usuario']; ?></span>
+            <button id="backBtn"
+                    class="flex items-center bg-gray-600 text-white py-1 px-3 rounded-md text-sm hover:bg-gray-700 transition">
+                <i class="fas fa-arrow-left mr-1"></i>
+                <span class="hidden sm:inline">Regresar</span>
+            </button>
+            <button id="logoutBtn"
+                    class="flex items-center bg-red-600 text-white py-1 px-3 rounded-md text-sm hover:bg-red-700 transition">
+                <i class="fas fa-sign-out-alt mr-1"></i>
+                <span class="hidden sm:inline">Salir</span>
+            </button>
+        </div>
+    </div>
+</nav>
 
-    <div class="container mx-auto p-6 max-w-7xl">
-        <!-- Título -->
-        <div class="mb-6">
-            <h1 class="text-3xl font-bold text-gray-800 mb-2">Listado de Seguimiento</h1>
-            <p class="text-gray-600">Gestión y consulta de información estudiantil</p>
+<!-- Main Content -->
+<main class="flex justify-center bg-gray-100 mt-8 px-4">
+    <div class="bg-white rounded-xl shadow-lg p-6 max-w-6xl w-full">
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h2 class="text-2xl font-bold text-gray-800">Listado de Seguimiento</h2>
+                <p class="text-sm text-gray-500">Gestión y consulta de información estudiantil</p>
+            </div>
         </div>
 
-        <!-- Barra de búsqueda -->
-        <div class="bg-itca-red p-6 rounded-lg mb-6 shadow-md">
-            <div class="flex flex-wrap items-end gap-4">
-                <div class="flex-1 min-w-48">
-                    <label class="block text-white text-sm font-medium mb-2">Buscar por:</label>
-                    <select id="searchType" class="w-full px-3 py-2 rounded border-none bg-white focus:outline-none focus:ring-2 focus:ring-white">
-                        <option>Seleccione una opción</option>
-                        <option>Carnet</option>
-                        <option>Nombre</option>
-                        <option>Apellido</option>
-                    </select>
-                </div>
-                <div class="flex-1 min-w-48">
-                    <label class="block text-white text-sm font-medium mb-2">Dato:</label>
-                    <input id="searchTerm" type="text" class="w-full px-3 py-2 rounded border-none bg-white focus:outline-none focus:ring-2 focus:ring-white" placeholder="Ingrese término de búsqueda">
+        <!-- Filtros -->
+        <div class="bg-blue-50 border-l-4 border-blue-600 p-4 rounded-lg mb-4">
+            <div class="flex items-center mb-4">
+                <div class="bg-blue-100 p-2 rounded-full mr-3">
+                    <i class="fas fa-filter text-blue-600"></i>
+                </div>  
+                <h3 class="font-semibold text-gray-800">Filtros de Búsqueda</h3>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                <div class="md:col-span-2">
+                    <label for="searchInput" class="block text-sm text-gray-600 mb-1">
+                        <i class="fas fa-search mr-1"></i>Buscar por Carnet, Nombre o Apellido
+                    </label>
+                    <input type="text" id="searchInput" placeholder="Escriba para buscar..."
+                           class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500" autocomplete="off">
                 </div>
                 <div>
-                    <button onclick="buscarEstudiantes()" class="bg-white text-itca-red px-6 py-2 rounded font-medium hover:bg-gray-100 transition-colors shadow-md">
-                        Buscar
+                    <button onclick="limpiarFiltros()" class="w-full inline-flex items-center justify-center bg-gray-600 text-white py-2 px-4 rounded hover:bg-gray-700 transition text-sm">
+                        <i class="fas fa-eraser mr-2"></i>Limpiar Filtros
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- Sección de resultados -->
-        <div class="bg-white p-4 rounded-lg shadow-sm mb-4">
-            <h2 class="text-xl font-semibold text-gray-800 mb-1">Estudiantes en Seguimiento</h2>
-            <p id="totalRegistros" class="text-gray-600 text-sm">Total de registros: 3</p>
-        </div>
-
         <!-- Tabla -->
-        <div class="bg-white rounded-lg overflow-hidden shadow-lg">
-            <div class="overflow-x-auto">
-                <table class="w-full">
-                    <thead class="bg-gray-300">
-                        <tr>
-                            <th class="px-4 py-3 text-left font-bold text-gray-800">CARNET</th>
-                            <th class="px-4 py-3 text-left font-bold text-gray-800">NOMBRE</th>
-                            <th class="px-4 py-3 text-left font-bold text-gray-800">APELLIDO</th>
-                            <th class="px-4 py-3 text-left font-bold text-gray-800">FALTAS</th>
-                            <th class="px-4 py-3 text-left font-bold text-gray-800">SEGUIMIENTOS</th>
-                            <th class="px-4 py-3 text-left font-bold text-gray-800">ULTIMA FECHA DE SEGUIMIENTO</th>
-                            <th class="px-4 py-3 text-left font-bold text-gray-800">ACCIÓN</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tablaEstudiantes">
-                        <?php foreach ($estudiantes as $estudiante) { ?>
-                            <?php if ($estudiante['total_seguimientos'] > 0) { ?>
-                        <tr class="bg-gray-50 hover:bg-gray-100 transition-colors">
-                            <td class="px-4 py-3"><?php echo $estudiante['carnet'];?></td>
-                            <td class="px-4 py-3 text-blue-600 font-medium"><?php echo $estudiante['nombre'];?></td>
-                            <td class="px-4 py-3 text-blue-600 font-medium"><?php echo $estudiante['apellido'];?></td>
-                            <td class="px-4 py-3 text-red-600 font-medium"><?php echo $estudiante['total_faltas'];?></td>
-                            <td class="px-4 py-3 text-red-600 font-medium"><?php echo $estudiante['total_seguimientos'];?></td>
-                            <td class="px-4 py-3 text-red-600 font-medium"><?php echo $estudiante['ultima_fecha_seguimiento'];?></td>
-                            <td class="px-4 py-3">
-                                <button onclick="openDetailsModal('<?php echo $estudiante['idalumno'];?>')" class="bg-itca-red hover:bg-itca-dark-red text-white px-3 py-1 rounded text-sm transition-colors shadow-sm">
-                                    Ver detalles
-                                </button>
-                            </td>
-                        </tr>
-                        <?php } ?>
-                        <?php } ?>
-                           
-                    </tbody>
-                </table>
-            </div>
+        <div class="border border-gray-200 rounded-lg overflow-hidden">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50 sticky top-0 z-10">
+                <tr>
+                    <th class="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Carnet</th>
+                    <th class="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Nombre</th>
+                    <th class="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Apellido</th>
+                    <th class="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Faltas</th>
+                    <th class="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Seguimientos</th>
+                    <th class="px-4 py-3 text-left text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Última Fecha</th>
+                    <th class="px-4 py-3 text-right text-[11px] font-semibold text-gray-500 uppercase tracking-wider">Acción</th>
+                </tr>
+                </thead>
+                <tbody id="tablaEstudiantes" class="bg-white divide-y divide-gray-100 text-sm">
+                    <?php $idx = 0; foreach ($estudiantes as $estudiante) { ?>
+                        <?php if ($estudiante['total_seguimientos'] > 0) { ?>
+                    <tr class="hover:bg-gray-50 <?php echo $idx % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'; ?>">
+                        <td class="px-4 py-2 align-top font-medium text-gray-800"><?php echo $estudiante['carnet'];?></td>
+                        <td class="px-4 py-2 align-top"><?php echo $estudiante['nombre'];?></td>
+                        <td class="px-4 py-2 align-top"><?php echo $estudiante['apellido'];?></td>
+                        <td class="px-4 py-2 align-top">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                <?php echo $estudiante['total_faltas'];?>
+                            </span>
+                        </td>
+                        <td class="px-4 py-2 align-top"><?php echo $estudiante['total_seguimientos'];?></td>
+                        <td class="px-4 py-2 align-top"><?php echo $estudiante['ultima_fecha_seguimiento'];?></td>
+                        <td class="px-4 py-2 align-top text-right">
+                            <a href="detalle_seguimiento.php?idalumno=<?php echo $estudiante['idalumno'];?>" class="inline-flex items-center bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 text-xs">
+                                <i class="fas fa-eye mr-1"></i> Ver
+                            </a>
+                        </td>
+                    </tr>
+                    <?php $idx++; } ?>
+                    <?php } ?>
+                </tbody>
+            </table>
         </div>
     </div>
+</main>
 
-    <!-- Modal de Detalles -->
-    <div id="detailsModal" class="fixed inset-0 bg-black bg-opacity-50 modal-backdrop hidden z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl shadow-2xl max-w-6xl w-full modal-content relative max-h-[90vh] overflow-y-auto">
-            <button onclick="closeDetailsModal()" class="close-btn">&times;</button>
+<script>
+    // Navegación
+    document.getElementById('backBtn').addEventListener('click', function() {
+        if (confirm('¿Está seguro que desea regresar?')) {
+            window.location.href = 'dashboard.php';
+        }
+    });
+    document.getElementById('logoutBtn').addEventListener('click', function() {
+        if (confirm('¿Está seguro que desea cerrar sesión?')) {
+            window.location.href = '../Login/Logout.php';
+        }
+    });
+
+    // Filtrado en tiempo real
+    const searchInput = document.getElementById('searchInput');
+    const tableBody = document.getElementById('tablaEstudiantes');
+    const allRows = Array.from(tableBody.getElementsByTagName('tr'));
+
+    searchInput.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase().trim();
+        
+        allRows.forEach(row => {
+            const carnet = row.cells[0]?.textContent.toLowerCase() || '';
+            const nombre = row.cells[1]?.textContent.toLowerCase() || '';
+            const apellido = row.cells[2]?.textContent.toLowerCase() || '';
             
-            <div class="p-8">
-                <div class="flex flex-col lg:flex-row gap-8">
-                    <!-- Foto y Carnet -->
-                    <div class="lg:w-1/4 flex flex-col items-center">
-                        <div class="student-photo border-4 border-gray-800 w-full h-64 rounded-lg flex items-center justify-center mb-6 shadow-lg">
-                            <div class="text-7xl text-gray-600">👤</div>
-                        </div>
-                        <div class="text-center mb-6 w-full">
-                            <h3 class="text-xl font-bold text-gray-700 mb-2">Carnet</h3>
-                            <div class="info-card text-center">
-                                <p id="studentCarnet" class="text-2xl font-bold text-gray-800">12345</p>
-                            </div>
-                        </div>
-                        <div class="space-y-3 w-full">
-                            <button onclick="openCancelModal()" class="w-full bg-itca-red hover:bg-itca-dark-red text-white px-4 py-3 rounded-lg font-medium transition-colors shadow-md">
-                                Cancelar Seguimiento
-                            </button>
-                            <button onclick="openHistoryModal()" class="w-full bg-itca-red hover:bg-itca-dark-red text-white px-4 py-3 rounded-lg font-medium transition-colors shadow-md">
-                                Historial de Seguimiento
-                            </button>
-                        </div>
-                    </div>
+            const matches = carnet.includes(searchTerm) || 
+                          nombre.includes(searchTerm) || 
+                          apellido.includes(searchTerm);
+            
+            row.style.display = matches ? '' : 'none';
+        });
+    });
 
-                    <!-- Datos Personales -->
-                    <div class="lg:w-2/4">
-                        <h2 class="text-2xl font-bold text-gray-800 section-title">DATOS PERSONALES</h2>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div class="info-card">
-                                <label class="block text-sm font-semibold text-gray-600 mb-1">Nombre</label>
-                                <p id="studentName" class="text-lg text-gray-800">German Jose</p>
-                            </div>
-                            <div class="info-card">
-                                <label class="block text-sm font-semibold text-gray-600 mb-1">Apellido</label>
-                                <p id="studentLastName" class="text-lg text-gray-800">Perdomo Moran</p>
-                            </div>
-                            <div class="info-card">
-                                <label class="block text-sm font-semibold text-gray-600 mb-1">Estado de alumno</label>
-                                <span id="studentStatus" class="status-badge status-active">Activo</span>
-                            </div>
-                            <div class="info-card">
-                                <label class="block text-sm font-semibold text-gray-600 mb-1">Año</label>
-                                <p id="studentYear" class="text-lg text-gray-800">2025</p>
-                            </div>
-                            <div class="info-card">
-                                <label class="block text-sm font-semibold text-gray-600 mb-1">Teléfono</label>
-                                <p id="studentPhone" class="text-lg text-gray-800">76267471</p>
-                            </div>
-                            <div class="info-card">
-                                <label class="block text-sm font-semibold text-gray-600 mb-1">Correo personal</label>
-                                <p id="studentPersonalEmail" class="text-lg text-blue-600">estudiante@gmail.com</p>
-                            </div>
-                            <div class="info-card md:col-span-2">
-                                <label class="block text-sm font-semibold text-gray-600 mb-1">Correo Institucional</label>
-                                <p id="studentEmail" class="text-lg text-blue-600">estudiante@itca.edu.com</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Tipo De Accion -->
-                    <div class="lg:w-1/4">
-                        <div class="bg-gray-100 p-6 rounded-lg h-full">
-                            <h3 class="text-xl font-bold text-gray-800 mb-4 section-title">Tipo De Acción</h3>
-                            <form method="post">
-                            <div class="mb-6">
-                                <select name="tipo_accion" id="tipo_accion">
-                                    <option value="llamada">Llamada</option>
-                                    <option value="correo">Correo</option>
-                                    <option value="visita">Visita</option>
-                                </select>
-                            </div>
-                            <input type="text" id="faltaid" name="faltaid">
-
-                            <h3 class="text-xl font-bold text-gray-800 mb-4 section-title">Detalles</h3>
-                            <div class="mb-6">
-                                <textarea name="detalle" id="detalle" class="w-full h-40 p-3 rounded-lg border border-gray-300 bg-white resize-none focus:outline-none focus:ring-2 focus:ring-itca-red" readonly>Ya no viene porque es muy pobre y no le alcanza para pagar. Se llamó al alumno y no contestó.</textarea>
-                            </div>
-                            
-                            <button type="submit" name="guardarSeguimiento" class="w-full bg-itca-red hover:bg-itca-dark-red text-white px-4 py-3 rounded-lg font-medium transition-colors shadow-md">
-                                Guardar
-                            </button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal de Cancelar Seguimiento -->
-    <div id="cancelModal" class="fixed inset-0 bg-black bg-opacity-50 modal-backdrop hidden z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl shadow-2xl max-w-lg w-full modal-content relative">
-            <button onclick="closeCancelModal()" class="close-btn">&times;</button>
-            <div class="p-8">
-                <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Cancelar Seguimiento</h2>
-                
-                <div class="space-y-6">
-                    <form method="post">
-                    <div>
-                        <h3 class="text-lg font-semibold text-gray-700 mb-3">Estado Final</h3>
-                        <select name="estado" class="w-full p-3 rounded-lg border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-itca-red">
-                            <option>Seleccione una opción</option>
-                            <option>Retirado</option>
-                            <option>Suspendido</option>
-                            <option>Transferido</option>
-                        </select>
-                    </div>
-                    <input type="hidden" id="studentId" name="studentId">
-                    <div>
-                        <h3 class="text-lg font-semibold text-gray-700 mb-3">Motivo de Retiro</h3>
-                        <textarea name="motivo" class="w-full h-32 p-3 rounded-lg border border-gray-300 bg-white resize-none focus:outline-none focus:ring-2 focus:ring-itca-red">Ya no viene porque es muy pobre y no le alcanza para pagar. Se llamó al alumno y no contestó.</textarea>
-                    </div>
-                    
-                    <div class="flex justify-end space-x-4 pt-4">
-                        <button onclick="closeCancelModal()" class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors">
-                            Cancelar
-                        </button>
-                        <button type="submit" name="confirmarRetiro" onclick="closeCancelModal()" class="bg-itca-red hover:bg-itca-dark-red text-white px-6 py-2 rounded-lg font-medium transition-colors shadow-md">
-                            Confirmar
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-    
-   <?php include "modal_historial.php" ?>
+    // Limpiar filtros
+    function limpiarFiltros() {
+        searchInput.value = '';
+        allRows.forEach(row => {
+            row.style.display = '';
+        });
+    }
+</script>
 </body>
 </html>
