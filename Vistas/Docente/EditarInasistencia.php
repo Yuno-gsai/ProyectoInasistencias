@@ -14,6 +14,60 @@ $inasistencia=new Faltas();
 $inasistencias = $inasistencia->getByInasistenciaID($idInasistenciaId);
 
 if(isset($_POST['Actualizar'])){
+    // Procesar imagen de justificación si existe
+    $justificacion_imagen = $inasistencias['justificacion_imagen']; // Mantener la existente
+    
+    if(isset($_FILES['justificacion_imagen']) && $_FILES['justificacion_imagen']['error'] === 0) {
+        $allowed_ext = ['jpg', 'jpeg', 'png', 'pdf'];
+        $allowed_mime = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf'];
+        
+        $filename = $_FILES['justificacion_imagen']['name'];
+        $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+        
+        // Validar tipo MIME real
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mime = finfo_file($finfo, $_FILES['justificacion_imagen']['tmp_name']);
+        finfo_close($finfo);
+        
+        if(in_array($ext, $allowed_ext) && in_array($mime, $allowed_mime) && $_FILES['justificacion_imagen']['size'] <= 5242880) {
+            // Eliminar imagen anterior si existe
+            if(!empty($inasistencias['justificacion_imagen'])) {
+                $old_file = __DIR__ . '/../../uploads/justificaciones/' . $inasistencias['justificacion_imagen'];
+                if(file_exists($old_file)) {
+                    @unlink($old_file); // @ para suprimir warnings
+                }
+            }
+            
+            $newname = 'justificacion_' . time() . '_' . uniqid() . '.' . $ext;
+            $upload_path = __DIR__ . '/../../uploads/justificaciones/' . $newname;
+            
+            // Crear directorio si no existe
+            $upload_dir = dirname($upload_path);
+            if(!is_dir($upload_dir)) {
+                mkdir($upload_dir, 0777, true);
+            }
+            
+            if(move_uploaded_file($_FILES['justificacion_imagen']['tmp_name'], $upload_path)) {
+                $justificacion_imagen = $newname;
+            } else {
+                error_log("Error upload editar: No se pudo mover a $upload_path");
+            }
+        } else {
+            error_log("Validación fallida editar - ext: $ext, mime: $mime");
+        }
+    }
+    
+    // Eliminar imagen si se solicitó
+    if(isset($_POST['eliminar_imagen']) && $_POST['eliminar_imagen'] == '1') {
+        if(!empty($inasistencias['justificacion_imagen'])) {
+            $old_file = __DIR__ . '/../../uploads/justificaciones/' . $inasistencias['justificacion_imagen'];
+            if(file_exists($old_file)) {
+                @unlink($old_file); // @ para suprimir warnings
+            }
+        }
+        $justificacion_imagen = null;
+    }
+    
     $data = [
         'id_inasistencia' => $idInasistenciaId,
         'idalumno' => intval($_POST['idalumno']),
@@ -21,7 +75,10 @@ if(isset($_POST['Actualizar'])){
         'id_detalle' => intval($_POST['detalle']),
         'fecha_falta' => $_POST['fechaInasistencia'],
         'cantidadHoras' => $_POST['horasClase'],
-        'observacion' => $_POST['observaciones']
+        'observacion' => $_POST['observaciones'],
+        'justificacion_texto' => $_POST['justificacion_texto'] ?? null,
+        'justificacion_imagen' => $justificacion_imagen,
+        'tiene_justificacion' => (!empty($_POST['justificacion_texto']) || $justificacion_imagen) ? 1 : 0
     ];
     if($inasistencia->update($data)){
         // Guardar mensaje de éxito en la sesión
@@ -98,7 +155,7 @@ if(isset($_POST['Actualizar'])){
     <div class="bg-white rounded-xl shadow-lg p-6 max-w-6xl w-full">
         <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Editar Inasistencia</h2>
 
-        <form id="editForm" method="post" class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <form id="editForm" method="post" enctype="multipart/form-data" class="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <!-- Información del Estudiante (Solo lectura) -->
             <div>
                 <div class="bg-green-50 border-l-4 border-green-600 p-4 rounded-lg">
@@ -167,6 +224,61 @@ if(isset($_POST['Actualizar'])){
                 </div>
             </div>
 
+            <!-- Justificación -->
+            <div class="lg:col-span-2">
+                <div class="bg-yellow-50 border-l-4 border-yellow-600 p-4 rounded-lg">
+                    <div class="flex items-center mb-4">
+                        <div class="bg-yellow-100 p-2 rounded-full mr-3">
+                            <i class="fas fa-file-alt text-yellow-600"></i>
+                        </div>
+                        <h3 class="font-semibold text-gray-800">Justificación (Opcional)</h3>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                <i class="fas fa-align-left mr-1"></i>Justificación Escrita
+                            </label>
+                            <textarea id="justificacion_texto" name="justificacion_texto" rows="4"
+                                      placeholder="Escriba la justificación de la inasistencia..."
+                                      class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-yellow-500 resize-none"></textarea>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                <i class="fas fa-image mr-1"></i>Documento o Imagen
+                            </label>
+                            
+                            <!-- Imagen actual -->
+                            <div id="imagenActual" class="hidden mb-3">
+                                <div class="bg-white border border-gray-300 rounded p-2">
+                                    <div class="flex items-center justify-between mb-2">
+                                        <span class="text-sm font-medium text-gray-700">Imagen actual:</span>
+                                        <button type="button" onclick="eliminarImagen()" class="text-red-600 hover:text-red-800 text-xs">
+                                            <i class="fas fa-trash mr-1"></i>Eliminar
+                                        </button>
+                                    </div>
+                                    <img id="imagenActualPreview" src="" alt="Justificación" class="max-w-full h-32 rounded border object-contain">
+                                    <p id="imagenActualNombre" class="text-xs text-gray-500 mt-1"></p>
+                                </div>
+                            </div>
+                            <input type="hidden" id="eliminar_imagen" name="eliminar_imagen" value="0">
+                            
+                            <input type="file" id="justificacion_imagen" name="justificacion_imagen" 
+                                   accept="image/*,.pdf"
+                                   class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-yellow-500">
+                            <p class="text-xs text-gray-500 mt-1">
+                                <i class="fas fa-info-circle mr-1"></i>Formatos: JPG, PNG, PDF (Máx. 5MB)
+                            </p>
+                            <div id="imagePreview" class="mt-2 hidden">
+                                <p class="text-xs text-gray-600 mb-1">Nueva imagen:</p>
+                                <img id="previewImg" src="" alt="Vista previa" class="max-w-full h-32 rounded border object-contain">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- Botones -->
             <div class="flex justify-center space-x-4 mt-8 lg:col-span-2">
                 <button type="button" id="cancelBtn" class="bg-gray-500 text-white py-2 px-6 rounded-lg hover:bg-gray-600 transition">
@@ -204,7 +316,6 @@ if(isset($_POST['Actualizar'])){
     function validarCamposYActualizarUI() {
         const fechaInput = document.getElementById('fechaInasistencia');
         const horasInput = document.getElementById('horasClase');
-        const materiaInput = document.getElementById('materia');
         const errorFecha = document.getElementById('errorFecha');
         const errorHora = document.getElementById('errorHora');
 
@@ -228,12 +339,6 @@ if(isset($_POST['Actualizar'])){
             horasInput.setCustomValidity('');
         }
 
-        if (!materiaSelect.value) {
-            errorMateria.classList.remove('hidden');
-        } else {
-            errorMateria.classList.add('hidden');
-        }
-
         return document.getElementById('editForm').checkValidity() && !fechaEsFutura;
     }
 
@@ -252,10 +357,62 @@ if(isset($_POST['Actualizar'])){
         document.getElementById('observaciones').value = item.observacion || '';
         document.getElementById('idalumno').value = item.idalumno;
         document.getElementById('detalle').value = item.id_detalle;
+        
+        // Cargar justificación
+        if(item.justificacion_texto) {
+            document.getElementById('justificacion_texto').value = item.justificacion_texto;
+        }
+        
+        // Mostrar imagen actual si existe
+        if(item.justificacion_imagen) {
+            const imagenActual = document.getElementById('imagenActual');
+            const imagenPreview = document.getElementById('imagenActualPreview');
+            const imagenNombre = document.getElementById('imagenActualNombre');
+            
+            imagenActual.classList.remove('hidden');
+            imagenPreview.src = '../../uploads/justificaciones/' + item.justificacion_imagen;
+            imagenNombre.textContent = item.justificacion_imagen;
+        }
 
         setTodayMaxOnFecha(document.getElementById('fechaInasistencia'));
         validarCamposYActualizarUI();
+        
+        // Vista previa de nueva imagen
+        const fileInput = document.getElementById('justificacion_imagen');
+        const preview = document.getElementById('imagePreview');
+        const previewImg = document.getElementById('previewImg');
+        
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                if (file.size > 5242880) {
+                    alert('El archivo no debe superar los 5MB');
+                    fileInput.value = '';
+                    preview.classList.add('hidden');
+                    return;
+                }
+                
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        previewImg.src = e.target.result;
+                        preview.classList.remove('hidden');
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    preview.classList.add('hidden');
+                }
+            }
+        });
     });
+    
+    // Función para eliminar imagen
+    function eliminarImagen() {
+        if(confirm('¿Está seguro que desea eliminar la imagen de justificación?')) {
+            document.getElementById('eliminar_imagen').value = '1';
+            document.getElementById('imagenActual').classList.add('hidden');
+        }
+    }
 
     // Submit
     document.getElementById('editForm').addEventListener('submit', function(e) {
@@ -271,7 +428,6 @@ if(isset($_POST['Actualizar'])){
     // Eventos
     document.getElementById('fechaInasistencia').addEventListener('input', validarCamposYActualizarUI);
     document.getElementById('horasClase').addEventListener('input', validarCamposYActualizarUI);
-    document.getElementById('materia').addEventListener('change', validarCamposYActualizarUI);
 
     // Navegación
     document.getElementById('backBtn').addEventListener('click', function() {

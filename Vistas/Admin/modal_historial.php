@@ -45,7 +45,6 @@ $dataALumnos = json_encode($dataALumnos->getAllEstudiantes());
             document.getElementById('studentId').value = estudianteActual.idalumno;
             document.getElementById('faltaid').value = estudianteActual.faltas[0].id_inasistencia;
 
-            
             // Estado
             const statusElement = document.getElementById('studentStatus');
             statusElement.textContent = estudianteActual.estadoAlumno == 1 ? "Activo" : "Inactivo";
@@ -64,7 +63,12 @@ $dataALumnos = json_encode($dataALumnos->getAllEstudiantes());
         document.getElementById('detailsModal').classList.remove('flex');
     }
 
-    function openHistoryModal() {
+    function openHistoryModal(idalumno) {
+        // If idalumno is provided, find the student
+        if (idalumno) {
+            estudianteActual = estudiantes.find(est => est.idalumno == idalumno);
+        }
+        
         if (!estudianteActual) return;
 
         const historialContent = document.getElementById('historialContent');
@@ -101,14 +105,6 @@ $dataALumnos = json_encode($dataALumnos->getAllEstudiantes());
         document.getElementById('historyModal').classList.remove('flex');
     }
 
-    // Cerrar modal haciendo clic fuera
-    window.onclick = function(event) {
-        const detailsModal = document.getElementById('detailsModal');
-        const historyModal = document.getElementById('historyModal');
-
-        if (event.target === detailsModal) closeDetailsModal();
-        if (event.target === historyModal) closeHistoryModal();
-    }
 
     // Cerrar modales con Escape
     document.addEventListener('keydown', function(event) {

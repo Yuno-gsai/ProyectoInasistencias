@@ -1,7 +1,7 @@
 <?php
 session_start();
 if(!isset($_SESSION['docente'])){
-    header("Location: /ProyectoInasistenciasItca/index.php");
+    header("Location: /ProyectoInasistencias/index.php");
     exit();
 }
 require_once "../../models/FaltasModel.php";

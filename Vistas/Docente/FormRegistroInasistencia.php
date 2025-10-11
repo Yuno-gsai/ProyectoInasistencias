@@ -24,13 +24,57 @@ $DetallesDocente_json = json_encode($DetallesDocente);
 
 
 if(isset($_POST['RegistrarAsistencia'])) {
+    // Procesar imagen de justificación si existe
+    $justificacion_imagen = null;
+    $upload_error = null;
+    
+    if(isset($_FILES['justificacion_imagen']) && $_FILES['justificacion_imagen']['error'] === 0) {
+        $allowed_ext = ['jpg', 'jpeg', 'png', 'pdf'];
+        $allowed_mime = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf'];
+        
+        $filename = $_FILES['justificacion_imagen']['name'];
+        $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+        
+        // Validar tipo MIME real
+        $finfo = finfo_open(FILEINFO_MIME_TYPE);
+        $mime = finfo_file($finfo, $_FILES['justificacion_imagen']['tmp_name']);
+        finfo_close($finfo);
+        
+        if(in_array($ext, $allowed_ext) && in_array($mime, $allowed_mime) && $_FILES['justificacion_imagen']['size'] <= 5242880) {
+            $newname = 'justificacion_' . time() . '_' . uniqid() . '.' . $ext;
+            $upload_path = __DIR__ . '/../../uploads/justificaciones/' . $newname;
+            
+            // Crear directorio si no existe
+            $upload_dir = dirname($upload_path);
+            if(!is_dir($upload_dir)) {
+                mkdir($upload_dir, 0777, true);
+            }
+            
+            if(move_uploaded_file($_FILES['justificacion_imagen']['tmp_name'], $upload_path)) {
+                $justificacion_imagen = $newname;
+            } else {
+                $upload_error = "Error al mover el archivo";
+                error_log("Error upload: No se pudo mover a $upload_path");
+            }
+        } else {
+            $upload_error = "Archivo no válido (ext: $ext, mime: $mime)";
+            error_log("Validación fallida - ext: $ext, mime: $mime, size: " . $_FILES['justificacion_imagen']['size']);
+        }
+    } elseif(isset($_FILES['justificacion_imagen']) && $_FILES['justificacion_imagen']['error'] !== 4) {
+        $upload_error = "Error en upload: " . $_FILES['justificacion_imagen']['error'];
+        error_log("Error FILES: " . $_FILES['justificacion_imagen']['error']);
+    }
+    
     $data = [
         'idalumno' => intval($_POST['idalumno']),
         'id_docente' => $dataDocente['id_docente'],
         'id_detalle' => intval($_POST['detalle']),
         'fecha_falta' => $_POST['fechaInasistencia'],
         'cantidadHoras' => $_POST['horasClase'],
-        'observacion' => $_POST['observaciones']
+        'observacion' => $_POST['observaciones'],
+        'justificacion_texto' => $_POST['justificacion_texto'] ?? null,
+        'justificacion_imagen' => $justificacion_imagen,
+        'tiene_justificacion' => (!empty($_POST['justificacion_texto']) || $justificacion_imagen) ? 1 : 0
     ];
     if($faltas->create($data)){
         echo "<script>
@@ -163,8 +207,7 @@ if(isset($_POST['RegistrarAsistencia'])) {
             <span class="text-sm text-gray-700 font-medium" id="userName"><?php echo $dataDocente['nom_usuario'] . ' ' . $dataDocente['ape_usuario']; ?></span>
             
             <button id="backBtn" type="button"
-                    class="flex items-center bg-gray-600 text-white py-1 px-3 rounded-md text-sm hover:bg-gray-700 transition"
-                    onclick="history.back()">
+                    class="flex items-center bg-gray-600 text-white py-1 px-3 rounded-md text-sm hover:bg-gray-700 transition">
                 <i class="fas fa-arrow-left mr-1"></i>
                 <span class="hidden sm:inline">Regresar</span>
             </button>
@@ -279,7 +322,7 @@ if(isset($_POST['RegistrarAsistencia'])) {
 
         <!-- Formulario de Inasistencia (Oculto inicialmente) -->
         <div id="attendanceForm" class="hidden">
-            <form method="post" id="inasistenciaForm" class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <form method="post" id="inasistenciaForm" enctype="multipart/form-data" class="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
                 <!-- Información del Estudiante (Solo lectura) -->
                 <div class="form-section">
@@ -361,13 +404,63 @@ if(isset($_POST['RegistrarAsistencia'])) {
 
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Observaciones</label>
-                                <textarea id="observaciones" name="observaciones" rows="6"
+                                <textarea id="observaciones" name="observaciones" rows="4"
                                           placeholder="Comentarios adicionales (opcional)"
                                           class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-red-500 resize-none"></textarea>
                             </div>
                         </div>
                     </div>
                 </div>
+
+                <!-- Justificación (Nueva sección) -->
+                <div class="form-section lg:col-span-2">
+                    <div class="bg-yellow-50 border-l-4 border-yellow-600 p-4 rounded-lg">
+                        <div class="flex items-center mb-4">
+                            <div class="bg-yellow-100 p-2 rounded-full mr-3">
+                                <i class="fas fa-file-alt text-yellow-600"></i>
+                            </div>
+                            <h3 class="font-semibold text-gray-800">Justificación (Opcional)</h3>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    <i class="fas fa-align-left mr-1"></i>Justificación Escrita
+                                </label>
+                                <textarea id="justificacion_texto" name="justificacion_texto" rows="4"
+                                          placeholder="Escriba la justificación de la inasistencia (ej: Cita médica, emergencia familiar, etc.)"
+                                          class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-yellow-500 resize-none"></textarea>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">
+                                    <i class="fas fa-image mr-1"></i>Documento o Imagen
+                                </label>
+                                <input type="file" id="justificacion_imagen" name="justificacion_imagen" 
+                                       accept="image/*,.pdf"
+                                       class="w-full p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-yellow-500">
+                                <p class="text-xs text-gray-500 mt-1">
+                                    <i class="fas fa-info-circle mr-1"></i>Formatos: JPG, PNG, PDF (Máx. 5MB)
+                                </p>
+                                <div id="imagePreview" class="mt-3 hidden">
+                                    <div class="bg-white border-2 border-yellow-300 rounded-lg p-3">
+                                        <div class="flex items-center justify-between mb-2">
+                                            <span class="text-sm font-medium text-gray-700">
+                                                <i class="fas fa-eye mr-1 text-yellow-600"></i>Vista previa:
+                                            </span>
+                                            <button type="button" onclick="limpiarImagen()" class="text-red-600 hover:text-red-800 text-xs">
+                                                <i class="fas fa-times-circle mr-1"></i>Quitar
+                                            </button>
+                                        </div>
+                                        <img id="previewImg" src="" alt="Vista previa" class="w-full max-h-48 rounded border object-contain bg-gray-50">
+                                        <p id="previewFileName" class="text-xs text-gray-500 mt-2 truncate"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Botones de acción -->
                 <div class="flex justify-center space-x-4 mt-8 lg:col-span-2">
                     <button type="button" id="cancelBtn"
@@ -390,21 +483,11 @@ if(isset($_POST['RegistrarAsistencia'])) {
         // Botón de regresar
         const backBtn = document.getElementById('backBtn');
         if (backBtn) {
-            backBtn.addEventListener('click', function() {
-                Swal.fire({
-                    title: '¿Está seguro?',
-                    text: 'Se perderán los datos no guardados',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#3085d6',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: 'Sí, regresar',
-                    cancelButtonText: 'Cancelar'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        window.location.href = 'DashboardDocente.php';
-                    }
-                });
+            backBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (confirm('¿Está seguro que desea regresar? Se perderán los datos no guardados.')) {
+                    window.location.href = 'DashboardDocente.php';
+                }
             });
         }
 
@@ -864,6 +947,9 @@ if(isset($_POST['RegistrarAsistencia'])) {
         document.getElementById('fechaInasistencia').value = tzOffsetToday.toISOString().split('T')[0];
 
         validarCamposYActualizarUI();
+        
+        // Inicializar vista previa de imagen DESPUÉS de mostrar el formulario
+        inicializarVistaPrevia();
 
         // Scroll suave al formulario
         document.getElementById('attendanceForm').scrollIntoView({
@@ -1037,28 +1123,76 @@ if(isset($_POST['RegistrarAsistencia'])) {
         }
     }
 
+    // Función para inicializar vista previa de imagen
+    function inicializarVistaPrevia() {
+        const fileInput = document.getElementById('justificacion_imagen');
+        const preview = document.getElementById('imagePreview');
+        const previewImg = document.getElementById('previewImg');
+        const previewFileName = document.getElementById('previewFileName');
+        
+        console.log('Inicializando vista previa - Elementos encontrados:', {
+            fileInput: !!fileInput,
+            preview: !!preview,
+            previewImg: !!previewImg,
+            previewFileName: !!previewFileName
+        });
+        
+        if (fileInput && !fileInput.dataset.initialized) {
+            fileInput.dataset.initialized = 'true'; // Marcar como inicializado
+            
+            fileInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                console.log('Archivo seleccionado:', file);
+                if (file) {
+                    // Validar tamaño
+                    if (file.size > 5242880) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Archivo muy grande',
+                            text: 'El archivo no debe superar los 5MB',
+                            confirmButtonColor: '#dc3545'
+                        });
+                        fileInput.value = '';
+                        preview.classList.add('hidden');
+                        return;
+                    }
+                    
+                    // Vista previa solo para imágenes
+                    if (file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            previewImg.src = e.target.result;
+                            previewFileName.textContent = `📄 ${file.name} (${(file.size / 1024).toFixed(2)} KB)`;
+                            preview.classList.remove('hidden');
+                        };
+                        reader.readAsDataURL(file);
+                    } else if (file.type === 'application/pdf') {
+                        // Para PDFs mostrar icono
+                        previewImg.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiB2aWV3Qm94PSIwIDAgMjQgMjQiPjxwYXRoIGZpbGw9IiNkYzM1NDUiIGQ9Ik0xNCAxSDZjLTEuMSAwLTIgLjktMiAydjE4YzAgMS4xLjkgMiAyIDJoMTJjMS4xIDAgMi0uOSAyLTJWN2wtNi02em0tMSAxLjVMMTguNSA4SDEzVjIuNXpNOCAxNmgzdjFIOHYtMXptMC0yaDh2MUg4di0xem0wLTJoOHYxSDh2LTF6Ii8+PC9zdmc+';
+                        previewFileName.textContent = `📄 ${file.name} (PDF - ${(file.size / 1024).toFixed(2)} KB)`;
+                        preview.classList.remove('hidden');
+                    } else {
+                        preview.classList.add('hidden');
+                    }
+                }
+            });
+        }
+    }
+
     // Enfocar automáticamente en el campo de búsqueda al cargar y setear max en fecha
     document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('studentSearch').focus();
         setTodayMaxOnFecha();
         validarCamposYActualizarUI();
-        
-        // Esperar un momento para asegurar que todo el DOM esté listo
-    }); 
-
-
-    // document.getElementById('selectCliclo').addEventListener('change', function() {
-    //     const selectedValue = this.value;
-    //     document.getElementById('selectYear').value = selectedValue;
-    // });
-
-    // document.getElementById('selectYear').addEventListener('change', function() {
-    //     const selectedValue = this.value;
-    //     console.log('Año seleccionado:', selectedValue);
-    // });
-
-
-
+    });
+    
+    // Función para limpiar imagen
+    function limpiarImagen() {
+        const fileInput = document.getElementById('justificacion_imagen');
+        const preview = document.getElementById('imagePreview');
+        fileInput.value = '';
+        preview.classList.add('hidden');
+    } 
 
 </script>
 </body>

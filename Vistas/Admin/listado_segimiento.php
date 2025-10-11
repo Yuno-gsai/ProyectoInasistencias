@@ -237,7 +237,7 @@ if(isset($_POST['guardarSeguimiento'])){
                             <button onclick="openCancelModal()" class="w-full bg-itca-red hover:bg-itca-dark-red text-white px-4 py-3 rounded-lg font-medium transition-colors shadow-md">
                                 Cancelar Seguimiento
                             </button>
-                            <button onclick="openHistoryModal()" class="w-full bg-itca-red hover:bg-itca-dark-red text-white px-4 py-3 rounded-lg font-medium transition-colors shadow-md">
+                            <button onclick="openHistoryModal(estudianteActual.idalumno)" class="w-full bg-itca-red hover:bg-itca-dark-red text-white px-4 py-3 rounded-lg font-medium transition-colors shadow-md">
                                 Historial de Seguimiento
                             </button>
                         </div>
@@ -344,7 +344,9 @@ if(isset($_POST['guardarSeguimiento'])){
             </div>
         </div>
     </div>
+</div>
     
-   <?php include "modal_historial.php" ?>
+    <?php include "modal_historial.php" ?>
+
 </body>
 </html>
