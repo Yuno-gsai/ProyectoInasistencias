@@ -212,10 +212,15 @@ $estudiantes = json_encode($alumnos);
     // Datos de ejemplo para los estudiantes
     const estudiantes = <?php echo $estudiantes; ?>;
 
-    function verDetalles(carnet) {
+ 
+
+    function verDetalles(carnet,id) {
+        cargarHistorialInasistencias(id);
+
         const estudiante = estudiantes.find(estudiante => estudiante.carnet === carnet);
         if (estudiante) {
             // Actualizar elementos con los datos del estudiante
+         
             document.getElementById('carnetDisplay').textContent = estudiante.carnet;
             document.getElementById('nombreDisplay').textContent = estudiante.nombre;
             document.getElementById('apellidoDisplay').textContent = estudiante.apellido;
@@ -251,6 +256,8 @@ $estudiantes = json_encode($alumnos);
             // Mostrar modal
             document.getElementById('modalDetalles').classList.add('show');
         }
+
+       
     }
 
     function cerrarModal() {
@@ -321,7 +328,7 @@ $estudiantes = json_encode($alumnos);
         cerrarModal();
         
         // Cargar datos del historial
-        cargarHistorialInasistencias(carnet);
+        
         
         // Mostrar modal de historial
         document.getElementById('modalHistorial').classList.remove('hidden');
@@ -338,14 +345,18 @@ $estudiantes = json_encode($alumnos);
     }
 
     // Función para cargar el historial de inasistencias
-    function cargarHistorialInasistencias(carnet) {
+    function cargarHistorialInasistencias(id) {
         // Aquí iría la llamada a la API para obtener el historial del estudiante
         // Por ahora, usaremos datos de ejemplo
 
        
 
         //mandar los datos del carnet del estudiante a la base de datos
-  
+
+       
+
+        console.log(id);
+       
 
         
 

@@ -1,3 +1,17 @@
+<?php
+session_start();
+if(!isset($_SESSION['administrador'])){
+    header("Location: /ProyectoInasistenciasItca/index.php");
+}
+$dataAdmin=$_SESSION['administrador'];
+
+require_once "../../models/FaltasModel.php";
+$alumnos = (new Faltas())->getAllAlumnos();
+
+$estudiantes = json_encode($alumnos);
+
+?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -189,45 +203,27 @@
                     </thead>
                     <tbody id="studentsTable">
                         <tr class="bg-white hover:bg-gray-50 border-b border-gray-200 transition-colors duration-150">
-                            <td class="px-6 py-4 text-sm font-medium text-gray-900">5521</td>
-                            <td class="px-6 py-4 text-sm text-gray-800 capitalize">german jose</td>
-                            <td class="px-6 py-4 text-sm text-gray-800 capitalize">perdomo moran</td>
-                            <td class="px-6 py-4 text-sm text-gray-800">77777777</td>
-                            <td class="px-6 py-4 text-sm text-blue-600">estudiante.24@itca.edu.sv</td>
+                        <?php foreach ($alumnos as $alumno) { ?>    
+                        <td class="px-6 py-4 text-sm font-medium text-gray-900"><?php echo $alumno['carnet']; ?></td>
+                            <td class="px-6 py-4 text-sm text-gray-800 capitalize"><?php echo $alumno['nombre']; ?></td>
+                            <td class="px-6 py-4 text-sm text-gray-800 capitalize"><?php echo $alumno['apellido']; ?></td>
+                            <td class="px-6 py-4 text-sm text-gray-800"><?php echo $alumno['telefono']; ?></td>
+                            <td class="px-6 py-4 text-sm text-blue-600"><?php echo $alumno['email']; ?></td>
                             <td class="px-6 py-4 text-sm text-gray-800">
                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
-                                    2 faltas
+                                    <?php echo $alumno['total_faltas']; ?> faltas
                                 </span>
                             </td>
-                            <td class="px-6 py-4 text-sm text-gray-800">2</td>
-                            <td class="px-6 py-4 text-sm text-gray-800">2024</td>
+                            <td class="px-6 py-4 text-sm text-gray-800"><?php echo $alumno['ciclo']; ?></td>
+                            <td class="px-6 py-4 text-sm text-gray-800"><?php echo $alumno['year']; ?></td>
                             <td class="px-6 py-4">
                                 <button class="bg-itca-red text-white px-4 py-2 text-sm rounded-md hover:bg-red-800 transition-all duration-200 shadow-md hover:shadow-lg font-medium" 
-                                        onclick="verDetalles('5521')">
+                                        onclick="verDetalles('<?php echo $alumno['carnet']; ?>',<?php echo $alumno['idalumno']; ?>)">
                                     Ver detalles
                                 </button>
                             </td>
                         </tr>
-                        <tr class="bg-gray-50 hover:bg-gray-100 border-b border-gray-200 transition-colors duration-150">
-                            <td class="px-6 py-4 text-sm font-medium text-gray-900">5522</td>
-                            <td class="px-6 py-4 text-sm text-gray-800 capitalize">maria elena</td>
-                            <td class="px-6 py-4 text-sm text-gray-800 capitalize">rodriguez lopez</td>
-                            <td class="px-6 py-4 text-sm text-gray-800">88888888</td>
-                            <td class="px-6 py-4 text-sm text-blue-600">estudiante.25@itca.edu.sv</td>
-                            <td class="px-6 py-4 text-sm text-gray-800">
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-                                    1 falta
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 text-sm text-gray-800">1</td>
-                            <td class="px-6 py-4 text-sm text-gray-800">2024</td>
-                            <td class="px-6 py-4">
-                                <button class="bg-itca-red text-white px-4 py-2 text-sm rounded-md hover:bg-red-800 transition-all duration-200 shadow-md hover:shadow-lg font-medium" 
-                                        onclick="verDetalles('5522')">
-                                    Ver detalles
-                                </button>
-                            </td>
-                        </tr>
+                        <?php } ?>
                     </tbody>
                 </table>
             </div>

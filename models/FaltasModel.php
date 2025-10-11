@@ -236,6 +236,43 @@ class Faltas extends BaseModel {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
     
+
+    public function getInasistenciasByAlumno() {
+        $query = "SELECT 
+                    i.id_inasistencia,
+                    i.fecha_falta,
+                    i.fecha,
+                    i.cantidadHoras,
+                    i.observacion,
+                    i.estado,
+                    i.justificando,
+                    i.justificacion,
+                    
+                    -- Datos del alumno
+                    a.idalumno,
+                    a.carnet,
+                    a.nombre,
+                    a.apellido,
+                    a.telefono,
+                    a.sexo,
+                    a.foto,
+                    a.email,
+                    a.estadoAlumno,
+                    a.beca,
+                    a.tipobeca
+                    
+                  FROM inasistencia i
+                  INNER JOIN alumno a ON i.idalumno = a.idalumno
+                 
+                  ORDER BY i.fecha_falta DESC";
+                  
+        $stmt = $this->getConnection()->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    
 }
+
+
 
 ?>
