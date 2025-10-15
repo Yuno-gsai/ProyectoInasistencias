@@ -20,5 +20,20 @@ class DetalleModel extends BaseModel {
         $stmt->execute(['id_docente' => $id_docente]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+    public function getAllAnios() {
+        $query = "SELECT DISTINCT year FROM detalle ORDER BY year DESC;";
+        $stmt = $this->getConnection()->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+
+    public function getAllCiclos() {
+        $query = "SELECT DISTINCT ciclo FROM detalle;";
+        $stmt = $this->getConnection()->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
 }
 ?>

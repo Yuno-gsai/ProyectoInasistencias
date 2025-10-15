@@ -3,6 +3,7 @@ require_once "../../models/FaltasModel.php";
 $alumnos = (new Faltas())->getAllAlumnos();
 
 $estudiantes = json_encode($alumnos);
+var_dump($estudiantes);
 
 ?>
  
@@ -328,6 +329,7 @@ $estudiantes = json_encode($alumnos);
         cerrarModal();
         
         // Cargar datos del historial
+
         
         
         // Mostrar modal de historial
@@ -346,46 +348,41 @@ $estudiantes = json_encode($alumnos);
 
     // Función para cargar el historial de inasistencias
     function cargarHistorialInasistencias(id) {
-        // Aquí iría la llamada a la API para obtener el historial del estudiante
-        // Por ahora, usaremos datos de ejemplo
-
-       
-
-        //mandar los datos del carnet del estudiante a la base de datos
-
-       
-
-        console.log(id);
-       
-
+        // Buscar el estudiante por ID
+        const estudiante = estudiantes.find(est => est.idalumno == id);
         
+        if (!estudiante || !estudiante.faltas_detalle) {
+            // Si no hay faltas, mostrar mensaje
+            actualizarTablaHistorial([]);
+            return;
+        }
 
-        const historialEjemplo = [
-            {
-                fecha: "2024-05-15",
-                horas: 2,
-                observacion: "Falta justificada por enfermedad",
-                estado: "Justificada",
-                justificacion: "Certificado médico presentado"
-            },
-            {
-                fecha: "2024-05-10",
-                horas: 4,
-                observacion: "Falta sin justificación",
-                estado: "Injustificada",
-                justificacion: ""
-            },
-            {
-                fecha: "2024-05-05",
-                horas: 1,
-                observacion: "Llegada tarde",
-                estado: "Justificada",
-                justificacion: "Problemas de transporte"
-            }
-        ];
+        // Convertir faltas_detalle a array si es un objeto
+        let faltasArray = [];
+        if (Array.isArray(estudiante.faltas_detalle)) {
+            faltasArray = estudiante.faltas_detalle;
+        } else if (typeof estudiante.faltas_detalle === 'object') {
+            faltasArray = Object.values(estudiante.faltas_detalle);
+        }
+
+        // Mapear los datos al formato esperado por la tabla
+        const historial = faltasArray.map(falta => ({
+            fecha: falta.fecha_falta,
+            horas: falta.cantidadHoras,
+            observacion: falta.observacion || 'Sin observación',
+            estado: falta.justificandO == 1 ? 'Justificada' : 'Injustificada',
+            justificacion: falta.justificaion || 'No hay justificación',
+            materia: falta.materia,
+            docente: `${falta.nombre_docente} ${falta.apellido_docente}`,
+            ciclo: falta.ciclo,
+            year: falta.year
+        }));
+        
+        // Ordenar por fecha (más reciente primero)
+        historial.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
         
         // Actualizar la tabla
-        actualizarTablaHistorial(historialEjemplo);
+        actualizarTablaHistorial(historial);
     }
 
     // Función para actualizar la tabla con los datos del historial
@@ -421,6 +418,10 @@ $estudiantes = json_encode($alumnos);
                     </span>
                 </td>
                 <td class="py-3 px-4 text-sm text-gray-800">${falta.justificacion || 'No aplica'}</td>
+                <td class="py-3 px-4 text-sm text-gray-800">${falta.materia}</td>
+                <td class="py-3 px-4 text-sm text-gray-800">${falta.docente}</td>
+                <td class="py-3 px-4 text-sm text-gray-800">${falta.ciclo}</td>
+                <td class="py-3 px-4 text-sm text-gray-800">${falta.year}</td>
                 
             `;
             

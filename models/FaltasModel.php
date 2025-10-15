@@ -141,8 +141,10 @@ class Faltas extends BaseModel {
     }
 
     public function getAllAlumnos(){
+        $conn = $this->getConnection();
+    
+        // 1️⃣ Datos generales por alumno (como ya los tenías)
         $query = "SELECT 
-                    -- Datos del alumno
                     a.idalumno,
                     a.carnet,
                     a.nombre,
@@ -153,33 +155,18 @@ class Faltas extends BaseModel {
                     a.estadoAlumno,
                     a.beca,
                     a.tipobeca,
-                    
-                    -- Datos extra
                     ae.direccion,
                     ae.fecha_nacimiento,
                     ae.contacto_emergencia,
                     ae.telefono_emergencia,
                     ae.observaciones,
-                    
-                    -- Datos del ciclo y año desde detalle
                     d.ciclo,
                     d.year,
-                    
-                    -- Total de faltas en ese ciclo/año
                     COUNT(i.id_inasistencia) AS total_faltas
-                    
                 FROM alumno a
-                INNER JOIN alumnos_extra ae 
-                    ON a.idalumno = ae.idalumno
-                INNER JOIN inasistencia i 
-                    ON a.idalumno = i.idalumno
-                INNER JOIN detalle d 
-                    ON i.id_detalle = d.id_detalle
-                INNER JOIN materia m 
-                    ON d.id_m = m.id_materia
-                INNER JOIN grupo g 
-                    ON d.id_g = g.id_grupo
-                    
+                INNER JOIN alumnos_extra ae ON a.idalumno = ae.idalumno
+                LEFT JOIN inasistencia i ON a.idalumno = i.idalumno
+                LEFT JOIN detalle d ON i.id_detalle = d.id_detalle
                 GROUP BY 
                     a.idalumno, a.carnet, a.nombre, a.apellido, a.telefono, a.foto, 
                     a.email, a.estadoAlumno, a.beca, a.tipobeca,
@@ -187,11 +174,45 @@ class Faltas extends BaseModel {
                     ae.telefono_emergencia, ae.observaciones,
                     d.ciclo, d.year
                 ORDER BY d.year DESC, d.ciclo ASC, a.nombre ASC";
-    
-        $stmt = $this->getConnection()->prepare($query);
+        
+        $stmt = $conn->prepare($query);
         $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $alumnos = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+        // 2️⃣ Traer todas las inasistencias por alumno
+        $queryFaltas = "SELECT 
+                            i.id_inasistencia,
+                            i.idalumno,
+                            i.fecha_falta,
+                            i.cantidadHoras,
+                            i.observacion,
+                            i.justificandO,
+                            i.justificaion,
+                            d.ciclo,
+                            d.year,
+                            m.materia,
+                            doc.nom_usuario AS nombre_docente,
+                            doc.ape_usuario AS apellido_docente
+                        FROM inasistencia i
+                        INNER JOIN detalle d ON i.id_detalle = d.id_detalle
+                        INNER JOIN materia m ON d.id_m = m.id_materia
+                        INNER JOIN docente doc ON i.id_docente = doc.id_docente
+                        ORDER BY i.idalumno, i.fecha_falta ASC";
+        
+        $stmt = $conn->prepare($queryFaltas);
+        $stmt->execute();
+        $faltas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+        // 3️⃣ Asociar faltas a cada alumno
+        foreach ($alumnos as &$alumno) {
+            $alumno['faltas_detalle'] = array_filter($faltas, function($f) use ($alumno){
+                return $f['idalumno'] == $alumno['idalumno'];
+            });
+        }
+    
+        return $alumnos;
     }
+    
     
     public function getFaltasByAlumno($idalumno){
         $query = "SELECT 

@@ -36,7 +36,7 @@
                 <a href="perfil.php" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition duration-150">
                     👤 Mi Perfil
                 </a>
-                <a href="../Config/logout.php" class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition duration-150">
+                <a href="../Login/Logout.php" class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition duration-150">
                     🚪 Cerrar Sesión
                 </a>
             </div>
