@@ -5,10 +5,17 @@ if(!isset($_SESSION['administrador'])){
 $dataAdmin=$_SESSION['administrador'];
 
 require_once "../../models/FaltasModel.php";
+require_once "../../models/AlumnoModels.php";
+
 $alumnos = (new Faltas())->getAllAlumnos($dataAdmin['ciclo'], $dataAdmin['anio']);
 
 $estudiantes = json_encode($alumnos);
 
+
+if(isset($_POST['inicarSeguimiento'])){
+    $alumno = (new Alumno())->cambiarEstado("Seguimiento", $_POST['alumnoID']);
+    
+}
 ?>
  
 <!-- Modal de detalles del estudiante - MEJORADO -->
@@ -33,10 +40,15 @@ $estudiantes = json_encode($alumnos);
                             <div id="carnetDisplay" class="text-3xl font-bold text-gray-800">12345</div>
                         </div>
                     </div>
+                    <form method="post">
+                        <input type="hidden" name="alumnoID" id="alumnoID">
                     <button class="w-full bg-itca-red text-white py-3 px-6 font-semibold hover:bg-red-800 transition-all duration-200 rounded-lg shadow-md hover:shadow-lg" 
-                            onclick="iniciarSeguimiento()">
+                        type="submit"
+                        name="inicarSeguimiento"      
+                    >
                         Iniciar Seguimiento
                     </button>
+                    </form>
                     <button class="w-full bg-itca-red text-white py-3 px-6 font-semibold hover:bg-red-800 transition-all duration-200 rounded-lg shadow-md hover:shadow-lg mt-4" 
                             id="historialInasistenciasBtn">
                         <i class="fas fa-history"></i>
@@ -239,6 +251,7 @@ $estudiantes = json_encode($alumnos);
             document.getElementById('faltasDisplay').textContent = estudiante.total_faltas;
             document.getElementById('contactoEmergenciaDisplay').textContent = estudiante.telefono_emergencia;
             document.getElementById('observacionesDisplay').textContent = estudiante.observaciones;
+            document.getElementById('alumnoID').value = estudiante.idalumno;
             
             // Aplicar estilos según el estado
             const estadoElement = document.getElementById('estadoDisplay');
@@ -269,10 +282,6 @@ $estudiantes = json_encode($alumnos);
         document.getElementById('modalDetalles').classList.remove('show');
     }
 
-    function iniciarSeguimiento() {
-        alert('Iniciando seguimiento del estudiante...');
-        // Aquí puedes agregar la lógica para iniciar el seguimiento
-    }
 
     function buscarEstudiantes() {
         const tipo = document.getElementById('searchType').value;

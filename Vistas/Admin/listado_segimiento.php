@@ -6,7 +6,8 @@ if(!isset($_SESSION['administrador'])){
 $dataAdmin=$_SESSION['administrador'];
 
 require_once "../../models/SeguimientosModel.php";
-$estudiantes = (new SeguimientosModel())->getAllEstudiantes();
+$estudiantes = (new SeguimientosModel())->getAllEstudiantes($dataAdmin['ciclo'], $dataAdmin['anio']);
+var_dump($estudiantes);
 
 date_default_timezone_set('America/El_Salvador');
 
@@ -16,6 +17,8 @@ if(isset($_POST['confirmarRetiro'])){
     $estado = $_POST['estado'];
     (new SeguimientosModel())->FinSeguimieto($estado, $motivo, $idAlumno, date('Y-m-d'));
 }
+
+
 
 if(isset($_POST['guardarSeguimiento'])){
     $data = [

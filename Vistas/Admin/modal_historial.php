@@ -1,9 +1,14 @@
 <?php
+if(!isset($_SESSION['administrador'])){
+    header("Location: /ProyectoInasistenciasItca/index.php");
+}
+$dataAdmin=$_SESSION['administrador'];
+
 require_once "../../models/SeguimientosModel.php";
 
 // Obtener todos los estudiantes con sus seguimientos
 $dataALumnos = new SeguimientosModel();
-$dataALumnos = json_encode($dataALumnos->getAllEstudiantes());
+$dataALumnos = json_encode($dataALumnos->getAllEstudiantes($dataAdmin['ciclo'], $dataAdmin['anio']));
 ?>
 
 <!-- Modal de Historial de Seguimientos -->

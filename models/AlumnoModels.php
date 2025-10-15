@@ -107,6 +107,13 @@ class Alumno extends BaseModel {
         $stmt->execute(['carnet' => $carnet, 'fecha' => $fecha, 'motivo' => $motivo, 'observacion' => $observacion]);
         return true;
     }
+
+    public function cambiarEstado($estado, $alumnoID){
+        $query = "UPDATE alumnos_extra SET estado = :estado WHERE idalumno = :idalumno";
+        $stmt = $this->getConnection()->prepare($query);
+        $stmt->execute(['estado' => $estado, 'idalumno' => $alumnoID]);
+        return true;
+    }
 }
 
 ?>

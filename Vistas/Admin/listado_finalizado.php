@@ -6,7 +6,8 @@ if(!isset($_SESSION['administrador'])){
 $dataAdmin=$_SESSION['administrador'];
 
 require_once "../../models/SeguimientosModel.php";
-$estudiantes = (new SeguimientosModel())->getSeguimietosFinalizados();
+$estudiantes = (new SeguimientosModel())->getSeguimientosFinalizados();
+var_dump($estudiantes);
 ?>
 
 
@@ -345,7 +346,7 @@ $estudiantes = (new SeguimientosModel())->getSeguimietosFinalizados();
                             </div>
                             <div class="info-card">
                                 <div class="text-sm font-semibold text-gray-600 mb-1">Faltas acumuladas</div>
-                                <div class="text-lg text-red-600 font-medium">2</div>
+                                <div class="text-lg text-red-600 font-medium" id="faltasAcumuladasDisplay">2</div>
                             </div>
                         </div>
                     </div>
@@ -497,6 +498,7 @@ $estudiantes = (new SeguimientosModel())->getSeguimietosFinalizados();
                 document.getElementById('becaDisplay').textContent = estudianteActual.beca==1?"Sí":"No";
                 document.getElementById('tipoBecaDisplay').textContent = estudianteActual.tipobeca;
                 document.getElementById('telefonoDisplay').textContent = estudianteActual.telefono;
+                document.getElementById('faltasAcumuladasDisplay').textContent = estudianteActual.total_faltas;
                 
                 // Aplicar estilos según el estado
                 const estadoElement = document.getElementById('estadoDisplay');
