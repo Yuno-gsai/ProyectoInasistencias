@@ -145,9 +145,12 @@ CREATE TABLE IF NOT EXISTS inasistencia (
     fecha DATETIME DEFAULT CURRENT_TIMESTAMP,
     cantidadHoras INT,
     observacion TEXT,
+    justificando TINYINT(1) DEFAULT 0,
+    justificaion VARCHAR(255),
+    justificacion_texto TEXT,
+    justificacion_imagen VARCHAR(255),
+    tiene_justificacion TINYINT(1) DEFAULT 0,
     estado VARCHAR(15) DEFAULT 'Creada',
-    justificando INT(1) DEFAULT 0,
-    justificaion VARCHAR (255),
     CONSTRAINT fk_inas_alumno FOREIGN KEY (idalumno) REFERENCES alumno(idalumno) 
         ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT fk_inas_docente FOREIGN KEY (id_docente) REFERENCES docente(id_docente) 
