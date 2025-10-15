@@ -6,7 +6,7 @@ if(!isset($_SESSION['administrador'])){
 $dataAdmin=$_SESSION['administrador'];
 
 require_once "../../models/FaltasModel.php";
-$alumnos = (new Faltas())->getAllAlumnos();
+$alumnos = (new Faltas())->getAllAlumnos($dataAdmin['ciclo'], $dataAdmin['anio']);
 
 $estudiantes = json_encode($alumnos);
 

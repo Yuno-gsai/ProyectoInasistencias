@@ -1,9 +1,13 @@
 <?php
+if(!isset($_SESSION['administrador'])){
+    header("Location: /ProyectoInasistenciasItca/index.php");
+}
+$dataAdmin=$_SESSION['administrador'];
+
 require_once "../../models/FaltasModel.php";
-$alumnos = (new Faltas())->getAllAlumnos();
+$alumnos = (new Faltas())->getAllAlumnos($dataAdmin['ciclo'], $dataAdmin['anio']);
 
 $estudiantes = json_encode($alumnos);
-var_dump($estudiantes);
 
 ?>
  

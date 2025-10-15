@@ -6,8 +6,40 @@ require_once __DIR__."/../../models/DetalleModel.php";
 $docente = new Docente();
 $detalle = new DetalleModel();
 
-$dataciclos= $detalle->getAllCiclos();
+// Obtener el año actual
+$currentYear = date('Y');
+
+// Determinar el ciclo basado en el mes actual (1-6: ciclo 1, 7-12: ciclo 2)
+$currentMonth = date('n');
+$defaultCiclo = ($currentMonth >= 1 && $currentMonth <= 6) ? 'I' : 'II';
+
+$dataciclos = $detalle->getAllCiclos();
 $datayears = $detalle->getAllAnios();
+
+// Verificar si el año actual existe en la lista de años, si no, usar el primer año disponible
+$defaultYear = $currentYear;
+$yearExists = false;
+foreach ($datayears as $year) {
+    if ($year['year'] == $currentYear) {
+        $yearExists = true;
+        break;
+    }
+}
+if (!$yearExists && !empty($datayears)) {
+    $defaultYear = $datayears[0]['year'];
+}
+
+// Verificar si el ciclo actual existe en la lista de ciclos, si no, usar el primer ciclo disponible
+$cicloExists = false;
+foreach ($dataciclos as $ciclo) {
+    if ($ciclo['ciclo'] == $defaultCiclo) {
+        $cicloExists = true;
+        break;
+    }
+}
+if (!$cicloExists && !empty($dataciclos)) {
+    $defaultCiclo = $dataciclos[0]['ciclo'];
+}
 
 if(isset($_POST['username']) && isset($_POST['password'])) {
     $tipoUsuario = $_POST['tipo_usuario'];
@@ -95,9 +127,10 @@ if(isset($_POST['username']) && isset($_POST['password'])) {
                 <label class="block text-gray-700 font-medium mb-2" for="ciclo">Ciclo</label>
                 <select name="ciclo" id="ciclo"
                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent outline-none transition">
-                    <option value="">Seleccione un ciclo</option>
-                    <?php foreach($dataciclos as $ciclo){ ?>
-                    <option value="<?php echo $ciclo['ciclo']; ?>"><?php echo $ciclo['ciclo']; ?></option>
+                    <?php foreach($dataciclos as $ciclo){ 
+                        $selected = ($ciclo['ciclo'] == $defaultCiclo) ? 'selected' : '';
+                    ?>
+                    <option value="<?php echo $ciclo['ciclo']; ?>" <?php echo $selected; ?>><?php echo $ciclo['ciclo']; ?></option>
                     <?php } ?>
                 </select>
             </div>
@@ -105,9 +138,10 @@ if(isset($_POST['username']) && isset($_POST['password'])) {
                 <label class="block text-gray-700 font-medium mb-2" for="anio">Año</label>
                 <select name="anio" id="anio"
                     class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent outline-none transition">
-
-                        <?php foreach($datayears as $year){ ?>
-                        <option value="<?php echo $year['year']; ?>"><?php echo $year['year']; ?></option>
+                        <?php foreach($datayears as $year){ 
+                            $selected = ($year['year'] == $defaultYear) ? 'selected' : '';
+                        ?>
+                        <option value="<?php echo $year['year']; ?>" <?php echo $selected; ?>><?php echo $year['year']; ?></option>
                         <?php } ?>
                 </select>
             </div>
@@ -155,6 +189,12 @@ if(isset($_POST['username']) && isset($_POST['password'])) {
         usernameInput.placeholder = 'Ingrese su nombre de usuario';
         tipoUsuarioInput.value = 'administrador';
         adminExtraFields.classList.remove('hidden');
+        
+        // Forzar actualización de los selects para mostrar los valores seleccionados
+        const cicloSelect = document.getElementById('ciclo');
+        const anioSelect = document.getElementById('anio');
+        if (cicloSelect) cicloSelect.dispatchEvent(new Event('change'));
+        if (anioSelect) anioSelect.dispatchEvent(new Event('change'));
     }
 
     docenteBtn.addEventListener('click', setDocenteMode);
