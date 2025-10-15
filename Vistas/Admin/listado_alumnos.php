@@ -6,7 +6,7 @@ if(!isset($_SESSION['administrador'])){
 $dataAdmin=$_SESSION['administrador'];
 
 require_once "../../models/FaltasModel.php";
-$alumnos = (new Faltas())->getAllAlumnos();
+$alumnos = (new Faltas())->getAllAlumnos($dataAdmin['ciclo'], $dataAdmin['anio']);
 
 $estudiantes = json_encode($alumnos);
 
@@ -218,7 +218,7 @@ $estudiantes = json_encode($alumnos);
                             <td class="px-6 py-4 text-sm text-gray-800"><?php echo $alumno['year']; ?></td>
                             <td class="px-6 py-4">
                                 <button class="bg-itca-red text-white px-4 py-2 text-sm rounded-md hover:bg-red-800 transition-all duration-200 shadow-md hover:shadow-lg font-medium" 
-                                        onclick="verDetalles('<?php echo $alumno['carnet']; ?>')">
+                                        onclick="verDetalles('<?php echo $alumno['carnet']; ?>',<?php echo $alumno['idalumno']; ?>)">
                                     Ver detalles
                                 </button>
                             </td>

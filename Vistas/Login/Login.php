@@ -2,36 +2,74 @@
 session_start();
 
 require_once __DIR__."/../../models/DocenteModel.php";
+require_once __DIR__."/../../models/DetalleModel.php";
 $docente = new Docente();
+$detalle = new DetalleModel();
+
+// Obtener el año actual
+$currentYear = date('Y');
+
+// Determinar el ciclo basado en el mes actual (1-6: ciclo 1, 7-12: ciclo 2)
+$currentMonth = date('n');
+$defaultCiclo = ($currentMonth >= 1 && $currentMonth <= 6) ? 'I' : 'II';
+
+$dataciclos = $detalle->getAllCiclos();
+$datayears = $detalle->getAllAnios();
+
+// Verificar si el año actual existe en la lista de años, si no, usar el primer año disponible
+$defaultYear = $currentYear;
+$yearExists = false;
+foreach ($datayears as $year) {
+    if ($year['year'] == $currentYear) {
+        $yearExists = true;
+        break;
+    }
+}
+if (!$yearExists && !empty($datayears)) {
+    $defaultYear = $datayears[0]['year'];
+}
+
+// Verificar si el ciclo actual existe en la lista de ciclos, si no, usar el primer ciclo disponible
+$cicloExists = false;
+foreach ($dataciclos as $ciclo) {
+    if ($ciclo['ciclo'] == $defaultCiclo) {
+        $cicloExists = true;
+        break;
+    }
+}
+if (!$cicloExists && !empty($dataciclos)) {
+    $defaultCiclo = $dataciclos[0]['ciclo'];
+}
 
 if(isset($_POST['username']) && isset($_POST['password'])) {
     $tipoUsuario = $_POST['tipo_usuario'];
     $username = $_POST['username'];
     $password = $_POST['password'];
+
     if($docente->CustongetAll($username, $password)){
-        $dataDocente=$docente->CustongetAll($username, $password);
+        $dataDocente = $docente->CustongetAll($username, $password);
+
         if($tipoUsuario == 'docente' && $dataDocente['estado'] == 'Activo'){
             $_SESSION['docente'] = $dataDocente;
-            header("Location: " . "/ProyectoInasistenciasItca/Vistas/Docente/DashboardDocente.php");
+            header("Location: /ProyectoInasistenciasItca/Vistas/Docente/DashboardDocente.php");
             exit();
         }
+
         if($tipoUsuario == 'administrador' && $dataDocente['estado'] == 'Activo' && $dataDocente['esadministrador'] == 1){
             $_SESSION['administrador'] = $dataDocente;
-            header("Location: " . "/ProyectoInasistenciasItca/Vistas/Admin/dashboard.php");
-                exit();
-            }
+            $_SESSION['administrador']['ciclo'] = $_POST['ciclo'] ?? '';
+            $_SESSION['administrador']['anio'] = $_POST['anio'] ?? '';
+            header("Location: /ProyectoInasistenciasItca/Vistas/Admin/dashboard.php");
+            exit();
+        }
         else{
             echo "<script>alert('Acceso denegado');</script>";
         }
-    }
-    else{
+    } else {
         echo "<script>alert('Credenciales incorrectas');</script>";
     }
 }
-
 ?>
-
-
 
 <!DOCTYPE html>
 <html lang="es">
@@ -51,58 +89,85 @@ if(isset($_POST['username']) && isset($_POST['password'])) {
 <div class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-md backdrop-blur-sm bg-white/90">
     <!-- Logo -->
     <div class="flex justify-center mb-6">
-    <img src="Vistas/Publico/Imagenes/ItcaLogo.png" alt="Logo ITCA FEPADE" class="h-24">
+        <img src="Vistas/Publico/Imagenes/ItcaLogo.png" alt="Logo ITCA FEPADE" class="h-24">
     </div>
 
     <!-- Título -->
     <p class="text-center text-gray-600 mb-8">Sistema de Registro de Inasistencias</p>
 
     <!-- Selector de tipo de usuario -->
-    
-    <!-- Formulario de Login -->
     <div class="flex mb-6 bg-gray-100 p-1 rounded-lg">
         <button id="docenteBtn" class="flex-1 py-2 px-4 rounded-lg font-medium transition-all duration-300 bg-red-600 text-white">Docente</button>
         <button id="adminBtn" class="flex-1 py-2 px-4 rounded-lg font-medium transition-all duration-300 text-gray-700">Administrador</button>
     </div>
-    <form method="post" class="space-y-4">
 
+    <!-- Formulario de Login -->
+    <form method="post" class="space-y-4">
         <input type="hidden" name="tipo_usuario" id="tipo_usuario" value="docente">
-        <!-- Campo para Docente/Administrador -->
+
+        <!-- Campo usuario -->
         <div>
             <label class="block text-gray-700 font-medium mb-2" for="username">
                 <span id="labelTipoUsuario">Docente</span>
             </label>
             <input type="text" name="username" id="username" placeholder="Ingrese su número de carnet"
-                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent outline-none transition">
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent outline-none transition">
         </div>
 
-        <!-- Campo para Contraseña -->
+        <!-- Campo contraseña -->
         <div>
             <label class="block text-gray-700 font-medium mb-2" for="password">Contraseña</label>
             <input type="password" name="password" id="password" placeholder="Ingrese su contraseña"
-                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent outline-none transition">
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent outline-none transition">
         </div>
 
-        <!-- Botón de Iniciar Sesión -->
-        <button type="submit" class="w-full bg-red-700 text-white py-3 rounded-lg font-semibold hover:bg-red-800 transition-all duration-300 shadow-md hover:shadow-lg">
+        <!-- Campos adicionales para ADMIN -->
+        <div id="adminExtraFields" class="hidden space-y-4">
+            <div>
+                <label class="block text-gray-700 font-medium mb-2" for="ciclo">Ciclo</label>
+                <select name="ciclo" id="ciclo"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent outline-none transition">
+                    <?php foreach($dataciclos as $ciclo){ 
+                        $selected = ($ciclo['ciclo'] == $defaultCiclo) ? 'selected' : '';
+                    ?>
+                    <option value="<?php echo $ciclo['ciclo']; ?>" <?php echo $selected; ?>><?php echo $ciclo['ciclo']; ?></option>
+                    <?php } ?>
+                </select>
+            </div>
+            <div>
+                <label class="block text-gray-700 font-medium mb-2" for="anio">Año</label>
+                <select name="anio" id="anio"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent outline-none transition">
+                        <?php foreach($datayears as $year){ 
+                            $selected = ($year['year'] == $defaultYear) ? 'selected' : '';
+                        ?>
+                        <option value="<?php echo $year['year']; ?>" <?php echo $selected; ?>><?php echo $year['year']; ?></option>
+                        <?php } ?>
+                </select>
+            </div>
+        </div>
+
+        <!-- Botón -->
+        <button type="submit"
+            class="w-full bg-red-700 text-white py-3 rounded-lg font-semibold hover:bg-red-800 transition-all duration-300 shadow-md hover:shadow-lg">
             Iniciar Sesión
         </button>
     </form>
 
-    <!-- Enlace de ayuda -->
     <div class="mt-6 text-center">
         <a href="#" class="text-red-600 hover:text-red-800 text-sm font-medium">¿Olvidó su contraseña?</a>
     </div>
 </div>
 
 <script>
-    // Lógica para cambiar entre Docente y Administrador
     const docenteBtn = document.getElementById('docenteBtn');
     const adminBtn = document.getElementById('adminBtn');
     const labelTipoUsuario = document.getElementById('labelTipoUsuario');
     const usernameInput = document.getElementById('username');
+    const tipoUsuarioInput = document.getElementById('tipo_usuario');
+    const adminExtraFields = document.getElementById('adminExtraFields');
 
-    // Función para cambiar a modo Docente
+    // Función modo Docente
     function setDocenteMode() {
         docenteBtn.classList.add('bg-red-600', 'text-white');
         docenteBtn.classList.remove('bg-gray-200', 'text-gray-700');
@@ -110,11 +175,11 @@ if(isset($_POST['username']) && isset($_POST['password'])) {
         adminBtn.classList.remove('bg-red-600', 'text-white');
         labelTipoUsuario.textContent = 'Docente';
         usernameInput.placeholder = 'Ingrese su número de carnet';
-        document.getElementById('tipo_usuario').value = 'docente';
-
+        tipoUsuarioInput.value = 'docente';
+        adminExtraFields.classList.add('hidden');
     }
 
-    // Función para cambiar a modo Administrador
+    // Función modo Administrador
     function setAdminMode() {
         adminBtn.classList.add('bg-red-600', 'text-white');
         adminBtn.classList.remove('bg-gray-200', 'text-gray-700');
@@ -122,16 +187,18 @@ if(isset($_POST['username']) && isset($_POST['password'])) {
         docenteBtn.classList.remove('bg-red-600', 'text-white');
         labelTipoUsuario.textContent = 'Administrador';
         usernameInput.placeholder = 'Ingrese su nombre de usuario';
-        document.getElementById('tipo_usuario').value = 'administrador';
+        tipoUsuarioInput.value = 'administrador';
+        adminExtraFields.classList.remove('hidden');
+        
+        // Forzar actualización de los selects para mostrar los valores seleccionados
+        const cicloSelect = document.getElementById('ciclo');
+        const anioSelect = document.getElementById('anio');
+        if (cicloSelect) cicloSelect.dispatchEvent(new Event('change'));
+        if (anioSelect) anioSelect.dispatchEvent(new Event('change'));
     }
 
-    // Event listeners para los botones
     docenteBtn.addEventListener('click', setDocenteMode);
     adminBtn.addEventListener('click', setAdminMode);
-
-
-
-
 </script>
 </body>
 </html>
