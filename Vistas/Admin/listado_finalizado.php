@@ -16,9 +16,15 @@ var_dump($estudiantes);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema de Estudiantes - ITCA FEPADE</title>
+    <title>Seguimientos Finalizados - ITCA FEPADE</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        
         /* Estilos para el modal */
         .modal {
             display: none;
@@ -94,7 +100,7 @@ var_dump($estudiantes);
             left: 0;
             width: 60px;
             height: 3px;
-            background-color: #B91C1C;
+            background-color: #DC2626;
             border-radius: 2px;
         }
         .info-card {
@@ -166,10 +172,16 @@ var_dump($estudiantes);
             <p class="text-gray-600">Gestión y consulta de información estudiantil</p>
         </div>
         <!-- Formulario de búsqueda -->
-        <div class="bg-itca-red p-6 rounded-lg shadow-lg mb-8">
+        <div class="bg-red-50 border-l-4 border-red-600 p-4 rounded-lg mb-6">
+            <div class="flex items-center mb-4">
+                <div class="bg-red-100 p-2 rounded-full mr-3">
+                    <i class="fas fa-filter text-red-600"></i>
+                </div>
+                <h3 class="font-semibold text-gray-800">Filtros de búsqueda</h3>
+            </div>
             <form class="flex flex-wrap items-end gap-4">
                 <div class="flex-1 min-w-48">
-                    <label class="block text-white text-sm font-medium mb-2">Buscar por:</label>
+                    <label class="block text-gray-700 text-sm font-medium mb-2">Buscar por:</label>
                     <select id="searchType" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent">
                         <option>Seleccione una opción</option>
                         <option>Carnet</option>
@@ -180,13 +192,12 @@ var_dump($estudiantes);
                 </div>
                 
                 <div class="flex-1 min-w-48">
-                    <label class="block text-white text-sm font-medium mb-2">Dato:</label>
-                    <input id="searchInput" type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent" placeholder="Ingrese el dato a buscar">
+                    <label class="block text-gray-700 text-sm font-medium mb-2">Dato:</label>
+                    <input type="text" class="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Ingrese término de búsqueda">
                 </div>
-                
                 <div>
-                    <button type="button" onclick="buscarEstudiantes()" class="bg-white text-itca-red px-8 py-2 rounded-md font-semibold hover:bg-gray-100 transition-colors duration-200 shadow-md">
-                        Buscar
+                    <button type="submit" class="bg-red-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-red-700 transition-colors shadow-md">
+                        <i class="fas fa-search mr-2"></i>Buscar
                     </button>
                 </div>
             </form>
@@ -217,13 +228,13 @@ var_dump($estudiantes);
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><?php echo $estudiante['ultima_fecha_seguimiento'];?></td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><?php echo $estudiante['motivo'];?></td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm space-x-2">
-                                <button class="bg-itca-red text-white px-3 py-1 rounded text-xs font-medium hover:bg-itca-dark-red transition-colors duration-200"
+                                <button class="bg-red-600 text-white px-3 py-1 rounded-lg text-xs font-medium hover:bg-red-700 transition-colors duration-200"
                                 onclick="verDetalles('<?php echo $estudiante['idalumno'];?>')">
-                                    Ver detalles
+                                    <i class="fas fa-eye mr-1"></i>Ver detalles
                                 </button>
-                                <button class="bg-itca-red text-white px-3 py-1 rounded text-xs font-medium hover:bg-itca-dark-red transition-colors duration-200"
+                                <button class="bg-blue-600 text-white px-3 py-1 rounded-lg text-xs font-medium hover:bg-blue-700 transition-colors duration-200"
                                 onclick="openHistoryModal('<?php echo $estudiante['idalumno'];?>')">
-                                    Historial
+                                    <i class="fas fa-history mr-1"></i>Historial
                                 </button>
                             </td>
                         </tr>
@@ -244,7 +255,7 @@ var_dump($estudiantes);
                 <button class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50" disabled>
                     Anterior
                 </button>
-                <button class="px-3 py-2 text-sm font-medium text-white bg-itca-red border border-transparent rounded-md">
+                <button class="px-3 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md">
                     1
                 </button>
                 <button class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50" disabled>
@@ -367,8 +378,8 @@ var_dump($estudiantes);
                 </div>
                 
                 <div class="flex justify-end mt-6">
-                    <button onclick="cerrarModalHistorial()" class="bg-itca-red hover:bg-itca-dark-red text-white px-6 py-2 rounded-lg font-medium transition-colors shadow-md">
-                        Cerrar
+                    <button onclick="cerrarModalHistorial()" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-lg font-medium transition-colors shadow-md">
+                        <i class="fas fa-times mr-2"></i>Cerrar
                     </button>
                 </div>
             </div>
@@ -534,7 +545,7 @@ var_dump($estudiantes);
 
     if (Array.isArray(estudianteActual.seguimientos) && estudianteActual.seguimientos.length > 0) {
         estudianteActual.seguimientos.forEach(s => {
-            let borderColor = 'border-itca-red';
+            let borderColor = 'border-red-600';
             if (s.accion?.toLowerCase().includes('llamada')) borderColor = 'border-blue-500';
             else if (s.accion?.toLowerCase().includes('correo') || s.accion?.toLowerCase().includes('email')) borderColor = 'border-green-500';
             else if (s.accion?.toLowerCase().includes('visita')) borderColor = 'border-yellow-500';

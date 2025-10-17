@@ -17,15 +17,14 @@ $estudiantes = json_encode($alumnos);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ITCA FEPADE - Sistema de Estudiantes</title>
+    <title>Listado de Alumnos - ITCA FEPADE</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .logo-orange { color: #FF6B00; }
-        .bg-itca-red { background-color: #8B1538; }
-        .bg-header { background-color: #E5E5E5; }
-        .bg-table-header { background-color: #9CA3AF; }
-        .bg-table-row { background-color: #D1D5DB; }
-        .bg-details { background-color: #E5E7EB; }
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
         
         /* Modal styles mejorados */
         .modal {
@@ -71,7 +70,7 @@ $estudiantes = json_encode($alumnos);
             border-radius: 8px;
             padding: 16px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            border-left: 4px solid #8B1538;
+            border-left: 4px solid #DC2626;
         }
         
         .status-badge {
@@ -110,13 +109,13 @@ $estudiantes = json_encode($alumnos);
             left: 0;
             width: 60px;
             height: 3px;
-            background-color: #8B1538;
+            background-color: #DC2626;
             border-radius: 2px;
         }
         
         .student-photo {
             background: linear-gradient(135deg, #E5E7EB 0%, #D1D5DB 100%);
-            border: 3px solid #8B1538;
+            border: 3px solid #DC2626;
         }
         
         .close-btn {
@@ -145,7 +144,7 @@ $estudiantes = json_encode($alumnos);
         }
     </style>
 </head>
-<body class="bg-gray-100">
+<body class="bg-gray-100 min-h-screen">
     <!-- Header -->
     <?php include "menu.php" ?>
 
@@ -158,25 +157,33 @@ $estudiantes = json_encode($alumnos);
         </div>
 
         <!-- Barra de búsqueda -->
-        <div class="bg-itca-red px-6 py-5 mb-8 rounded-lg shadow-lg flex flex-wrap items-end gap-4">
-            <div class="flex-1 min-w-48">
-                <label class="block text-white text-sm font-medium mb-2">Buscar por:</label>
-                <select class="w-full px-4 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-red-300 focus:border-transparent" id="searchType">
-                    <option value="">Seleccione una opción</option>
-                    <option value="carnet">Carnet</option>
-                    <option value="nombre">Nombre</option>
-                    <option value="apellido">Apellido</option>
-                    <option value="email">Email</option>
-                </select>
+        <div class="bg-red-50 border-l-4 border-red-600 p-4 rounded-lg mb-6">
+            <div class="flex items-center mb-4">
+                <div class="bg-red-100 p-2 rounded-full mr-3">
+                    <i class="fas fa-filter text-red-600"></i>
+                </div>
+                <h3 class="font-semibold text-gray-800">Filtros de búsqueda</h3>
             </div>
-            <div class="flex-1 min-w-48">
-                <label class="block text-white text-sm font-medium mb-2">Dato:</label>
-                <input type="text" class="w-full px-4 py-2 border border-gray-300 rounded-md text-sm focus:ring-2 focus:ring-red-300 focus:border-transparent" id="searchInput" placeholder="Ingrese término de búsqueda">
-            </div>
-            <div>
-                <button class="bg-white text-itca-red px-8 py-2 rounded-md font-semibold transition-all duration-200 shadow-md hover:shadow-lg hover:bg-gray-50" onclick="buscarEstudiantes()">
-                    Buscar
-                </button>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                <div>
+                    <label class="block text-sm text-gray-600 mb-1">Buscar por:</label>
+                    <select class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-red-500 focus:border-transparent" id="searchType">
+                        <option value="">Seleccione una opción</option>
+                        <option value="carnet">Carnet</option>
+                        <option value="nombre">Nombre</option>
+                        <option value="apellido">Apellido</option>
+                        <option value="email">Email</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm text-gray-600 mb-1">Dato:</label>
+                    <input type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-red-500 focus:border-transparent" id="searchInput" placeholder="Ingrese término de búsqueda">
+                </div>
+                <div>
+                    <button class="w-full bg-red-600 text-white px-6 py-2 rounded-lg font-medium transition-all duration-200 shadow-md hover:bg-red-700" onclick="buscarEstudiantes()">
+                        <i class="fas fa-search mr-2"></i>Buscar
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -217,9 +224,9 @@ $estudiantes = json_encode($alumnos);
                             <td class="px-6 py-4 text-sm text-gray-800"><?php echo $alumno['ciclo']; ?></td>
                             <td class="px-6 py-4 text-sm text-gray-800"><?php echo $alumno['year']; ?></td>
                             <td class="px-6 py-4">
-                                <button class="bg-itca-red text-white px-4 py-2 text-sm rounded-md hover:bg-red-800 transition-all duration-200 shadow-md hover:shadow-lg font-medium" 
+                                <button class="bg-red-600 text-white px-4 py-2 text-sm rounded-lg hover:bg-red-700 transition-all duration-200 shadow-md hover:shadow-lg font-medium" 
                                         onclick="verDetalles('<?php echo $alumno['carnet']; ?>',<?php echo $alumno['idalumno']; ?>)">
-                                    Ver detalles
+                                    <i class="fas fa-eye mr-1"></i>Ver detalles
                                 </button>
                             </td>
                         </tr>

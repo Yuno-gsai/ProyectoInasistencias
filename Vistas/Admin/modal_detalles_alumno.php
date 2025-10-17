@@ -42,17 +42,16 @@ if(isset($_POST['inicarSeguimiento'])){
                     </div>
                     <form method="post">
                         <input type="hidden" name="alumnoID" id="alumnoID">
-                    <button class="w-full bg-itca-red text-white py-3 px-6 font-semibold hover:bg-red-800 transition-all duration-200 rounded-lg shadow-md hover:shadow-lg" 
+                    <button class="w-full bg-red-600 text-white py-3 px-6 font-semibold hover:bg-red-700 transition-all duration-200 rounded-lg shadow-md hover:shadow-lg" 
                         type="submit"
                         name="inicarSeguimiento"      
                     >
-                        Iniciar Seguimiento
+                        <i class="fas fa-user-check mr-2"></i>Iniciar Seguimiento
                     </button>
                     </form>
-                    <button class="w-full bg-itca-red text-white py-3 px-6 font-semibold hover:bg-red-800 transition-all duration-200 rounded-lg shadow-md hover:shadow-lg mt-4" 
+                    <button class="w-full bg-blue-600 text-white py-3 px-6 font-semibold hover:bg-blue-700 transition-all duration-200 rounded-lg shadow-md hover:shadow-lg mt-4" 
                             id="historialInasistenciasBtn">
-                        <i class="fas fa-history"></i>
-                        Historial de Inasistencias
+                        <i class="fas fa-history mr-2"></i>Historial de Inasistencias
                     </button>
                 </div>
 
@@ -182,8 +181,8 @@ if(isset($_POST['inicarSeguimiento'])){
                     <input type="date" id="fechaHasta" class="w-full p-2 border border-gray-300 rounded-md">
                 </div>
                 <div class="flex items-end">
-                    <button onclick="filtrarHistorial()" class="w-full bg-itca-red text-white py-2 px-4 font-semibold hover:bg-red-800 transition-all duration-200 rounded-lg shadow-md">
-                        Filtrar
+                    <button onclick="filtrarHistorial()" class="w-full bg-red-600 text-white py-2 px-4 font-semibold hover:bg-red-700 transition-all duration-200 rounded-lg shadow-md">
+                        <i class="fas fa-filter mr-2"></i>Filtrar
                     </button>
                 </div>
             </div>
@@ -197,8 +196,12 @@ if(isset($_POST['inicarSeguimiento'])){
                             <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Horas</th>
                             <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Observación</th>
                             <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
-                            <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Justificación</th>
-                         
+                            <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Justificación Texto</th>
+                            <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Justificación Imagen</th>
+                            <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Materia</th>
+                            <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Docente</th>
+                            <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ciclo</th>
+                            <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Año</th>
                         </tr>
                     </thead>
                     <tbody id="tablaHistorialBody" class="divide-y divide-gray-200">
@@ -385,6 +388,8 @@ if(isset($_POST['inicarSeguimiento'])){
             observacion: falta.observacion || 'Sin observación',
             estado: falta.justificandO == 1 ? 'Justificada' : 'Injustificada',
             justificacion: falta.justificaion || 'No hay justificación',
+            justificacion_texto: falta.justificacion_texto || 'Sin justificación',
+            justificacion_imagen: falta.justificacion_imagen || null,
             materia: falta.materia,
             docente: `${falta.nombre_docente} ${falta.apellido_docente}`,
             ciclo: falta.ciclo,
@@ -421,6 +426,12 @@ if(isset($_POST['inicarSeguimiento'])){
             const fila = document.createElement('tr');
             fila.className = index % 2 === 0 ? 'bg-white' : 'bg-gray-50';
             
+            const imagenJustificacion = falta.justificacion_imagen 
+                ? `<a href="${falta.justificacion_imagen}" target="_blank" class="text-blue-600 hover:text-blue-800">
+                    <i class="fas fa-image mr-1"></i>Ver imagen
+                   </a>` 
+                : '<span class="text-gray-400">Sin imagen</span>';
+            
             fila.innerHTML = `
                 <td class="py-3 px-4 text-sm text-gray-800">${formatearFecha(falta.fecha)}</td>
                 <td class="py-3 px-4 text-sm text-gray-800">${falta.horas} hora(s)</td>
@@ -430,12 +441,12 @@ if(isset($_POST['inicarSeguimiento'])){
                         ${falta.estado}
                     </span>
                 </td>
-                <td class="py-3 px-4 text-sm text-gray-800">${falta.justificacion || 'No aplica'}</td>
+                <td class="py-3 px-4 text-sm text-gray-800">${falta.justificacion_texto}</td>
+                <td class="py-3 px-4 text-sm">${imagenJustificacion}</td>
                 <td class="py-3 px-4 text-sm text-gray-800">${falta.materia}</td>
                 <td class="py-3 px-4 text-sm text-gray-800">${falta.docente}</td>
                 <td class="py-3 px-4 text-sm text-gray-800">${falta.ciclo}</td>
                 <td class="py-3 px-4 text-sm text-gray-800">${falta.year}</td>
-                
             `;
             
             tbody.appendChild(fila);
@@ -548,10 +559,10 @@ if(isset($_POST['inicarSeguimiento'])){
 
     /* Colores personalizados */
     .bg-itca-red {
-        background-color: #e63946;
+        background-color: #DC2626;
     }
 
     .hover\:bg-red-800:hover {
-        background-color: #b91c1c;
+        background-color: #B91C1C;
     }
 </style>

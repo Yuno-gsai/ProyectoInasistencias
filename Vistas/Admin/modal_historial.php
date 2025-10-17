@@ -23,8 +23,8 @@ $dataALumnos = json_encode($dataALumnos->getAllEstudiantes($dataAdmin['ciclo'], 
             </div>
 
             <div class="flex justify-end mt-8">
-                <button onclick="closeHistoryModal()" class="bg-itca-red hover:bg-itca-dark-red text-white px-6 py-2 rounded-lg font-medium transition-colors shadow-md">
-                    Cerrar
+                <button onclick="closeHistoryModal()" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-lg font-medium transition-colors shadow-md">
+                    <i class="fas fa-times mr-2"></i>Cerrar
                 </button>
             </div>
         </div>
@@ -81,7 +81,7 @@ $dataALumnos = json_encode($dataALumnos->getAllEstudiantes($dataAdmin['ciclo'], 
 
         if (Array.isArray(estudianteActual.seguimientos) && estudianteActual.seguimientos.length > 0) {
             estudianteActual.seguimientos.forEach(s => {
-                let borderColor = 'border-itca-red';
+                let borderColor = 'border-red-600';
                 if (s.accion?.toLowerCase().includes('llamada')) borderColor = 'border-blue-500';
                 else if (s.accion?.toLowerCase().includes('correo') || s.accion?.toLowerCase().includes('email')) borderColor = 'border-green-500';
                 else if (s.accion?.toLowerCase().includes('visita')) borderColor = 'border-yellow-500';

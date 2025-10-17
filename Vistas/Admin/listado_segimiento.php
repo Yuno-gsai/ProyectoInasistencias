@@ -36,24 +36,15 @@ if(isset($_POST['guardarSeguimiento'])){
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ITCA FEPADE - Listado de Seguimiento</title>
+    <title>Listado de Seguimiento - ITCA FEPADE</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'itca-red': '#8B1538',
-                        'itca-dark-red': '#6A1029',
-                        'itca-light-red': '#A91B47',
-                        'itca-gray': '#4A5568',
-                        'itca-light-gray': '#F7FAFC'
-                    }
-                }
-            }
-        }
-    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        
         .modal-backdrop {
             backdrop-filter: blur(4px);
         }
@@ -102,7 +93,7 @@ if(isset($_POST['guardarSeguimiento'])){
             left: 0;
             width: 60px;
             height: 3px;
-            background-color: #8B1538;
+            background-color: #DC2626;
             border-radius: 2px;
         }
         .info-card {
@@ -110,7 +101,7 @@ if(isset($_POST['guardarSeguimiento'])){
             border-radius: 8px;
             padding: 16px;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            border-left: 4px solid #8B1538;
+            border-left: 4px solid #DC2626;
         }
         .status-badge {
             display: inline-block;
@@ -137,7 +128,7 @@ if(isset($_POST['guardarSeguimiento'])){
         }
     </style>
 </head>
-<body class="bg-gray-100">
+<body class="bg-gray-100 min-h-screen">
     <!-- Header -->
     <?php include "menu.php" ?>
 
@@ -149,10 +140,16 @@ if(isset($_POST['guardarSeguimiento'])){
         </div>
 
         <!-- Barra de búsqueda -->
-        <div class="bg-itca-red p-6 rounded-lg mb-6 shadow-md">
+        <div class="bg-red-50 border-l-4 border-red-600 p-4 rounded-lg mb-6">
+            <div class="flex items-center mb-4">
+                <div class="bg-red-100 p-2 rounded-full mr-3">
+                    <i class="fas fa-filter text-red-600"></i>
+                </div>
+                <h3 class="font-semibold text-gray-800">Filtros de búsqueda</h3>
+            </div>
             <div class="flex flex-wrap items-end gap-4">
                 <div class="flex-1 min-w-48">
-                    <label class="block text-white text-sm font-medium mb-2">Buscar por:</label>
+                    <label class="block text-gray-700 text-sm font-medium mb-2">Buscar por:</label>
                     <select id="searchType" class="w-full px-3 py-2 rounded border-none bg-white focus:outline-none focus:ring-2 focus:ring-white">
                         <option>Seleccione una opción</option>
                         <option>Carnet</option>
@@ -161,12 +158,12 @@ if(isset($_POST['guardarSeguimiento'])){
                     </select>
                 </div>
                 <div class="flex-1 min-w-48">
-                    <label class="block text-white text-sm font-medium mb-2">Dato:</label>
-                    <input id="searchTerm" type="text" class="w-full px-3 py-2 rounded border-none bg-white focus:outline-none focus:ring-2 focus:ring-white" placeholder="Ingrese término de búsqueda">
+                    <label class="block text-gray-700 text-sm font-medium mb-2">Dato:</label>
+                    <input id="searchTerm" type="text" class="w-full px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Ingrese término de búsqueda">
                 </div>
                 <div>
-                    <button onclick="buscarEstudiantes()" class="bg-white text-itca-red px-6 py-2 rounded font-medium hover:bg-gray-100 transition-colors shadow-md">
-                        Buscar
+                    <button onclick="buscarEstudiantes()" class="bg-red-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-red-700 transition-colors shadow-md">
+                        <i class="fas fa-search mr-2"></i>Buscar
                     </button>
                 </div>
             </div>
@@ -204,8 +201,8 @@ if(isset($_POST['guardarSeguimiento'])){
                             <td class="px-4 py-3 text-red-600 font-medium"><?php echo $estudiante['total_seguimientos'];?></td>
                             <td class="px-4 py-3 text-red-600 font-medium"><?php echo $estudiante['ultima_fecha_seguimiento'];?></td>
                             <td class="px-4 py-3">
-                                <button onclick="openDetailsModal('<?php echo $estudiante['idalumno'];?>')" class="bg-itca-red hover:bg-itca-dark-red text-white px-3 py-1 rounded text-sm transition-colors shadow-sm">
-                                    Ver detalles
+                                <button onclick="openDetailsModal('<?php echo $estudiante['idalumno'];?>')" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-lg text-sm transition-colors shadow-md">
+                                    <i class="fas fa-eye mr-1"></i>Ver detalles
                                 </button>
                             </td>
                         </tr>
@@ -237,11 +234,11 @@ if(isset($_POST['guardarSeguimiento'])){
                             </div>
                         </div>
                         <div class="space-y-3 w-full">
-                            <button onclick="openCancelModal()" class="w-full bg-itca-red hover:bg-itca-dark-red text-white px-4 py-3 rounded-lg font-medium transition-colors shadow-md">
-                                Cancelar Seguimiento
+                            <button onclick="openCancelModal()" class="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-3 rounded-lg font-medium transition-colors shadow-md">
+                                <i class="fas fa-times-circle mr-2"></i>Cancelar Seguimiento
                             </button>
-                            <button onclick="openHistoryModal(estudianteActual.idalumno)" class="w-full bg-itca-red hover:bg-itca-dark-red text-white px-4 py-3 rounded-lg font-medium transition-colors shadow-md">
-                                Historial de Seguimiento
+                            <button onclick="openHistoryModal(estudianteActual.idalumno)" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg font-medium transition-colors shadow-md">
+                                <i class="fas fa-history mr-2"></i>Historial de Seguimiento
                             </button>
                         </div>
                     </div>
@@ -297,11 +294,11 @@ if(isset($_POST['guardarSeguimiento'])){
 
                             <h3 class="text-xl font-bold text-gray-800 mb-4 section-title">Detalles</h3>
                             <div class="mb-6">
-                                <textarea name="detalle" id="detalle" class="w-full h-40 p-3 rounded-lg border border-gray-300 bg-white resize-none focus:outline-none focus:ring-2 focus:ring-itca-red" readonly>Ya no viene porque es muy pobre y no le alcanza para pagar. Se llamó al alumno y no contestó.</textarea>
+                                <textarea name="detalle" id="detalle" class="w-full h-40 p-3 rounded-lg border border-gray-300 bg-white resize-none focus:outline-none focus:ring-2 focus:ring-red-500" readonly>Ya no viene porque es muy pobre y no le alcanza para pagar. Se llamó al alumno y no contestó.</textarea>
                             </div>
                             
-                            <button type="submit" name="guardarSeguimiento" class="w-full bg-itca-red hover:bg-itca-dark-red text-white px-4 py-3 rounded-lg font-medium transition-colors shadow-md">
-                                Guardar
+                            <button type="submit" name="guardarSeguimiento" class="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-lg font-medium transition-colors shadow-md">
+                                <i class="fas fa-save mr-2"></i>Guardar
                             </button>
                             </form>
                         </div>
@@ -339,8 +336,8 @@ if(isset($_POST['guardarSeguimiento'])){
                         <button onclick="closeCancelModal()" class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors">
                             Cancelar
                         </button>
-                        <button type="submit" name="confirmarRetiro" onclick="closeCancelModal()" class="bg-itca-red hover:bg-itca-dark-red text-white px-6 py-2 rounded-lg font-medium transition-colors shadow-md">
-                            Confirmar
+                        <button type="submit" name="confirmarRetiro" onclick="closeCancelModal()" class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg font-medium transition-colors shadow-md">
+                            <i class="fas fa-check mr-2"></i>Confirmar
                         </button>
                     </div>
                 </form>

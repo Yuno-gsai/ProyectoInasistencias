@@ -12,114 +12,79 @@ $dataAdmin=$_SESSION['administrador'];
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ITCA FEPADE - Sistema Educativo</title>
-    <link rel="icon" type="image/png" href="/LogoITCA_2024_FC_Moodle.png" />
+    <title>Dashboard Administrador - ITCA FEPADE</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'primary-gold': '#D4A147',
-                        'primary-red': '#B85450',
-                        'secondary-gold': '#E6B85C',
-                        'light-gray': '#F5F5F5',
-                        'medium-gray': '#E0E0E0',
-                        'dark-gray': '#666666',
-                        'text-primary': '#2C3E50',
-                        'text-secondary': '#5A6C7D',
-                    },
-                    fontFamily: {
-                        'inter': ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'Oxygen', 'sans-serif'],
-                    },
-                    boxShadow: {
-                        'light': '0 2px 8px rgba(0, 0, 0, 0.08)',
-                        'medium': '0 4px 16px rgba(0, 0, 0, 0.12)',
-                    }
-                }
-            }
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Poppins', sans-serif;
         }
-    </script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+        .menu-item {
+            transition: all 0.3s ease;
+        }
+        .menu-item:hover {
+            transform: translateX(5px);
+        }
+    </style>
 </head>
-<body class="font-inter bg-light-gray text-text-primary min-h-screen">
-    <!-- Header -->
+<body class="bg-gray-100 min-h-screen">
+    <!-- Navbar Admin -->
     <?php include 'menu.php'; ?>
 
     <!-- Main Content -->
-    <main class="flex-1 py-10 px-6">
-        <div class="max-w-6xl mx-auto">
-            <h1 class="text-4xl font-bold text-text-primary mb-12 text-center">Panel de Control</h1>
-            
-            <!-- Dashboard Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
-               <!-- Listado de alumnos -->
+    <main class="flex justify-center bg-gray-100 mt-8 px-4">
+        <div class="bg-white rounded-xl shadow-lg p-6 max-w-2xl w-full">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Panel del Administrador</h2>
+
+            <!-- Menu de opciones -->
+            <div class="space-y-4">
+                <!-- Opción: Listado de alumnos -->
                 <a href="listado_alumnos.php">
-                <div class="dashboard-card bg-white rounded-xl p-12 text-center shadow-light cursor-pointer transition-all duration-300 border border-transparent hover:shadow-medium hover:-translate-y-1 hover:border-medium-gray group relative overflow-hidden">
-                    <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary-gold to-primary-red opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    <div class="w-20 h-20 mx-auto mb-6 flex items-center justify-center bg-light-gray rounded-2xl text-primary-red transition-all duration-300 group-hover:bg-primary-gold group-hover:text-white group-hover:scale-110">
-                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none">
-                            <path d="M12 3L1 9L12 15L21 9V16H23V9L12 3Z" stroke="currentColor" stroke-width="1.5" fill="currentColor"/>
-                            <path d="M5 13.18V17.18C5 19.39 8.13 21 12 21S19 19.39 19 17.18V13.18L12 16L5 13.18Z" stroke="currentColor" stroke-width="1.5" fill="currentColor"/>
-                        </svg>
+                    <div class="menu-item bg-red-50 border-l-4 border-red-600 p-4 rounded-lg cursor-pointer hover:bg-red-100">
+                        <div class="flex items-center">
+                            <div class="bg-red-100 p-3 rounded-full mr-4">
+                                <i class="fas fa-user-graduate text-red-600 text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-gray-800">Listado de alumnos</h3>
+                                <p class="text-sm text-gray-600">Gestionar información de estudiantes</p>
+                            </div>
+                        </div>
                     </div>
-                    <h3 class="text-xl font-semibold text-text-primary mb-3 leading-tight">Listado de alumnos</h3>
-                    <p class="text-text-secondary text-sm leading-relaxed max-w-xs mx-auto">Gestionar información de estudiantes</p>
-                </div>
                 </a>
-                <!-- Listado de seguimiento -->
-                 <a href="listado_segimiento.php">
-                <div class="dashboard-card bg-white rounded-xl p-12 text-center shadow-light cursor-pointer transition-all duration-300 border border-transparent hover:shadow-medium hover:-translate-y-1 hover:border-medium-gray group relative overflow-hidden">
-                    <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary-gold to-primary-red opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    <div class="w-20 h-20 mx-auto mb-6 flex items-center justify-center bg-light-gray rounded-2xl text-primary-red transition-all duration-300 group-hover:bg-primary-gold group-hover:text-white group-hover:scale-110">
-                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none">
-                            <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.5" fill="currentColor" fill-opacity="0.1"/>
-                            <path d="M9 11L12 14L22 4" stroke="currentColor" stroke-width="1.5" fill="none"/>
-                            <path d="M7 13L9 15" stroke="currentColor" stroke-width="1.5" fill="none"/>
-                            <path d="M7 17L9 19" stroke="currentColor" stroke-width="1.5" fill="none"/>
-                        </svg>
+
+                <!-- Opción: Listado de seguimiento -->
+                <a href="listado_segimiento.php">
+                    <div class="menu-item bg-blue-50 border-l-4 border-blue-600 p-4 rounded-lg cursor-pointer hover:bg-blue-100">
+                        <div class="flex items-center">
+                            <div class="bg-blue-100 p-3 rounded-full mr-4">
+                                <i class="fas fa-list-check text-blue-600 text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-gray-800">Listado de seguimiento</h3>
+                                <p class="text-sm text-gray-600">Monitorear progreso académico</p>
+                            </div>
+                        </div>
                     </div>
-                    <h3 class="text-xl font-semibold text-text-primary mb-3 leading-tight">Listado de seguimiento</h3>
-                    <p class="text-text-secondary text-sm leading-relaxed max-w-xs mx-auto">Monitorear progreso académico</p>
-                </div>
                 </a>
-                <!-- Listado seguimiento cancelado -->
+
+                <!-- Opción: Listado seguimiento finalizado -->
                 <a href="listado_finalizado.php">
-                <div class="dashboard-card bg-white rounded-xl p-12 text-center shadow-light cursor-pointer transition-all duration-300 border border-transparent hover:shadow-medium hover:-translate-y-1 hover:border-medium-gray group relative overflow-hidden">
-                    <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary-gold to-primary-red opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                    <div class="w-20 h-20 mx-auto mb-6 flex items-center justify-center bg-light-gray rounded-2xl text-primary-red transition-all duration-300 group-hover:bg-primary-gold group-hover:text-white group-hover:scale-110">
-                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none">
-                            <rect x="3" y="4" width="18" height="16" rx="2" stroke="currentColor" stroke-width="1.5" fill="currentColor" fill-opacity="0.1"/>
-                            <path d="M8 8L16 16M16 8L8 16" stroke="currentColor" stroke-width="1.5"/>
-                            <path d="M3 8H21" stroke="currentColor" stroke-width="1.5"/>
-                        </svg>
+                    <div class="menu-item bg-green-50 border-l-4 border-green-600 p-4 rounded-lg cursor-pointer hover:bg-green-100">
+                        <div class="flex items-center">
+                            <div class="bg-green-100 p-3 rounded-full mr-4">
+                                <i class="fas fa-check-circle text-green-600 text-xl"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-gray-800">Listado seguimiento finalizado</h3>
+                                <p class="text-sm text-gray-600">Revisar seguimientos finalizados</p>
+                            </div>
+                        </div>
                     </div>
-                    <h3 class="text-xl font-semibold text-text-primary mb-3 leading-tight">Listado seguimiento finalizado</h3>
-                    <p class="text-text-secondary text-sm leading-relaxed max-w-xs mx-auto">Revisar seguimientos finalizados</p>
-                </div>
                 </a>
             </div>
         </div>
     </main>
-
-    <script>
-        // Add click handlers for dashboard cards
-        document.addEventListener('DOMContentLoaded', () => {
-            const cards = document.querySelectorAll('.dashboard-card');
-            
-            cards.forEach(card => {
-                card.addEventListener('click', (e) => {
-                    const title = card.querySelector('h3').textContent;
-                    console.log(`Navegando a: ${title}`);
-                    
-                    // Add visual feedback
-                    card.style.transform = 'scale(0.98) translateY(-2px)';
-                    setTimeout(() => {
-                        card.style.transform = '';
-                    }, 150);
-                });
-            });
-        });
-    </script>
 </body>
 </html>
