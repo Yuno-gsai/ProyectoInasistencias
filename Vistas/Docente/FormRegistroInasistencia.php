@@ -14,13 +14,12 @@ $alumno = new Alumno();
 $faltas = new Faltas();
 $detalles = new DetalleModel();
 
-$estudiantes = $alumno->getAll();
+$estudiantes = $alumno->getAlumnos();
 $DetallesDocente = $detalles->getAllByDocenteId($dataDocente['id_docente']);
-// Convertir el array de PHP a JSON para usarlo en JavaScript
+
 
 $estudiantes_json = json_encode($estudiantes);
 $DetallesDocente_json = json_encode($DetallesDocente);
-
 
 
 if(isset($_POST['RegistrarAsistencia'])) {
@@ -77,6 +76,12 @@ if(isset($_POST['RegistrarAsistencia'])) {
         'tiene_justificacion' => (!empty($_POST['justificacion_texto']) || $justificacion_imagen) ? 1 : 0
     ];
     if($faltas->create($data)){
+        if($alumno->getExtrasById($data['idalumno'])){
+
+        }else{
+            try { $alumno->makerelation($data['idalumno']); } catch (Exception $e) { /* ignore relation errors */ }
+
+        }
         echo "<script>
             // Esperar a que el DOM esté completamente cargado
             document.addEventListener('DOMContentLoaded', function() {
@@ -198,10 +203,12 @@ if(isset($_POST['RegistrarAsistencia'])) {
 <nav class="bg-white shadow-sm">
     <div class="container mx-auto px-4 py-2 flex justify-between items-center">
         <!-- Logo e Identidad -->
-        <div class="flex items-center space-x-2">
+        <a href="DashboardDocente.php">
+            <div class="flex items-center space-x-2">
             <img src="../Publico/Imagenes/ItcaLogo.png" alt="Logo ITCA FEPADE" class="h-8">
             <p class="text-sm font-semibold text-gray-700">Registro de Inasistencias</p>
         </div>
+        </a>
         <!-- Usuario y Botón -->
         <div class="flex items-center space-x-3">
             <span class="text-sm text-gray-700 font-medium" id="userName"><?php echo $dataDocente['nom_usuario'] . ' ' . $dataDocente['ape_usuario']; ?></span>
@@ -550,17 +557,17 @@ if(isset($_POST['RegistrarAsistencia'])) {
             return; // Salir si algún select no tiene valor
         }
         
-        const ciclo = cicloSelect.options[cicloSelect.selectedIndex].text;
-        const year = yearSelect.options[yearSelect.selectedIndex].text;
-        const grupo = grupoSelect.options[grupoSelect.selectedIndex].text;
-        const materia = materiaSelect.options[materiaSelect.selectedIndex].text;
+        const cicloVal = cicloSelect.value;
+        const yearVal = yearSelect.value;
+        const grupoId = grupoSelect.value; // id_g
+        const materiaId = materiaSelect.value; // id_m
 
         // Buscar el detalle que coincida con los 4
         const detalle = detallesDocente.find(d =>
-            d.ciclo == ciclo &&
-            d.year == year &&
-            d.grupo == grupo &&
-            d.nombre_materia == materia
+            d.ciclo == cicloVal &&
+            d.year == yearVal &&
+            d.id_g == grupoId &&
+            d.id_m == materiaId
         );
 
         if(detalle) {
@@ -584,7 +591,7 @@ if(isset($_POST['RegistrarAsistencia'])) {
             
             console.log("No se encontró detalle con esa combinación");
                 // Mostrar alerta solo si todos los campos estaban llenos
-                if (ciclo && year && grupo && materia) {
+                if (cicloVal && yearVal && grupoId && materiaId) {
                     const Toast = Swal.mixin({
                         toast: true,
                         position: 'top-end',
@@ -703,7 +710,7 @@ if(isset($_POST['RegistrarAsistencia'])) {
                     gruposVistos.add(grupoKey);
                     gruposUnicos.push({
                         value: item.id_g,
-                        text: item.grupo
+                        text: item.grupo + ' - ' + item.tipo
                     });
                 }
             });

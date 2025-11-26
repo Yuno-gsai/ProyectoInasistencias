@@ -252,3 +252,63 @@ INSERT INTO seguimiento (id_inasistencia, fecha, accion, respuesta) VALUES
 (3, '2025-02-14 09:30:00', 'Reunión con padres', 'Compromiso de mejorar asistencia'),
 (4, '2025-02-15 14:00:00', 'Visita domiciliaria', 'No se encontró al alumno'),
 (5, '2025-02-16 16:45:00', 'Mensaje por WhatsApp', 'Alumno respondió justificando con incapacidad');
+
+
+
+
+
+
+
+CREATE TABLE IF NOT EXISTS ina_alumnos_extra (
+    id_extra INT AUTO_INCREMENT PRIMARY KEY,
+    idalumno INT NOT NULL,
+    direccion VARCHAR(255),
+    fecha_nacimiento DATE,
+    contacto_emergencia VARCHAR(100),
+    telefono_emergencia VARCHAR(9),
+    observaciones TEXT,
+    estado VARCHAR(15) DEFAULT 'Activo',
+    motivo VARCHAR(255),
+    fecha_estado DATE,
+    CONSTRAINT fk_extra_alumno FOREIGN KEY (idalumno) REFERENCES alumno(idalumno)
+        ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+-- =====================================
+-- Tabla inasistencia
+-- =====================================
+CREATE TABLE IF NOT EXISTS inasistencia (
+    id_inasistencia INT AUTO_INCREMENT PRIMARY KEY,
+    idalumno INT NOT NULL,
+    id_docente INT(11) UNSIGNED NOT NULL,
+    id_detalle INT NOT NULL,
+    fecha_falta DATE NOT NULL,
+    fecha DATETIME DEFAULT CURRENT_TIMESTAMP,
+    cantidadHoras INT,
+    observacion TEXT,
+    justificando TINYINT(1) DEFAULT 0,
+    justificaion VARCHAR(255),
+    justificacion_texto TEXT,
+    justificacion_imagen VARCHAR(255),
+    tiene_justificacion TINYINT(1) DEFAULT 0,
+    estado VARCHAR(15) DEFAULT 'Creada',
+    CONSTRAINT fk_inas_alumno FOREIGN KEY (idalumno) REFERENCES alumno(idalumno) 
+        ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fk_inas_docente FOREIGN KEY (id_docente) REFERENCES docente(id_docente) 
+        ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fk_inas_detalle FOREIGN KEY (id_detalle) REFERENCES detalle(id_detalle) 
+        ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+
+-- =====================================
+-- Tabla seguimiento (acciones sobre inasistencias)
+-- =====================================
+CREATE TABLE IF NOT EXISTS seguimiento (
+    id_seguimiento INT AUTO_INCREMENT PRIMARY KEY,
+    id_inasistencia INT NOT NULL,
+    fecha DATETIME DEFAULT CURRENT_TIMESTAMP,
+    accion VARCHAR(255),
+    respuesta TEXT,
+    CONSTRAINT fk_seg_inas FOREIGN KEY (id_inasistencia) REFERENCES inasistencia(id_inasistencia)
+        ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;

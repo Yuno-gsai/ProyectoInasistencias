@@ -10,6 +10,8 @@ $alumnos = (new Faltas())->getAllAlumnos($dataAdmin['ciclo'], $dataAdmin['anio']
 
 $estudiantes = json_encode($alumnos);
 
+
+
 ?>
 
 <!DOCTYPE html>

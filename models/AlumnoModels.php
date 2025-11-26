@@ -4,8 +4,55 @@ require_once "BaseModel.php";
 class Alumno extends BaseModel {
     public function __construct() {
         parent::__construct();
-        $this->table = "alumnos";
+        $this->table = "alumno";
     }
+
+    public function getAlumnos (){
+        $query = "SELECT
+            idalumno,
+            carnet,
+            nombre,
+            apellido,
+            telefono,
+            sexo,
+            foto,
+            email,
+            estadoAlumno,
+            beca,
+            tipobeca FROM alumno;";
+        $stmt = $this->getConnection()->prepare($query);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function makerelation($idalumno) {
+        $query = "INSERT INTO ina_alumnos_extra (idalumno) VALUES (:idalumno)";
+        $stmt = $this->getConnection()->prepare($query);
+        $stmt->execute([':idalumno' => $idalumno]);
+    }
+
+
+public function getExtrasById($idalumno) {
+    $query = "SELECT 
+                    ae.id_extra,
+                    ae.idalumno,
+                    ae.direccion,
+                    ae.fecha_nacimiento,
+                    ae.contacto_emergencia,
+                    ae.telefono_emergencia,
+                    ae.observaciones,
+                    ae.estado,
+                    ae.motivo,
+                    ae.fecha_estado
+                FROM ina_alumnos_extra ae
+                WHERE ae.idalumno = :idalumno";
+    $stmt = $this->getConnection()->prepare($query);
+    $stmt->execute([':idalumno' => $idalumno]);
+    
+    // Retorna un solo registro (porque un alumno solo tiene un registro extra)
+    return $stmt->fetch(PDO::FETCH_ASSOC);
+}
+
 
     public function getAll() {
         $query = "SELECT                             
@@ -28,7 +75,7 @@ class Alumno extends BaseModel {
                     ae.telefono_emergencia,
                     ae.observaciones
                 FROM alumno a
-                INNER JOIN alumnos_extra ae 
+                INNER JOIN ina_alumnos_extra ae 
                     ON a.idalumno = ae.idalumno
                 WHERE a.estadoAlumno = 1";
 
@@ -59,7 +106,7 @@ class Alumno extends BaseModel {
                     ae.ciclo_academico,
                     ae.anio
                 FROM alumno a
-                INNER JOIN alumnos_extra ae 
+                INNER JOIN ina_alumnos_extra ae 
                     ON a.idalumno = ae.idalumno
                 WHERE a.idalumno = :idalumno";
 
@@ -91,7 +138,7 @@ class Alumno extends BaseModel {
                     ae.ciclo_academico,
                     ae.anio
                 FROM alumno a
-                INNER JOIN alumnos_extra ae 
+                INNER JOIN ina_alumnos_extra ae 
                     ON a.idalumno = ae.fk_alumno
                 WHERE a.email = :email";
 
@@ -102,14 +149,14 @@ class Alumno extends BaseModel {
     }
 
     public function agregarFalta($carnet, $fecha, $motivo, $observacion) {
-        $query = "INSERT INTO inasistencia (fk_carnetalum, fecha_auto, fechafalta, cantidadHoras, materia) VALUES (:carnet, :fecha, :fecha, :motivo, :observacion)";
+        $query = "INSERT INTO ina_inasistencia (fk_carnetalum, fecha_auto, fechafalta, cantidadHoras, materia) VALUES (:carnet, :fecha, :fecha, :motivo, :observacion)";
         $stmt = $this->getConnection()->prepare($query);
         $stmt->execute(['carnet' => $carnet, 'fecha' => $fecha, 'motivo' => $motivo, 'observacion' => $observacion]);
         return true;
     }
 
     public function cambiarEstado($estado, $alumnoID){
-        $query = "UPDATE alumnos_extra SET estado = :estado WHERE idalumno = :idalumno";
+        $query = "UPDATE  ina_alumnos_extra SET estado = :estado WHERE idalumno = :idalumno";
         $stmt = $this->getConnection()->prepare($query);
         $stmt->execute(['estado' => $estado, 'idalumno' => $alumnoID]);
         return true;

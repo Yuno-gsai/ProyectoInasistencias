@@ -16,6 +16,8 @@ if(isset($_POST['confirmarRetiro'])){
     $motivo = $_POST['motivo'];
     $estado = $_POST['estado'];
     (new SeguimientosModel())->FinSeguimieto($estado, $motivo, $idAlumno, date('Y-m-d'));
+    header("Location: " . $_SERVER['REQUEST_URI']); // recarga la misma página
+    exit;
 }
 
 

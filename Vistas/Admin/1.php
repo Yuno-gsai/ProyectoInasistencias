@@ -1,26 +1,52 @@
+<?php
+session_start();
+if(!isset($_SESSION['administrador'])){
+    header("Location: /ProyectoInasistenciasItca/index.php");
+}
+$dataAdmin=$_SESSION['administrador'];
+
+require_once "../../models/SeguimientosModel.php";
+$estudiantes = (new SeguimientosModel())->getAllEstudiantes($dataAdmin['ciclo'], $dataAdmin['anio']);
+var_dump($estudiantes);
+
+
+
+date_default_timezone_set('America/El_Salvador');
+
+if(isset($_POST['confirmarRetiro'])){
+    $idAlumno = $_POST['studentId'];
+    $motivo = $_POST['motivo'];
+    $estado = $_POST['estado'];
+    (new SeguimientosModel())->FinSeguimieto($estado, $motivo, $idAlumno, date('Y-m-d'));
+}
+
+
+
+if(isset($_POST['guardarSeguimiento'])){
+    $data = [
+        'id_inasistencia' => $_POST['faltaid'],
+        'accion' => $_POST['tipo_accion'],
+        'respuesta' => $_POST['detalle']
+    ];
+    (new SeguimientosModel())->Create($data);
+}
+?>
+
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ITCA FEPADE - Listado de Seguimiento</title>
+    <title>Listado de Seguimiento - ITCA FEPADE</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'itca-red': '#8B1538',
-                        'itca-dark-red': '#6A1029',
-                        'itca-light-red': '#A91B47',
-                        'itca-gray': '#4A5568',
-                        'itca-light-gray': '#F7FAFC'
-                    }
-                }
-            }
-        }
-    </script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        
         .modal-backdrop {
             backdrop-filter: blur(4px);
         }
@@ -69,7 +95,7 @@
             left: 0;
             width: 60px;
             height: 3px;
-            background-color: #8B1538;
+            background-color: #DC2626;
             border-radius: 2px;
         }
         .info-card {
@@ -77,7 +103,7 @@
             border-radius: 8px;
             padding: 16px;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            border-left: 4px solid #8B1538;
+            border-left: 4px solid #DC2626;
         }
         .status-badge {
             display: inline-block;
@@ -104,35 +130,9 @@
         }
     </style>
 </head>
-<body class="bg-gray-100">
+<body class="bg-gray-100 min-h-screen">
     <!-- Header -->
-    <header class="bg-white shadow-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <div class="flex items-center space-x-8">
-                    <div class="flex items-center">
-                        <div class="h-10 w-10 bg-itca-red rounded-lg flex items-center justify-center text-white font-bold text-lg">IT</div>
-                        <span class="ml-2 text-xl font-bold text-gray-800">ITCA FEPADE</span>
-                    </div>
-                    <nav class="hidden md:flex space-x-8">
-                        <a href="#" class="text-gray-700 hover:text-itca-red px-3 py-2 text-sm font-medium">Inicio</a>
-                        <a href="#" class="bg-itca-red text-white px-4 py-2 rounded text-sm font-medium">Seguimiento</a>
-                        <a href="#" class="text-gray-700 hover:text-itca-red px-3 py-2 text-sm font-medium">Reportes</a>
-                    </nav>
-                </div>
-                <div class="flex items-center space-x-4">
-                    <div class="flex items-center space-x-2">
-                        <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
-                            <svg class="w-5 h-5 text-gray-600" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
-                            </svg>
-                        </div>
-                        <span class="text-sm text-gray-700">Administrador</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </header>
+    <?php include "menu.php" ?>
 
     <div class="container mx-auto p-6 max-w-7xl">
         <!-- Título -->
@@ -142,10 +142,16 @@
         </div>
 
         <!-- Barra de búsqueda -->
-        <div class="bg-itca-red p-6 rounded-lg mb-6 shadow-md">
+        <div class="bg-red-50 border-l-4 border-red-600 p-4 rounded-lg mb-6">
+            <div class="flex items-center mb-4">
+                <div class="bg-red-100 p-2 rounded-full mr-3">
+                    <i class="fas fa-filter text-red-600"></i>
+                </div>
+                <h3 class="font-semibold text-gray-800">Filtros de búsqueda</h3>
+            </div>
             <div class="flex flex-wrap items-end gap-4">
                 <div class="flex-1 min-w-48">
-                    <label class="block text-white text-sm font-medium mb-2">Buscar por:</label>
+                    <label class="block text-gray-700 text-sm font-medium mb-2">Buscar por:</label>
                     <select id="searchType" class="w-full px-3 py-2 rounded border-none bg-white focus:outline-none focus:ring-2 focus:ring-white">
                         <option>Seleccione una opción</option>
                         <option>Carnet</option>
@@ -154,12 +160,12 @@
                     </select>
                 </div>
                 <div class="flex-1 min-w-48">
-                    <label class="block text-white text-sm font-medium mb-2">Dato:</label>
-                    <input id="searchTerm" type="text" class="w-full px-3 py-2 rounded border-none bg-white focus:outline-none focus:ring-2 focus:ring-white" placeholder="Ingrese término de búsqueda">
+                    <label class="block text-gray-700 text-sm font-medium mb-2">Dato:</label>
+                    <input id="searchTerm" type="text" class="w-full px-3 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Ingrese término de búsqueda">
                 </div>
                 <div>
-                    <button onclick="buscarEstudiantes()" class="bg-white text-itca-red px-6 py-2 rounded font-medium hover:bg-gray-100 transition-colors shadow-md">
-                        Buscar
+                    <button onclick="buscarEstudiantes()" class="bg-red-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-red-700 transition-colors shadow-md">
+                        <i class="fas fa-search mr-2"></i>Buscar
                     </button>
                 </div>
             </div>
@@ -180,60 +186,31 @@
                             <th class="px-4 py-3 text-left font-bold text-gray-800">CARNET</th>
                             <th class="px-4 py-3 text-left font-bold text-gray-800">NOMBRE</th>
                             <th class="px-4 py-3 text-left font-bold text-gray-800">APELLIDO</th>
-                            <th class="px-4 py-3 text-left font-bold text-gray-800">TELÉFONO</th>
-                            <th class="px-4 py-3 text-left font-bold text-gray-800">EMAIL</th>
                             <th class="px-4 py-3 text-left font-bold text-gray-800">FALTAS</th>
-                            <th class="px-4 py-3 text-left font-bold text-gray-800">CICLO</th>
-                            <th class="px-4 py-3 text-left font-bold text-gray-800">AÑO</th>
+                            <th class="px-4 py-3 text-left font-bold text-gray-800">SEGUIMIENTOS</th>
+                            <th class="px-4 py-3 text-left font-bold text-gray-800">ULTIMA FECHA DE SEGUIMIENTO</th>
                             <th class="px-4 py-3 text-left font-bold text-gray-800">ACCIÓN</th>
                         </tr>
                     </thead>
                     <tbody id="tablaEstudiantes">
+                        <?php foreach ($estudiantes as $estudiante) { ?>
+                            <?php if ($estudiante['total_seguimientos'] > 0) { ?>
                         <tr class="bg-gray-50 hover:bg-gray-100 transition-colors">
-                            <td class="px-4 py-3">5521</td>
-                            <td class="px-4 py-3 text-blue-600 font-medium">German Jose</td>
-                            <td class="px-4 py-3 text-blue-600 font-medium">Perdomo Moran</td>
-                            <td class="px-4 py-3">77777777</td>
-                            <td class="px-4 py-3 text-blue-600">estudiante.24@itca.edu.sv</td>
-                            <td class="px-4 py-3 text-red-600 font-medium">2 faltas</td>
-                            <td class="px-4 py-3">2</td>
-                            <td class="px-4 py-3">2024</td>
+                            <td class="px-4 py-3"><?php echo $estudiante['carnet'];?></td>
+                            <td class="px-4 py-3 text-blue-600 font-medium"><?php echo $estudiante['nombre'];?></td>
+                            <td class="px-4 py-3 text-blue-600 font-medium"><?php echo $estudiante['apellido'];?></td>
+                            <td class="px-4 py-3 text-red-600 font-medium"><?php echo $estudiante['total_faltas'];?></td>
+                            <td class="px-4 py-3 text-red-600 font-medium"><?php echo $estudiante['total_seguimientos'];?></td>
+                            <td class="px-4 py-3 text-red-600 font-medium"><?php echo $estudiante['ultima_fecha_seguimiento'];?></td>
                             <td class="px-4 py-3">
-                                <button onclick="openDetailsModal('5521')" class="bg-itca-red hover:bg-itca-dark-red text-white px-3 py-1 rounded text-sm transition-colors shadow-sm">
-                                    Ver detalles
+                                <button onclick="openDetailsModal('<?php echo $estudiante['idalumno'];?>')" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-lg text-sm transition-colors shadow-md">
+                                    <i class="fas fa-eye mr-1"></i>Ver detalles
                                 </button>
                             </td>
                         </tr>
-                        <tr class="bg-white hover:bg-gray-100 transition-colors">
-                            <td class="px-4 py-3">5522</td>
-                            <td class="px-4 py-3 text-blue-600 font-medium">Maria Elena</td>
-                            <td class="px-4 py-3 text-blue-600 font-medium">Rodriguez Lopez</td>
-                            <td class="px-4 py-3">88888888</td>
-                            <td class="px-4 py-3 text-blue-600">estudiante.25@itca.edu.sv</td>
-                            <td class="px-4 py-3 text-orange-500 font-medium">1 falta</td>
-                            <td class="px-4 py-3">1</td>
-                            <td class="px-4 py-3">2024</td>
-                            <td class="px-4 py-3">
-                                <button onclick="openDetailsModal('5522')" class="bg-itca-red hover:bg-itca-dark-red text-white px-3 py-1 rounded text-sm transition-colors shadow-sm">
-                                    Ver detalles
-                                </button>
-                            </td>
-                        </tr>
-                        <tr class="bg-gray-50 hover:bg-gray-100 transition-colors">
-                            <td class="px-4 py-3">5523</td>
-                            <td class="px-4 py-3 text-blue-600 font-medium">Carlos Alberto</td>
-                            <td class="px-4 py-3 text-blue-600 font-medium">Hernandez Silva</td>
-                            <td class="px-4 py-3">99999999</td>
-                            <td class="px-4 py-3 text-blue-600">estudiante.26@itca.edu.sv</td>
-                            <td class="px-4 py-3 text-red-600 font-medium">3 faltas</td>
-                            <td class="px-4 py-3">3</td>
-                            <td class="px-4 py-3">2024</td>
-                            <td class="px-4 py-3">
-                                <button onclick="openDetailsModal('5523')" class="bg-itca-red hover:bg-itca-dark-red text-white px-3 py-1 rounded text-sm transition-colors shadow-sm">
-                                    Ver detalles
-                                </button>
-                            </td>
-                        </tr>
+                        <?php } ?>
+                        <?php } ?>
+                           
                     </tbody>
                 </table>
             </div>
@@ -249,8 +226,8 @@
                 <div class="flex flex-col lg:flex-row gap-8">
                     <!-- Foto y Carnet -->
                     <div class="lg:w-1/4 flex flex-col items-center">
-                        <div class="student-photo border-4 border-gray-800 w-full h-64 rounded-lg flex items-center justify-center mb-6 shadow-lg">
-                            <div class="text-7xl text-gray-600">👤</div>
+                        <div class="student-photo border-4 border-gray-800 w-full h-64 rounded-lg flex items-center justify-center mb-6 shadow-lg overflow-hidden bg-gray-200">
+                            <img id="studentPhoto" src="" alt="Foto del alumno" class="w-full h-full object-cover">
                         </div>
                         <div class="text-center mb-6 w-full">
                             <h3 class="text-xl font-bold text-gray-700 mb-2">Carnet</h3>
@@ -259,11 +236,11 @@
                             </div>
                         </div>
                         <div class="space-y-3 w-full">
-                            <button onclick="openCancelModal()" class="w-full bg-itca-red hover:bg-itca-dark-red text-white px-4 py-3 rounded-lg font-medium transition-colors shadow-md">
-                                Cancelar Seguimiento
+                            <button onclick="openCancelModal()" class="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-3 rounded-lg font-medium transition-colors shadow-md">
+                                <i class="fas fa-times-circle mr-2"></i>Cancelar Seguimiento
                             </button>
-                            <button onclick="openHistoryModal()" class="w-full bg-itca-red hover:bg-itca-dark-red text-white px-4 py-3 rounded-lg font-medium transition-colors shadow-md">
-                                Historial de Seguimiento
+                            <button onclick="openHistoryModal(estudianteActual.idalumno)" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg font-medium transition-colors shadow-md">
+                                <i class="fas fa-history mr-2"></i>Historial de Seguimiento
                             </button>
                         </div>
                     </div>
@@ -307,18 +284,25 @@
                     <div class="lg:w-1/4">
                         <div class="bg-gray-100 p-6 rounded-lg h-full">
                             <h3 class="text-xl font-bold text-gray-800 mb-4 section-title">Tipo De Acción</h3>
+                            <form method="post">
                             <div class="mb-6">
-                                <input type="text" class="w-full p-3 rounded-lg border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-itca-red" value="Llamada telefónica" readonly>
+                                <select name="tipo_accion" id="tipo_accion">
+                                    <option value="llamada">Llamada</option>
+                                    <option value="correo">Correo</option>
+                                    <option value="visita">Visita</option>
+                                </select>
                             </div>
-                            
+                            <input type="hidden" id="faltaid" name="faltaid">
+
                             <h3 class="text-xl font-bold text-gray-800 mb-4 section-title">Detalles</h3>
                             <div class="mb-6">
-                                <textarea class="w-full h-40 p-3 rounded-lg border border-gray-300 bg-white resize-none focus:outline-none focus:ring-2 focus:ring-itca-red" readonly>Ya no viene porque es muy pobre y no le alcanza para pagar. Se llamó al alumno y no contestó.</textarea>
+                                <textarea name="detalle" id="detalle" class="w-full h-40 p-3 rounded-lg border border-gray-300 bg-white resize-none focus:outline-none focus:ring-2 focus:ring-red-500"></textarea>
                             </div>
                             
-                            <button onclick="closeDetailsModal()" class="w-full bg-itca-red hover:bg-itca-dark-red text-white px-4 py-3 rounded-lg font-medium transition-colors shadow-md">
-                                Guardar
+                            <button type="submit" name="guardarSeguimiento" class="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-lg font-medium transition-colors shadow-md">
+                                <i class="fas fa-save mr-2"></i>Guardar
                             </button>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -334,34 +318,85 @@
                 <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Cancelar Seguimiento</h2>
                 
                 <div class="space-y-6">
+                    <form method="post">
                     <div>
                         <h3 class="text-lg font-semibold text-gray-700 mb-3">Estado Final</h3>
-                        <select class="w-full p-3 rounded-lg border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-itca-red">
+                        <select name="estado" class="w-full p-3 rounded-lg border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-itca-red">
                             <option>Seleccione una opción</option>
                             <option>Retirado</option>
                             <option>Suspendido</option>
                             <option>Transferido</option>
                         </select>
                     </div>
-                    
+                    <input type="hidden" id="studentId" name="studentId">
                     <div>
                         <h3 class="text-lg font-semibold text-gray-700 mb-3">Motivo de Retiro</h3>
-                        <textarea class="w-full h-32 p-3 rounded-lg border border-gray-300 bg-white resize-none focus:outline-none focus:ring-2 focus:ring-itca-red">Ya no viene porque es muy pobre y no le alcanza para pagar. Se llamó al alumno y no contestó.</textarea>
+                        <textarea name="motivo" class="w-full h-32 p-3 rounded-lg border border-gray-300 bg-white resize-none focus:outline-none focus:ring-2 focus:ring-itca-red">Ya no viene porque es muy pobre y no le alcanza para pagar. Se llamó al alumno y no contestó.</textarea>
                     </div>
                     
                     <div class="flex justify-end space-x-4 pt-4">
                         <button onclick="closeCancelModal()" class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors">
                             Cancelar
                         </button>
-                        <button onclick="closeCancelModal()" class="bg-itca-red hover:bg-itca-dark-red text-white px-6 py-2 rounded-lg font-medium transition-colors shadow-md">
-                            Confirmar
+                        <button type="submit" name="confirmarRetiro" onclick="closeCancelModal()" class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg font-medium transition-colors shadow-md">
+                            <i class="fas fa-check mr-2"></i>Confirmar
                         </button>
                     </div>
-                </div>
+                </form>
             </div>
         </div>
     </div>
+</div>
     
-   <?php include "modal_historial.php" ?>
+    <?php include "modal_historial.php" ?>
+
+    <script>
+        // Datos de estudiantes desde PHP para usar en el modal
+        const estudiantes = <?php echo json_encode($estudiantes, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); ?>;
+
+        let estudianteActual = null;
+
+        function openDetailsModal(idAlumno) {
+            if (!Array.isArray(estudiantes)) return;
+
+            const est = estudiantes.find(e => e.idalumno == idAlumno);
+            if (!est) return;
+
+            estudianteActual = est;
+
+            // Foto de perfil: misma lógica que en modal_detalles_alumno.php
+            const img = document.getElementById('studentPhoto');
+            const foto = est.foto ?? '';
+
+            console.log('Foto del estudiante', est.idalumno, foto);
+
+                img.src ='http://192.168.128.190/hsn/foto/070624.jpg'      
+
+            // Datos básicos en el modal
+            const carnetEl = document.getElementById('studentCarnet');
+            const nombreEl = document.getElementById('studentName');
+            const apellidoEl = document.getElementById('studentLastName');
+            const telefonoEl = document.getElementById('studentPhone');
+            const emailPersonalEl = document.getElementById('studentPersonalEmail');
+            const emailInstEl = document.getElementById('studentEmail');
+
+            if (carnetEl) carnetEl.textContent = est.carnet || '';
+            if (nombreEl) nombreEl.textContent = est.nombre || '';
+            if (apellidoEl) apellidoEl.textContent = est.apellido || '';
+            if (telefonoEl) telefonoEl.textContent = est.telefono || '';
+            if (emailPersonalEl) emailPersonalEl.textContent = est.email || '';
+            if (emailInstEl) emailInstEl.textContent = est.email || '';
+
+            // Mostrar modal
+            const modal = document.getElementById('detailsModal');
+            if (modal) modal.classList.remove('hidden');
+        }
+
+        function closeDetailsModal() {
+            const modal = document.getElementById('detailsModal');
+            if (modal) modal.classList.add('hidden');
+        }
+    </script>
+
 </body>
 </html>

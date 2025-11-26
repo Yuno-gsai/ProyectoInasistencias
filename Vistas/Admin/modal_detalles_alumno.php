@@ -14,8 +14,10 @@ $estudiantes = json_encode($alumnos);
 
 if(isset($_POST['inicarSeguimiento'])){
     $alumno = (new Alumno())->cambiarEstado("Seguimiento", $_POST['alumnoID']);
-    
+    header("Location: " . $_SERVER['REQUEST_URI']); // recarga la misma página
+    exit;
 }
+
 ?>
  
 <!-- Modal de detalles del estudiante - MEJORADO -->
@@ -249,7 +251,7 @@ if(isset($_POST['inicarSeguimiento'])){
             document.getElementById('becaDisplay').textContent = estudiante.beca==1?"Sí":"No";
             document.getElementById('tipoBecaDisplay').textContent = estudiante.tipobeca;
             document.getElementById('telefonoDisplay').textContent = estudiante.telefono;
-            document.getElementById('FotoEstudianteDisplay').src = estudiante.foto == "" ? "/ProyectoInasistenciasItca/Vistas/Publico/Imagenes/12225881.png" : estudiante.foto;
+            document.getElementById('FotoEstudianteDisplay').src = (estudiante.foto ?? '') ? (/^https?:\/\//.test(estudiante.foto) ? estudiante.foto : 'http://192.168.128.190/hsn/' + estudiante.foto) : '';
             document.getElementById('cicloDisplay').textContent = estudiante.ciclo;
             document.getElementById('faltasDisplay').textContent = estudiante.total_faltas;
             document.getElementById('contactoEmergenciaDisplay').textContent = estudiante.telefono_emergencia;
@@ -427,7 +429,7 @@ if(isset($_POST['inicarSeguimiento'])){
             fila.className = index % 2 === 0 ? 'bg-white' : 'bg-gray-50';
             
             const imagenJustificacion = falta.justificacion_imagen 
-                ? `<a href="${falta.justificacion_imagen}" target="_blank" class="text-blue-600 hover:text-blue-800">
+                ? `<a href=/upload/justificaciones/${falta.justificacion_imagen}" target="_blank" class="text-blue-600 hover:text-blue-800">
                     <i class="fas fa-image mr-1"></i>Ver imagen
                    </a>` 
                 : '<span class="text-gray-400">Sin imagen</span>';

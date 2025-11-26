@@ -24,7 +24,7 @@ class Docente extends BaseModel {
             WHERE carnet = :carnet AND clave = :password";
     
         $stmt = $this->getConnection()->prepare($query);
-        $stmt->execute(['carnet' => $carnet, 'password' => $password]);
+        $stmt->execute(['carnet' => $carnet, 'password' => $this->encriptar('encriptar',$password)]);
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
         
         return $result ?: false; 

@@ -7,10 +7,12 @@ var_dump($dataDocente);
 <nav class="bg-white shadow-sm">
     <div class="container mx-auto px-4 py-2 flex justify-between items-center">
         <!-- Logo e Identidad -->
-        <div class="flex items-center space-x-2">
+        <a href="">
+            <div class="flex items-center space-x-2">
             <img src="../Publico/Imagenes/ItcaLogo.png" alt="Logo ITCA FEPADE" class="h-8">
             <p class="text-sm font-semibold text-gray-700">Registro de Inasistencias</p>
         </div>
+        </a>
         <!-- Usuario y Botón -->
         <div class="flex items-center space-x-3">
             <span class="text-sm text-gray-700 font-medium" id="userName"><?php echo $dataDocente['nom_usuario'] ?></span>

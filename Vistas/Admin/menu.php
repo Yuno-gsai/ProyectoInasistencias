@@ -1,8 +1,10 @@
 <?php
+ob_start();
 if(!isset($_SESSION['administrador'])){
     header("Location: /ProyectoInasistenciasItca/index.php");
+    exit;
 }
-$dataAdmin=$_SESSION['administrador'];
+$dataAdmin = $_SESSION['administrador'];
 ?>
 
 <nav class="bg-white shadow-sm">

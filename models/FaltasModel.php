@@ -4,11 +4,11 @@ require_once "BaseModel.php";
 class Faltas extends BaseModel {
     public function __construct() {
         parent::__construct();
-        $this->table = "inasistencia";
+        $this->table = "ina_inasistencia";
     }
 
     public function getAll() {
-        $query = "SELECT * FROM inasistencia WHERE estado = 'Creada'";
+        $query = "SELECT * FROM ina_inasistencia WHERE estado = 'Creada'";
         $stmt = $this->getConnection()->prepare($query);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -43,9 +43,9 @@ class Faltas extends BaseModel {
                     -- Todo de grupo
                     g.*
                 FROM alumno a
-                INNER JOIN alumnos_extra ae 
+                INNER JOIN ina_alumnos_extra ae 
                     ON a.idalumno = ae.idalumno
-                INNER JOIN inasistencia i 
+                INNER JOIN ina_inasistencia i 
                     ON a.idalumno = i.idalumno
                 INNER JOIN detalle d 
                     ON i.id_detalle = d.id_detalle
@@ -60,7 +60,7 @@ class Faltas extends BaseModel {
     }
 
     public function create($data) {
-        $query = "INSERT INTO inasistencia (idalumno, id_docente, id_detalle, fecha_falta, cantidadHoras, observacion, justificacion_texto, justificacion_imagen, tiene_justificacion) 
+        $query = "INSERT INTO ina_inasistencia (idalumno, id_docente, id_detalle, fecha_falta, cantidadHoras, observacion, justificacion_texto, justificacion_imagen, tiene_justificacion) 
                   VALUES (:idalumno, :id_docente, :id_detalle, :fecha_falta, :cantidadHoras, :observacion, :justificacion_texto, :justificacion_imagen, :tiene_justificacion)";
         $stmt = $this->getConnection()->prepare($query);
         $stmt->execute([
@@ -106,9 +106,9 @@ class Faltas extends BaseModel {
                     -- Todo de grupo
                     g.*
                 FROM alumno a
-                INNER JOIN alumnos_extra ae 
+                INNER JOIN ina_alumnos_extra ae 
                     ON a.idalumno = ae.idalumno
-                INNER JOIN inasistencia i 
+                INNER JOIN ina_inasistencia i 
                     ON a.idalumno = i.idalumno
                 INNER JOIN detalle d 
                     ON i.id_detalle = d.id_detalle
@@ -124,7 +124,7 @@ class Faltas extends BaseModel {
 
 
     public function update($data) {
-        $query = "UPDATE inasistencia SET 
+        $query = "UPDATE ina_inasistencia SET 
                   idalumno = :idalumno, 
                   id_docente = :id_docente, 
                   id_detalle = :id_detalle, 
@@ -153,7 +153,7 @@ class Faltas extends BaseModel {
 
 
     public function cambiarEstado($id,$estado) {
-        $query = "UPDATE inasistencia SET estado = :estado WHERE id_inasistencia = :id_inasistencia";
+        $query = "UPDATE ina_inasistencia SET estado = :estado WHERE id_inasistencia = :id_inasistencia";
         $stmt = $this->getConnection()->prepare($query);
         $stmt->execute(['id_inasistencia' => $id,'estado'=>$estado]);
         return true;
@@ -183,8 +183,8 @@ public function getAllAlumnos($ciclo, $anio) {
                 d.year,
                 COUNT(i.id_inasistencia) AS total_faltas
             FROM alumno a
-            INNER JOIN alumnos_extra ae ON a.idalumno = ae.idalumno
-            LEFT JOIN inasistencia i ON a.idalumno = i.idalumno
+            INNER JOIN ina_alumnos_extra ae ON a.idalumno = ae.idalumno
+            LEFT JOIN ina_inasistencia i ON a.idalumno = i.idalumno
             LEFT JOIN detalle d ON i.id_detalle = d.id_detalle
             WHERE d.ciclo = :ciclo AND d.year = :anio
               AND ae.estado = 'Activo'
@@ -219,11 +219,11 @@ public function getAllAlumnos($ciclo, $anio) {
                         m.materia,
                         doc.nom_usuario AS nombre_docente,
                         doc.ape_usuario AS apellido_docente
-                    FROM inasistencia i
+                    FROM ina_inasistencia i
                     INNER JOIN detalle d ON i.id_detalle = d.id_detalle
                     INNER JOIN materia m ON d.id_m = m.id_materia
                     INNER JOIN docente doc ON i.id_docente = doc.id_docente
-                    INNER JOIN alumnos_extra ae ON i.idalumno = ae.idalumno
+                    INNER JOIN ina_alumnos_extra ae ON i.idalumno = ae.idalumno
                     WHERE d.ciclo = :ciclo AND d.year = :anio
                       AND ae.estado = 'Activo'
                     ORDER BY i.idalumno, i.fecha_falta ASC";
@@ -275,8 +275,8 @@ public function getAllAlumnos($ciclo, $anio) {
                         )
                     ) AS faltas
                 FROM alumno a
-                INNER JOIN alumnos_extra ae ON a.idalumno = ae.idalumno
-                INNER JOIN inasistencia i ON a.idalumno = i.idalumno
+                INNER JOIN ina_alumnos_extra ae ON a.idalumno = ae.idalumno
+                INNER JOIN ina_inasistencia i ON a.idalumno = i.idalumno
                 INNER JOIN detalle d ON i.id_detalle = d.id_detalle
                 INNER JOIN materia m ON d.id_m = m.id_materia
                 INNER JOIN grupo g ON d.id_g = g.id_grupo

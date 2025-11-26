@@ -4,7 +4,7 @@ require_once 'BaseModel.php';
 class SeguimientosModel extends BaseModel{
     public function __construct(){
         parent::__construct();
-        $this->table = "seguimiento";
+        $this->table = "ina_seguimiento";
     }
 
     public function getAllByEstudianteId($id_estudiante){
@@ -56,14 +56,15 @@ public function getAllEstudiantes($ciclo, $anio) {
                 a.beca,
                 a.tipobeca,
                 a.telefono,
+                a.foto,
                 COUNT(DISTINCT CASE WHEN d.ciclo = :ciclo AND d.year = :anio THEN i.id_inasistencia END) AS total_faltas,
                 COUNT(s.id_seguimiento) AS total_seguimientos,
                 MAX(s.fecha) AS ultima_fecha_seguimiento
             FROM alumno a
-            INNER JOIN alumnos_extra ae ON ae.idalumno = a.idalumno
-            LEFT JOIN inasistencia i ON a.idalumno = i.idalumno
+            INNER JOIN ina_alumnos_extra ae ON ae.idalumno = a.idalumno
+            LEFT JOIN ina_inasistencia i ON a.idalumno = i.idalumno
             LEFT JOIN detalle d ON i.id_detalle = d.id_detalle
-            LEFT JOIN seguimiento s ON s.id_inasistencia = i.id_inasistencia
+            LEFT JOIN ina_seguimiento s ON s.id_inasistencia = i.id_inasistencia
             WHERE ae.estado = 'Seguimiento'
             GROUP BY a.idalumno, a.carnet, a.nombre, a.apellido
             ORDER BY ultima_fecha_seguimiento DESC";
@@ -78,7 +79,7 @@ public function getAllEstudiantes($ciclo, $anio) {
     foreach ($alumnos as &$alumno) {
         $stmtFaltas = $conn->prepare(
             "SELECT i.id_inasistencia, i.fecha_falta, i.cantidadHoras, i.observacion, i.justificandO, i.justificaion
-             FROM inasistencia i
+             FROM ina_inasistencia i
              INNER JOIN detalle d ON i.id_detalle = d.id_detalle
              WHERE i.idalumno = :idalumno AND d.ciclo = :ciclo AND d.year = :anio
              ORDER BY i.fecha_falta ASC"
@@ -92,8 +93,8 @@ public function getAllEstudiantes($ciclo, $anio) {
         // 3️⃣ Seguimientos, **sin filtrar por ciclo ni año**
         $stmtSeguimientos = $conn->prepare(
             "SELECT s.id_seguimiento, s.fecha, s.accion, s.respuesta
-             FROM seguimiento s
-             INNER JOIN inasistencia i ON s.id_inasistencia = i.id_inasistencia
+             FROM ina_seguimiento s
+             INNER JOIN ina_inasistencia i ON s.id_inasistencia = i.id_inasistencia
              WHERE i.idalumno = :idalumno
              ORDER BY s.fecha ASC"
         );
@@ -109,7 +110,7 @@ public function getAllEstudiantes($ciclo, $anio) {
     
 
     public function FinSeguimieto($estado, $motivo, $idalumno, $fecha_estado){
-        $query = "UPDATE alumnos_extra SET estado = :estado, motivo = :motivo, fecha_estado = :fecha_estado WHERE idalumno = :idalumno;";
+        $query = "UPDATE ina_alumnos_extra SET estado = :estado, motivo = :motivo, fecha_estado = :fecha_estado WHERE idalumno = :idalumno;";
         $stmt = $this->getConnection()->prepare($query);
         $stmt->execute([
             'estado' => $estado,
@@ -142,9 +143,9 @@ public function getAllEstudiantes($ciclo, $anio) {
                 COUNT(DISTINCT s.id_seguimiento) AS total_seguimientos,
                 MAX(s.fecha) AS ultima_fecha_seguimiento
             FROM alumno a
-            INNER JOIN alumnos_extra ae ON ae.idalumno = a.idalumno
-            LEFT JOIN inasistencia i ON a.idalumno = i.idalumno
-            LEFT JOIN seguimiento s ON s.id_inasistencia = i.id_inasistencia
+            INNER JOIN ina_alumnos_extra ae ON ae.idalumno = a.idalumno
+            LEFT JOIN ina_inasistencia i ON a.idalumno = i.idalumno
+            LEFT JOIN ina_seguimiento s ON s.id_inasistencia = i.id_inasistencia
             WHERE ae.estado <> 'Activo' AND ae.estado <> 'Seguimiento'  
             GROUP BY 
                 a.idalumno, a.carnet, a.nombre, a.apellido, a.email,
@@ -172,7 +173,7 @@ public function getAllEstudiantes($ciclo, $anio) {
         // Seguimientos
         $stmtSeguimientos = $conn->prepare(
             "SELECT s.id_seguimiento, s.fecha, s.accion, s.respuesta 
-             FROM seguimiento s
+             FROM ina_seguimiento s
              INNER JOIN inasistencia i ON s.id_inasistencia = i.id_inasistencia
              WHERE i.idalumno = :idalumno
              ORDER BY s.fecha ASC"
